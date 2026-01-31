@@ -3,10 +3,11 @@
 import { motion } from 'framer-motion';
 
 const companies = [
-  { name: 'Baselinker', logo: null },
-  { name: 'APILO', logo: null },
-  { name: 'TradeWatch', logo: null },
-  { name: 'Allegro', logo: null },
+  { name: 'Baselinker', logo: '/images/baselinker.png' },
+  { name: 'APILO', logo: '/images/apilo.webp' },
+  { name: 'SellAssist', logo: '/images/sellassist.jpg' },
+  { name: 'TradeWatch', logo: '/images/tradewatch.jfif' },
+  { name: 'Allegro', logo: '/images/allegro.png' },
 ];
 
 export default function TrustedBy() {
