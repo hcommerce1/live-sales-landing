@@ -6,26 +6,26 @@ const benefits = [
   {
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
       </svg>
     ),
-    text: 'Mniej ręcznej roboty',
+    text: 'Marża z Allegro Ads',
   },
   {
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
       </svg>
     ),
-    text: 'Jeden panel zamiast 5 narzędzi',
+    text: 'Alerty o brakach stocku',
   },
   {
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
       </svg>
     ),
-    text: 'Alerty zamiast zgadywania',
+    text: 'Trendy sprzedaży w real-time',
   },
 ];
 
@@ -49,7 +49,7 @@ export default function Hero() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
               <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
-              Automatyzacja danych w jednym miejscu
+              Analityka dla e-commerce
             </span>
           </motion.div>
 
@@ -60,8 +60,8 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight"
           >
-            Zamień surowe dane w{' '}
-            <span className="text-gradient-brand">decyzje</span>
+            Zobacz gdzie tracisz{' '}
+            <span className="text-gradient-brand">marżę</span>
           </motion.h1>
 
           {/* Subheadline */}
@@ -71,7 +71,8 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto"
           >
-            Dashboardy, alerty i automaty w jednym panelu. Podłącz źródła danych i od razu zobacz, co naprawdę się dzieje.
+            Produkty słabo rotujące, bestsellery bez stocku, nagłe zmiany wolumenu —
+            wiemy gdzie patrzeć, żebyś Ty nie musiał szukać.
           </motion.p>
 
           {/* CTAs */}

@@ -2,31 +2,53 @@
 
 import { motion } from 'framer-motion';
 
-// Mock data for charts
-const salesData = [
-  { month: 'Sty', value: 4200 },
-  { month: 'Lut', value: 3800 },
-  { month: 'Mar', value: 5100 },
-  { month: 'Kwi', value: 4600 },
-  { month: 'Maj', value: 5800 },
-  { month: 'Cze', value: 6200 },
-  { month: 'Lip', value: 7100 },
+// Mock data - problemy do rozwiązania
+const alerts = [
+  { type: 'warning', message: 'Bluza Nike Air - brak stocku, 47 sprzedaży/tydzień', category: 'Braki' },
+  { type: 'danger', message: 'Koszulka Adidas - marża spadła do 3.2% (Ads +340%)', category: 'Marża' },
+  { type: 'info', message: 'Buty New Balance - wzrost sprzedaży +127% w 7 dni', category: 'Trend' },
 ];
 
-const maxValue = Math.max(...salesData.map((d) => d.value));
-
-const kpiCards = [
-  { label: 'Sprzedaż dziś', value: '24 580 zł', change: '+12.5%', positive: true },
-  { label: 'Zamówienia', value: '156', change: '+8.2%', positive: true },
-  { label: 'Średnia wartość', value: '157,56 zł', change: '-2.1%', positive: false },
-  { label: 'Konwersja', value: '3.42%', change: '+0.8%', positive: true },
+// Mock data - produkty z problemami
+const problemProducts = [
+  {
+    name: 'Koszulka Adidas Originals',
+    sku: 'ADI-001',
+    sales: '234 szt',
+    revenue: '23 400 zł',
+    margin: '3.2%',
+    marginStatus: 'danger',
+    issue: 'Allegro Ads zjada marżę',
+    adsCost: '890 zł',
+  },
+  {
+    name: 'Bluza Nike Air Max',
+    sku: 'NIK-042',
+    sales: '47 szt',
+    revenue: '14 100 zł',
+    margin: '18.4%',
+    marginStatus: 'success',
+    issue: 'Brak stocku od 2 dni',
+    adsCost: '120 zł',
+  },
+  {
+    name: 'Spodnie Puma Essential',
+    sku: 'PUM-019',
+    sales: '3 szt',
+    revenue: '450 zł',
+    margin: '12.1%',
+    marginStatus: 'warning',
+    issue: 'Słaba rotacja (89 dni bez zmian)',
+    adsCost: '45 zł',
+  },
 ];
 
-const recentOrders = [
-  { id: '#12847', customer: 'Jan K.', amount: '459,00 zł', status: 'Wysłane', platform: 'Allegro' },
-  { id: '#12846', customer: 'Anna M.', amount: '127,50 zł', status: 'W realizacji', platform: 'Baselinker' },
-  { id: '#12845', customer: 'Piotr W.', amount: '892,00 zł', status: 'Opłacone', platform: 'Allegro' },
-  { id: '#12844', customer: 'Marta S.', amount: '234,00 zł', status: 'Wysłane', platform: 'APILO' },
+// Mock data - kategorie
+const categories = [
+  { name: 'Koszulki', products: 142, margin: '14.2%', trend: 'up', issues: 3 },
+  { name: 'Bluzy', products: 89, margin: '19.8%', trend: 'down', issues: 7 },
+  { name: 'Buty', products: 234, margin: '11.3%', trend: 'up', issues: 2 },
+  { name: 'Akcesoria', products: 67, margin: '24.1%', trend: 'stable', issues: 0 },
 ];
 
 export default function DashboardPreview() {
@@ -50,7 +72,7 @@ export default function DashboardPreview() {
             transition={{ delay: 0.1 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
-            Wszystkie dane w jednym miejscu
+            Widzisz co jest nie tak, nie tylko co się zmieniło
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -59,7 +81,7 @@ export default function DashboardPreview() {
             transition={{ delay: 0.2 }}
             className="mt-4 text-lg text-gray-600"
           >
-            Tak wygląda Twój panel po podłączeniu źródeł danych
+            Kontrola na poziomie produktu, aukcji i kategorii — z kosztami Allegro Ads w marży
           </motion.p>
         </div>
 
@@ -80,7 +102,7 @@ export default function DashboardPreview() {
             </div>
             <div className="flex-1 ml-4">
               <div className="bg-gray-700 rounded-md px-4 py-1.5 text-sm text-gray-300 max-w-md">
-                app.livesales.pl/dashboard
+                app.livesales.pl/problemy
               </div>
             </div>
           </div>
@@ -95,147 +117,148 @@ export default function DashboardPreview() {
                 </div>
                 <span className="font-semibold text-gray-900">LiveSales</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gray-200 rounded-full" />
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-500">Ostatnia aktualizacja:</span>
+                <span className="text-gray-900 font-medium">2 min temu</span>
               </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-              {kpiCards.map((kpi, index) => (
-                <motion.div
-                  key={kpi.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="bg-white rounded-xl p-4 shadow-sm"
-                >
-                  <p className="text-xs text-gray-500 mb-1">{kpi.label}</p>
-                  <p className="text-lg md:text-xl font-bold text-gray-900">{kpi.value}</p>
-                  <p className={`text-xs font-medium ${kpi.positive ? 'text-green-600' : 'text-red-500'}`}>
-                    {kpi.change} vs wczoraj
-                  </p>
-                </motion.div>
-              ))}
-            </div>
+            {/* Alerts bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-xl p-4 mb-6 shadow-sm"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <span className="font-semibold text-gray-900">3 problemy wymagają uwagi</span>
+              </div>
+              <div className="space-y-2">
+                {alerts.map((alert, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-3 text-sm p-2 rounded-lg ${
+                      alert.type === 'danger' ? 'bg-red-50 text-red-700' :
+                      alert.type === 'warning' ? 'bg-yellow-50 text-yellow-700' :
+                      'bg-blue-50 text-blue-700'
+                    }`}
+                  >
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                      alert.type === 'danger' ? 'bg-red-100' :
+                      alert.type === 'warning' ? 'bg-yellow-100' :
+                      'bg-blue-100'
+                    }`}>
+                      {alert.category}
+                    </span>
+                    <span>{alert.message}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-            {/* Charts row */}
-            <div className="grid lg:grid-cols-3 gap-4 mb-6">
-              {/* Main chart */}
+            <div className="grid lg:grid-cols-3 gap-4">
+              {/* Products with problems */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className="lg:col-span-2 bg-white rounded-xl p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-900">Produkty z problemami</h3>
+                  <span className="text-xs text-gray-500">Marża z Allegro Ads</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-500 border-b border-gray-100">
+                        <th className="pb-2 font-medium">Produkt</th>
+                        <th className="pb-2 font-medium">Sprzedaż</th>
+                        <th className="pb-2 font-medium">Ads</th>
+                        <th className="pb-2 font-medium">Marża</th>
+                        <th className="pb-2 font-medium">Problem</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {problemProducts.map((product) => (
+                        <tr key={product.sku} className="border-b border-gray-50 last:border-0">
+                          <td className="py-3">
+                            <div>
+                              <p className="font-medium text-gray-900">{product.name}</p>
+                              <p className="text-xs text-gray-400">{product.sku}</p>
+                            </div>
+                          </td>
+                          <td className="py-3 text-gray-600">{product.sales}</td>
+                          <td className="py-3 text-gray-600">{product.adsCost}</td>
+                          <td className="py-3">
+                            <span className={`font-semibold ${
+                              product.marginStatus === 'danger' ? 'text-red-600' :
+                              product.marginStatus === 'warning' ? 'text-yellow-600' :
+                              'text-green-600'
+                            }`}>
+                              {product.margin}
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              product.marginStatus === 'danger' ? 'bg-red-100 text-red-700' :
+                              product.marginStatus === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}>
+                              {product.issue}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+
+              {/* Categories overview */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.5 }}
-                className="lg:col-span-2 bg-white rounded-xl p-4 shadow-sm"
+                className="bg-white rounded-xl p-4 shadow-sm"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Sprzedaż</h3>
-                  <div className="flex gap-2">
-                    <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">7 dni</span>
-                    <span className="text-xs text-gray-400 px-2 py-1">30 dni</span>
-                  </div>
-                </div>
-                {/* Bar chart */}
-                <div className="flex items-end justify-between gap-2 h-40">
-                  {salesData.map((data, index) => (
-                    <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
-                      <motion.div
-                        initial={{ height: 0 }}
-                        whileInView={{ height: `${(data.value / maxValue) * 100}%` }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.6 + index * 0.05, duration: 0.5 }}
-                        className="w-full bg-gradient-to-t from-primary-600 to-primary-400 rounded-t-md min-h-[8px]"
-                      />
-                      <span className="text-xs text-gray-500">{data.month}</span>
+                <h3 className="font-semibold text-gray-900 mb-4">Kategorie</h3>
+                <div className="space-y-3">
+                  {categories.map((cat) => (
+                    <div key={cat.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                      <div>
+                        <p className="font-medium text-gray-900">{cat.name}</p>
+                        <p className="text-xs text-gray-400">{cat.products} produktów</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-gray-900">{cat.margin}</span>
+                          {cat.trend === 'up' && (
+                            <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                            </svg>
+                          )}
+                          {cat.trend === 'down' && (
+                            <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          )}
+                        </div>
+                        {cat.issues > 0 && (
+                          <p className="text-xs text-red-500">{cat.issues} problemów</p>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </motion.div>
-
-              {/* Pie chart placeholder */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.6 }}
-                className="bg-white rounded-xl p-4 shadow-sm"
-              >
-                <h3 className="font-semibold text-gray-900 mb-4">Źródła sprzedaży</h3>
-                <div className="flex items-center justify-center h-32">
-                  {/* Simple donut chart */}
-                  <div className="relative w-28 h-28">
-                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="#e5e7eb" strokeWidth="4" />
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray="45 100" />
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="#4f46e5" strokeWidth="4" strokeDasharray="30 100" strokeDashoffset="-45" />
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="25 100" strokeDashoffset="-75" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="space-y-2 mt-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-primary-600" />
-                    <span className="text-gray-600">Allegro</span>
-                    <span className="ml-auto font-medium">45%</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-accent-600" />
-                    <span className="text-gray-600">Baselinker</span>
-                    <span className="ml-auto font-medium">30%</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="text-gray-600">APILO</span>
-                    <span className="ml-auto font-medium">25%</span>
-                  </div>
-                </div>
-              </motion.div>
             </div>
-
-            {/* Recent orders table */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.7 }}
-              className="bg-white rounded-xl p-4 shadow-sm overflow-hidden"
-            >
-              <h3 className="font-semibold text-gray-900 mb-4">Ostatnie zamówienia</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-500 border-b border-gray-100">
-                      <th className="pb-2 font-medium">ID</th>
-                      <th className="pb-2 font-medium">Klient</th>
-                      <th className="pb-2 font-medium">Kwota</th>
-                      <th className="pb-2 font-medium">Status</th>
-                      <th className="pb-2 font-medium">Źródło</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order) => (
-                      <tr key={order.id} className="border-b border-gray-50 last:border-0">
-                        <td className="py-2 font-medium text-gray-900">{order.id}</td>
-                        <td className="py-2 text-gray-600">{order.customer}</td>
-                        <td className="py-2 text-gray-900">{order.amount}</td>
-                        <td className="py-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            order.status === 'Wysłane' ? 'bg-green-100 text-green-700' :
-                            order.status === 'Opłacone' ? 'bg-blue-100 text-blue-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="py-2 text-gray-500">{order.platform}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
           </div>
 
           {/* Decorative gradient blur */}
@@ -248,7 +271,7 @@ export default function DashboardPreview() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.6 }}
           className="text-center mt-12"
         >
           <a
