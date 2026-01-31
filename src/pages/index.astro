@@ -2,9 +2,10 @@
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import Hero from '@components/Hero';
+import TrustedBy from '@components/TrustedBy';
 import HowItWorks from '@components/HowItWorks';
+import DashboardPreview from '@components/DashboardPreview';
 import Features from '@components/Features';
-import ForWhom from '@components/ForWhom';
 import Integrations from '@components/Integrations';
 import Security from '@components/Security';
 import Pricing from '@components/Pricing';
@@ -16,9 +17,10 @@ import Footer from '@components/Footer';
   <Navbar client:load />
   <main>
     <Hero client:load />
+    <TrustedBy client:visible />
     <HowItWorks client:visible />
+    <DashboardPreview client:visible />
     <Features client:visible />
-    <ForWhom client:visible />
     <Integrations client:visible />
     <Security client:visible />
     <Pricing client:visible />

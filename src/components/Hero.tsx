@@ -82,10 +82,10 @@ export default function Hero() {
             className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
           >
             <a
-              href="#kontakt"
+              href="https://live-sales-2gwm.onrender.com/register"
               className="bg-gradient-brand text-white px-8 py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary-500/25"
             >
-              Załóż konto
+              Załóż konto za darmo
             </a>
             <a
               href="#jak-to-dziala"

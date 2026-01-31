@@ -43,13 +43,13 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex lg:items-center lg:gap-4">
           <a
-            href="#kontakt"
+            href="https://live-sales-2gwm.onrender.com/login"
             className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
           >
             Zaloguj się
           </a>
           <a
-            href="#kontakt"
+            href="https://live-sales-2gwm.onrender.com/register"
             className="bg-gradient-brand text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             Załóż konto
@@ -120,13 +120,13 @@ export default function Navbar() {
                 </div>
                 <div className="mt-8 pt-8 border-t border-gray-200 space-y-4">
                   <a
-                    href="#kontakt"
+                    href="https://live-sales-2gwm.onrender.com/login"
                     className="block text-center py-3 text-base font-medium text-gray-600 hover:text-primary-600"
                   >
                     Zaloguj się
                   </a>
                   <a
-                    href="#kontakt"
+                    href="https://live-sales-2gwm.onrender.com/register"
                     className="block text-center bg-gradient-brand text-white px-4 py-3 rounded-lg font-semibold"
                   >
                     Załóż konto
