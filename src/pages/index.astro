@@ -1,0 +1,28 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/Navbar';
+import Hero from '@components/Hero';
+import HowItWorks from '@components/HowItWorks';
+import Features from '@components/Features';
+import ForWhom from '@components/ForWhom';
+import Integrations from '@components/Integrations';
+import Security from '@components/Security';
+import Pricing from '@components/Pricing';
+import Contact from '@components/Contact';
+import Footer from '@components/Footer';
+---
+
+<Layout>
+  <Navbar client:load />
+  <main>
+    <Hero client:load />
+    <HowItWorks client:visible />
+    <Features client:visible />
+    <ForWhom client:visible />
+    <Integrations client:visible />
+    <Security client:visible />
+    <Pricing client:visible />
+    <Contact client:load />
+  </main>
+  <Footer />
+</Layout>

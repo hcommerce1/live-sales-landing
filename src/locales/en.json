@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Home",
+    "howItWorks": "How it works",
+    "features": "Features",
+    "forWhom": "For whom",
+    "integrations": "Integrations",
+    "security": "Security",
+    "pricing": "Pricing",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "One place to analyze, compare, and automate your data",
+    "subtitle": "Ready-to-use dashboards, exports, and alerts from multiple sources — in one panel.",
+    "cta": {
+      "register": "Create account",
+      "demo": "See how it works"
+    },
+    "benefits": {
+      "lessManualWork": "Less manual work",
+      "onePanel": "One panel instead of 5 tools",
+      "alerts": "Comparisons and alerts instead of guessing"
+    }
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "steps": {
+      "register": {
+        "title": "Sign up",
+        "description": "Quick account creation without unnecessary formalities"
+      },
+      "connect": {
+        "title": "Connect your data sources",
+        "description": "Intuitive connection to spreadsheets, databases, and APIs"
+      },
+      "get": {
+        "title": "Get ready solutions",
+        "description": "Dashboards, exports, and alerts work immediately"
+      }
+    }
+  },
+  "features": {
+    "title": "Capabilities",
+    "analytics": {
+      "title": "Analytics and dashboards",
+      "items": ["Period comparisons", "Trends", "KPIs", "Data segmentation"]
+    },
+    "export": {
+      "title": "Export and reporting",
+      "items": ["Google Sheets / CSV", "Scheduled reports", "Process-ready data"]
+    },
+    "integrations": {
+      "title": "Data integrations",
+      "items": ["Databases", "APIs", "Webhooks", "Multiple sources → one view"]
+    },
+    "alerts": {
+      "title": "Alerts and communication",
+      "items": ["Telegram / Slack", "Real-time notifications", "React instead of checking"]
+    },
+    "automation": {
+      "title": "Automations",
+      "items": ["Conditions → actions", "Data → decisions", "Reports → notifications"]
+    }
+  },
+  "forWhom": {
+    "title": "For whom",
+    "segments": {
+      "ecommerce": {
+        "title": "E-commerce",
+        "problem": "Sales data scattered across 5 different places",
+        "solution": "One view of all channels and trends"
+      },
+      "startups": {
+        "title": "Startups / SaaS",
+        "problem": "Manual collection of metrics from various tools",
+        "solution": "Automatic dashboards and alerts on key KPIs"
+      },
+      "operations": {
+        "title": "Operations teams",
+        "problem": "Daily checking of statuses and reports",
+        "solution": "Notifications when something needs attention"
+      },
+      "spreadsheets": {
+        "title": "Companies drowning in spreadsheets",
+        "problem": "Excel hell and manual data copying",
+        "solution": "Automatic data flow between systems"
+      }
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "types": {
+      "spreadsheets": "Spreadsheets",
+      "databases": "Databases",
+      "api": "APIs",
+      "messengers": "Messengers"
+    },
+    "securityNote": "You configure integrations and tokens after logging in, with full control over permissions."
+  },
+  "security": {
+    "title": "Security and control",
+    "points": {
+      "tokens": "Tokens only in the app",
+      "disconnect": "Ability to disconnect integrations at any time",
+      "noBlind": "No blind access",
+      "permissions": "Clear permissions model"
+    }
+  },
+  "pricing": {
+    "title": "Pricing",
+    "tiers": {
+      "free": {
+        "name": "Free / Trial",
+        "description": "To get started"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For growing teams"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Custom solutions"
+      }
+    },
+    "cta": "Contact us for details"
+  },
+  "contact": {
+    "title": "Contact",
+    "description": "We'll get back to you with a proposal tailored to your data and processes",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send"
+    }
+  },
+  "footer": {
+    "copyright": "All rights reserved"
+  }
+}

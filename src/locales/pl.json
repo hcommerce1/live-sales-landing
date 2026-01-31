@@ -1,0 +1,140 @@
+{
+  "nav": {
+    "home": "Start",
+    "howItWorks": "Jak to działa",
+    "features": "Funkcje",
+    "forWhom": "Dla kogo",
+    "integrations": "Integracje",
+    "security": "Bezpieczeństwo",
+    "pricing": "Cennik",
+    "contact": "Kontakt"
+  },
+  "hero": {
+    "title": "Jedno miejsce do analizy, porównywania i automatyzacji danych",
+    "subtitle": "Gotowe dashboardy, eksporty i alerty z różnych źródeł — w jednym panelu.",
+    "cta": {
+      "register": "Załóż konto",
+      "demo": "Zobacz, jak to działa"
+    },
+    "benefits": {
+      "lessManualWork": "Mniej ręcznej roboty",
+      "onePanel": "Jeden panel zamiast 5 narzędzi",
+      "alerts": "Porównania i alerty zamiast zgadywania"
+    }
+  },
+  "howItWorks": {
+    "title": "Jak to działa",
+    "steps": {
+      "register": {
+        "title": "Rejestrujesz się",
+        "description": "Szybkie założenie konta bez zbędnych formalności"
+      },
+      "connect": {
+        "title": "Podłączasz źródła danych",
+        "description": "Intuicyjne łączenie z arkuszami, bazami i API"
+      },
+      "get": {
+        "title": "Dostajesz gotowe rozwiązania",
+        "description": "Dashboardy, eksporty i alerty działają od razu"
+      }
+    }
+  },
+  "features": {
+    "title": "Możliwości",
+    "analytics": {
+      "title": "Analityka i dashboardy",
+      "items": ["Porównania okresów", "Trendy", "KPI", "Segmentacja danych"]
+    },
+    "export": {
+      "title": "Eksport i raportowanie",
+      "items": ["Google Sheets / CSV", "Raporty cykliczne", "Dane gotowe pod proces"]
+    },
+    "integrations": {
+      "title": "Integracje danych",
+      "items": ["Bazy danych", "API", "Webhooki", "Wiele źródeł → jeden widok"]
+    },
+    "alerts": {
+      "title": "Alerty i komunikacja",
+      "items": ["Telegram / Slack", "Powiadomienia w czasie rzeczywistym", "Reakcja zamiast sprawdzania"]
+    },
+    "automation": {
+      "title": "Automatyzacje",
+      "items": ["Warunki → akcje", "Dane → decyzje", "Raporty → powiadomienia"]
+    }
+  },
+  "forWhom": {
+    "title": "Dla kogo to jest",
+    "segments": {
+      "ecommerce": {
+        "title": "E-commerce",
+        "problem": "Dane sprzedażowe w 5 różnych miejscach",
+        "solution": "Jeden widok na wszystkie kanały i trendy"
+      },
+      "startups": {
+        "title": "Startupy / SaaS",
+        "problem": "Ręczne zbieranie metryk z różnych narzędzi",
+        "solution": "Automatyczne dashboardy i alerty na kluczowe KPI"
+      },
+      "operations": {
+        "title": "Zespoły operacyjne",
+        "problem": "Codzienne sprawdzanie statusów i raportów",
+        "solution": "Powiadomienia gdy coś wymaga uwagi"
+      },
+      "spreadsheets": {
+        "title": "Firmy tonące w arkuszach",
+        "problem": "Excel hell i ręczne kopiowanie danych",
+        "solution": "Automatyczny przepływ danych między systemami"
+      }
+    }
+  },
+  "integrations": {
+    "title": "Integracje",
+    "types": {
+      "spreadsheets": "Arkusze kalkulacyjne",
+      "databases": "Bazy danych",
+      "api": "API",
+      "messengers": "Komunikatory"
+    },
+    "securityNote": "Integracje i tokeny konfigurujesz po zalogowaniu, z pełną kontrolą uprawnień."
+  },
+  "security": {
+    "title": "Bezpieczeństwo i kontrola",
+    "points": {
+      "tokens": "Tokeny tylko w aplikacji",
+      "disconnect": "Możliwość odpięcia integracji w każdej chwili",
+      "noBlind": "Brak dostępu „na ślepo"",
+      "permissions": "Jasny model uprawnień"
+    }
+  },
+  "pricing": {
+    "title": "Cennik",
+    "tiers": {
+      "free": {
+        "name": "Free / Trial",
+        "description": "Na start"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Dla rosnących zespołów"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Rozwiązania dedykowane"
+      }
+    },
+    "cta": "Skontaktuj się po szczegóły"
+  },
+  "contact": {
+    "title": "Kontakt",
+    "description": "Odezwiemy się z propozycją dopasowaną do Twoich danych i procesów",
+    "form": {
+      "name": "Imię",
+      "email": "Email",
+      "message": "Wiadomość",
+      "submit": "Wyślij"
+    }
+  },
+  "footer": {
+    "copyright": "Wszelkie prawa zastrzeżone"
+  }
+}
