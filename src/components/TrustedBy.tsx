@@ -18,7 +18,7 @@ export default function TrustedBy() {
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center text-sm text-gray-500 mb-8"
+          className="text-center text-base md:text-lg text-gray-600 mb-8"
         >
           Integrujemy się z platformami, z których korzystasz
         </motion.p>
