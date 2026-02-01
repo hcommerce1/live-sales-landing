@@ -6,20 +6,27 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 // Preset data
 const presetData = {
   sources: [
-    { name: 'Zamówienia', icon: '📦', selected: false },
-    { name: 'Produkty', icon: '🏷️', selected: false },
-    { name: 'Faktury', icon: '📄', selected: false },
+    { id: 'orders', name: 'Zamówienia', description: 'Eksportuj dane zamówień z BaseLinker' },
+    { id: 'products', name: 'Produkty', description: 'Eksportuj listę produktów i stanów magazynowych' },
+    { id: 'invoices', name: 'Faktury', description: 'Eksportuj dokumenty sprzedaży' },
   ],
   fields: [
-    'SKU',
-    'Nazwa produktu',
-    'Wartość zamówienia',
-    'Status',
-    'Data utworzenia',
+    { name: 'order_id', label: 'ID zamówienia' },
+    { name: 'sku', label: 'SKU produktu' },
+    { name: 'product_name', label: 'Nazwa produktu' },
+    { name: 'quantity', label: 'Ilość' },
+    { name: 'total_price', label: 'Wartość zamówienia' },
+    { name: 'order_status', label: 'Status' },
   ],
-  sheetUrl: 'https://docs.google.com/spreadsheets/d/1aBcD...',
+  sheetUrl: 'https://docs.google.com/spreadsheets/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ',
   exportName: 'Dzienny raport sprzedaży',
-  frequency: 'Codziennie o 8:00',
+  frequencies: [
+    { value: '1min', label: '1 min' },
+    { value: '5min', label: '5 min' },
+    { value: '15min', label: '15 min' },
+    { value: '1h', label: '1 godz.' },
+    { value: '24h', label: '24 godz.' },
+  ],
   kpis: {
     orders: 1247,
     revenue: 89450,
@@ -38,7 +45,7 @@ const steps = [
   { id: 1, label: 'Dane' },
   { id: 2, label: 'Arkusz' },
   { id: 3, label: 'Zapisz' },
-  { id: 4, label: 'Dashboard' },
+  { id: 4, label: 'Podgląd' },
 ];
 
 // Typewriter hook
@@ -104,15 +111,13 @@ function MiniChart({ data, animate }: { data: number[]; animate: boolean }) {
     y: 100 - (v / max) * 80,
   }));
 
-  const pathD = points.map((p, i) =>
-    `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
-  ).join(' ');
+  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-24">
+    <svg viewBox="0 0 100 100" className="w-full h-20">
       <defs>
         <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.3" />
+          <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2" />
           <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -133,10 +138,19 @@ function MiniChart({ data, animate }: { data: number[]; animate: boolean }) {
             strokeLinecap="round"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeOut" }}
+            transition={{ duration: 2, ease: 'easeOut' }}
           />
         </>
       )}
+    </svg>
+  );
+}
+
+// Checkmark icon
+function CheckIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
     </svg>
   );
 }
@@ -158,14 +172,15 @@ export default function DashboardPreview() {
   // Step 3 states
   const [showNameInput, setShowNameInput] = useState(false);
   const [showFrequency, setShowFrequency] = useState(false);
+  const [selectedFrequency, setSelectedFrequency] = useState(-1);
   const [showSaveButton, setShowSaveButton] = useState(false);
 
   // Step 4 states
   const [showDashboard, setShowDashboard] = useState(false);
 
   // Typewriter texts
-  const urlText = useTypewriter(presetData.sheetUrl, 40, showUrlInput);
-  const nameText = useTypewriter(presetData.exportName, 60, showNameInput);
+  const urlText = useTypewriter(presetData.sheetUrl, 30, showUrlInput);
+  const nameText = useTypewriter(presetData.exportName, 50, showNameInput);
 
   // Counter values
   const ordersCount = useCounter(presetData.kpis.orders, 2000, showDashboard);
@@ -181,21 +196,22 @@ export default function DashboardPreview() {
     setShowVerified(false);
     setShowNameInput(false);
     setShowFrequency(false);
+    setSelectedFrequency(-1);
     setShowSaveButton(false);
     setShowDashboard(false);
-    setAnimationKey(k => k + 1);
+    setAnimationKey((k) => k + 1);
   }, []);
 
   // Animation sequence
   useEffect(() => {
     if (shouldReduceMotion) {
-      // Skip animations for reduced motion
       setSelectedSource(0);
-      setVisibleFields([0, 1, 2, 3, 4]);
+      setVisibleFields([0, 1, 2, 3, 4, 5]);
       setShowUrlInput(true);
       setShowVerified(true);
       setShowNameInput(true);
       setShowFrequency(true);
+      setSelectedFrequency(2);
       setShowSaveButton(true);
       setShowDashboard(true);
       setCurrentStep(4);
@@ -208,38 +224,51 @@ export default function DashboardPreview() {
     // Step 1: Select source and fields
     timers.push(setTimeout(() => setSelectedSource(0), 800));
     presetData.fields.forEach((_, i) => {
-      timers.push(setTimeout(() => {
-        setVisibleFields(prev => [...prev, i]);
-      }, 1500 + i * 400));
+      timers.push(
+        setTimeout(() => {
+          setVisibleFields((prev) => [...prev, i]);
+        }, 1500 + i * 350)
+      );
     });
 
     // Step 2: Sheet URL
-    timers.push(setTimeout(() => {
-      setCurrentStep(2);
-      setShowUrlInput(true);
-    }, 4000));
-    timers.push(setTimeout(() => setShowVerified(true), 6500));
+    timers.push(
+      setTimeout(() => {
+        setCurrentStep(2);
+        setShowUrlInput(true);
+      }, 4200)
+    );
+    timers.push(setTimeout(() => setShowVerified(true), 7000));
 
     // Step 3: Save
-    timers.push(setTimeout(() => {
-      setCurrentStep(3);
-      setShowNameInput(true);
-    }, 7500));
-    timers.push(setTimeout(() => setShowFrequency(true), 9500));
-    timers.push(setTimeout(() => setShowSaveButton(true), 10500));
+    timers.push(
+      setTimeout(() => {
+        setCurrentStep(3);
+        setShowNameInput(true);
+      }, 8000)
+    );
+    timers.push(
+      setTimeout(() => {
+        setShowFrequency(true);
+      }, 10000)
+    );
+    timers.push(setTimeout(() => setSelectedFrequency(2), 10500));
+    timers.push(setTimeout(() => setShowSaveButton(true), 11500));
 
     // Step 4: Dashboard
-    timers.push(setTimeout(() => {
-      setCurrentStep(4);
-      setShowDashboard(true);
-    }, 11500));
-    timers.push(setTimeout(() => setIsFinished(true), 15000));
+    timers.push(
+      setTimeout(() => {
+        setCurrentStep(4);
+        setShowDashboard(true);
+      }, 12500)
+    );
+    timers.push(setTimeout(() => setIsFinished(true), 16000));
 
     return () => timers.forEach(clearTimeout);
   }, [shouldReduceMotion, animationKey]);
 
   const transition = {
-    duration: shouldReduceMotion ? 0 : 0.4,
+    duration: shouldReduceMotion ? 0 : 0.3,
     ease: [0.25, 0.1, 0.25, 1],
   };
 
@@ -264,7 +293,7 @@ export default function DashboardPreview() {
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
-            Od danych do dashboardu w 3 krokach
+            Konfiguracja w 3 prostych krokach
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -273,7 +302,7 @@ export default function DashboardPreview() {
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-4 text-lg text-gray-600"
           >
-            Wybierasz dane, podajesz arkusz, zapisujesz — i gotowe
+            Wybierz dane, podaj arkusz, ustaw harmonogram — gotowe
           </motion.p>
         </div>
 
@@ -285,59 +314,65 @@ export default function DashboardPreview() {
           transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
           className="relative"
         >
-          {/* Browser frame */}
-          <div className="bg-gray-800 rounded-t-xl px-4 py-3 flex items-center gap-2">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-            </div>
-            <div className="flex-1 ml-4">
-              <div className="bg-gray-700 rounded-md px-4 py-1.5 text-sm text-gray-300 max-w-md">
-                app.livesales.pl/eksport/nowy
-              </div>
-            </div>
-          </div>
-
-          {/* Content area */}
-          <div className="bg-white rounded-b-xl shadow-2xl overflow-hidden">
-            {/* Progress bar */}
-            <div className="bg-gray-50 border-b px-6 py-4">
-              <div className="flex items-center justify-between max-w-2xl mx-auto">
-                {steps.map((step, index) => (
-                  <div key={step.id} className="flex items-center">
-                    <div className={`flex items-center gap-2 ${
-                      currentStep >= step.id ? 'text-primary-600' : 'text-gray-400'
-                    }`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-                        currentStep > step.id
-                          ? 'bg-primary-600 text-white'
-                          : currentStep === step.id
-                          ? 'bg-primary-100 text-primary-600 ring-2 ring-primary-600'
-                          : 'bg-gray-200 text-gray-500'
-                      }`}>
-                        {currentStep > step.id ? (
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                        ) : (
-                          step.id
-                        )}
-                      </div>
-                      <span className="hidden sm:block text-sm font-medium">{step.label}</span>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className={`hidden sm:block w-12 lg:w-24 h-0.5 mx-2 transition-colors ${
-                        currentStep > step.id ? 'bg-primary-600' : 'bg-gray-200'
-                      }`} />
-                    )}
+          {/* App frame */}
+          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+            {/* Header bar */}
+            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">LS</span>
                   </div>
-                ))}
+                  <span className="font-semibold text-gray-900 hidden sm:block">Nowy eksport</span>
+                </div>
+
+                {/* Steps indicator */}
+                <div className="flex items-center gap-1 sm:gap-2">
+                  {steps.map((step, index) => (
+                    <div key={step.id} className="flex items-center">
+                      <button
+                        className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                          currentStep > step.id
+                            ? 'bg-green-100 text-green-700'
+                            : currentStep === step.id
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-400'
+                        }`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                            currentStep > step.id
+                              ? 'bg-green-500 text-white'
+                              : currentStep === step.id
+                              ? 'bg-white border-2 border-blue-500 text-blue-600'
+                              : 'bg-gray-200 text-gray-500'
+                          }`}
+                        >
+                          {currentStep > step.id ? <CheckIcon className="w-3 h-3" /> : step.id}
+                        </span>
+                        <span className="hidden sm:inline">{step.label}</span>
+                      </button>
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`w-4 sm:w-8 h-0.5 mx-1 ${
+                            currentStep > step.id ? 'bg-green-300' : 'bg-gray-200'
+                          }`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
 
-            {/* Step content */}
-            <div className="p-6 min-h-[400px]">
+            {/* Content area */}
+            <div className="p-4 sm:p-6 min-h-[420px] bg-gray-50">
               <AnimatePresence mode="wait">
                 {/* Step 1: Select data */}
                 {currentStep === 1 && (
@@ -349,73 +384,61 @@ export default function DashboardPreview() {
                     className="grid md:grid-cols-2 gap-6"
                   >
                     {/* Sources */}
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375" />
-                        </svg>
-                        Wybierz źródło danych
-                      </h3>
+                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                      <h3 className="font-semibold text-gray-900 mb-4 text-sm">Wybierz typ danych</h3>
                       <div className="space-y-2">
                         {presetData.sources.map((source, index) => (
-                          <motion.div
-                            key={source.name}
-                            className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          <motion.label
+                            key={source.id}
+                            className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
                               selectedSource === index
-                                ? 'border-primary-500 bg-primary-50'
-                                : 'border-gray-200 bg-gray-50'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
                             }`}
-                            animate={selectedSource === index ? { scale: [1, 1.02, 1] } : {}}
+                            animate={selectedSource === index ? { scale: [1, 1.01, 1] } : {}}
                           >
-                            <span className="text-2xl">{source.icon}</span>
-                            <span className="font-medium text-gray-900">{source.name}</span>
-                            {selectedSource === index && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="ml-auto w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center"
-                              >
-                                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
-                              </motion.div>
-                            )}
-                          </motion.div>
+                            <div
+                              className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                                selectedSource === index ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                              }`}
+                            >
+                              {selectedSource === index && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-900 text-sm">{source.name}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">{source.description}</p>
+                            </div>
+                          </motion.label>
                         ))}
                       </div>
                     </div>
 
                     {/* Fields */}
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        Pola do eksportu
-                      </h3>
-                      <div className="space-y-2">
+                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                      <h3 className="font-semibold text-gray-900 mb-4 text-sm">Pola do eksportu</h3>
+                      <div className="space-y-1">
                         {presetData.fields.map((field, index) => (
                           <motion.label
-                            key={field}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={visibleFields.includes(index) ? { opacity: 1, x: 0 } : { opacity: 0.3, x: 0 }}
-                            className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 cursor-pointer"
+                            key={field.name}
+                            initial={{ opacity: 0.4 }}
+                            animate={visibleFields.includes(index) ? { opacity: 1 } : { opacity: 0.4 }}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
                           >
                             <motion.div
-                              className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                                 visibleFields.includes(index)
-                                  ? 'border-primary-600 bg-primary-600'
-                                  : 'border-gray-300'
+                                  ? 'border-blue-500 bg-blue-500'
+                                  : 'border-gray-300 bg-white'
                               }`}
                               animate={visibleFields.includes(index) ? { scale: [1, 1.2, 1] } : {}}
+                              transition={{ duration: 0.2 }}
                             >
-                              {visibleFields.includes(index) && (
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
-                              )}
+                              {visibleFields.includes(index) && <CheckIcon className="w-3 h-3 text-white" />}
                             </motion.div>
-                            <span className="text-gray-700">{field}</span>
+                            <div>
+                              <span className="text-sm text-gray-700">{field.label}</span>
+                              <span className="text-xs text-gray-400 ml-2 font-mono">{field.name}</span>
+                            </div>
                           </motion.label>
                         ))}
                       </div>
@@ -430,56 +453,58 @@ export default function DashboardPreview() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="max-w-xl mx-auto"
+                    className="max-w-2xl mx-auto"
                   >
-                    <h3 className="font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                      </svg>
-                      Podaj URL arkusza Google Sheets
-                    </h3>
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <h3 className="font-semibold text-gray-900 mb-2 text-sm">Arkusz docelowy</h3>
+                      <p className="text-xs text-gray-500 mb-4">
+                        Wklej link do arkusza Google Sheets, do którego będą eksportowane dane.
+                      </p>
 
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          readOnly
-                          value={urlText}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-mono text-sm focus:outline-none"
-                          placeholder="https://docs.google.com/spreadsheets/d/..."
-                        />
-                        {showUrlInput && !showVerified && (
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gray-400 animate-pulse" />
-                        )}
-                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1.5">URL arkusza</label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              readOnly
+                              value={urlText}
+                              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                              placeholder="https://docs.google.com/spreadsheets/d/..."
+                            />
+                            {showUrlInput && !showVerified && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-gray-400 animate-pulse" />
+                            )}
+                          </div>
+                        </div>
 
-                      <AnimatePresence>
-                        {showVerified && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200"
-                          >
-                            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
-                            </div>
-                            <div>
-                              <p className="font-medium text-green-800">Arkusz zweryfikowany</p>
-                              <p className="text-sm text-green-600">Uprawnienia poprawne</p>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                        <AnimatePresence>
+                          {showVerified && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                <CheckIcon className="w-4 h-4 text-white" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-green-800 text-sm">Arkusz zweryfikowany</p>
+                                <p className="text-xs text-green-600">Masz uprawnienia do zapisu</p>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
-                      <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                        <p className="text-sm text-blue-800">
-                          <strong>Konto serwisowe:</strong> livesales@livesales.iam.gserviceaccount.com
-                        </p>
-                        <p className="text-xs text-blue-600 mt-1">
-                          Udostępnij arkusz temu kontu z uprawnieniami edytora
-                        </p>
+                        <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                          <p className="text-xs text-blue-800">
+                            <span className="font-medium">Konto serwisowe: </span>
+                            <span className="font-mono">livesales@...iam.gserviceaccount.com</span>
+                          </p>
+                          <p className="text-xs text-blue-600 mt-1">
+                            Udostępnij arkusz temu kontu z uprawnieniami edytora
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -492,73 +517,71 @@ export default function DashboardPreview() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="max-w-xl mx-auto"
+                    className="max-w-2xl mx-auto"
                   >
-                    <h3 className="font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Zapisz eksport
-                    </h3>
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                      <h3 className="font-semibold text-gray-900 mb-4 text-sm">Ustawienia eksportu</h3>
 
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Nazwa eksportu
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            readOnly
-                            value={nameText}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 focus:outline-none"
-                            placeholder="np. Dzienny raport sprzedaży"
-                          />
-                          {showNameInput && !showFrequency && (
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gray-400 animate-pulse" />
-                          )}
+                      <div className="space-y-5">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1.5">Nazwa eksportu</label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              readOnly
+                              value={nameText}
+                              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                              placeholder="np. Dzienny raport sprzedaży"
+                            />
+                            {showNameInput && !showFrequency && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-gray-400 animate-pulse" />
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      <AnimatePresence>
-                        {showFrequency && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                          >
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Częstotliwość
-                            </label>
-                            <div className="px-4 py-3 rounded-xl border-2 border-primary-500 bg-primary-50 text-gray-700 flex items-center justify-between">
-                              <span>{presetData.frequency}</span>
-                              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                              </svg>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                        <AnimatePresence>
+                          {showFrequency && (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                              <label className="block text-xs font-medium text-gray-700 mb-2">Częstotliwość</label>
+                              <div className="flex flex-wrap gap-2">
+                                {presetData.frequencies.map((freq, index) => (
+                                  <motion.button
+                                    key={freq.value}
+                                    type="button"
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
+                                      selectedFrequency === index
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                                    }`}
+                                    animate={selectedFrequency === index ? { scale: [1, 1.05, 1] } : {}}
+                                  >
+                                    {freq.label}
+                                  </motion.button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
-                      <AnimatePresence>
-                        {showSaveButton && (
-                          <motion.button
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="w-full mt-4 bg-gradient-brand text-white py-4 rounded-xl font-semibold text-lg"
-                          >
-                            <motion.span
-                              animate={{ scale: [1, 1.05, 1] }}
-                              transition={{ duration: 0.3, delay: 0.5 }}
-                              className="flex items-center justify-center gap-2"
+                        <AnimatePresence>
+                          {showSaveButton && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="pt-4 border-t border-gray-100"
                             >
-                              Zapisz eksport
-                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                              </svg>
-                            </motion.span>
-                          </motion.button>
-                        )}
-                      </AnimatePresence>
+                              <motion.button
+                                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
+                                animate={{ scale: [1, 1.02, 1] }}
+                                transition={{ duration: 0.3, delay: 0.3 }}
+                              >
+                                <CheckIcon className="w-4 h-4" />
+                                Zapisz eksport
+                              </motion.button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -567,90 +590,110 @@ export default function DashboardPreview() {
                 {currentStep === 4 && (
                   <motion.div
                     key="step4"
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.4 }}
                   >
-                    {/* KPI Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white"
-                      >
-                        <p className="text-sm text-blue-100">Zamówienia</p>
-                        <p className="text-2xl font-bold">{ordersCount.toLocaleString('pl-PL')}</p>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white"
-                      >
-                        <p className="text-sm text-green-100">Sprzedaż</p>
-                        <p className="text-2xl font-bold">{revenueCount.toLocaleString('pl-PL')} zł</p>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white"
-                      >
-                        <p className="text-sm text-purple-100">Średni koszyk</p>
-                        <p className="text-2xl font-bold">{(avgCartCount / 100).toFixed(2)} zł</p>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white"
-                      >
-                        <p className="text-sm text-orange-100">Sprzedane szt.</p>
-                        <p className="text-2xl font-bold">{Math.floor(ordersCount * 3.12).toLocaleString('pl-PL')}</p>
-                      </motion.div>
-                    </div>
-
-                    {/* Chart and Table */}
-                    <div className="grid lg:grid-cols-2 gap-6">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="bg-gray-50 rounded-xl p-4"
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-3">Sprzedaż w czasie</h4>
-                        <MiniChart data={presetData.chartData} animate={showDashboard} />
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
-                        className="bg-gray-50 rounded-xl p-4"
-                      >
-                        <h4 className="font-semibold text-gray-900 mb-3">Top produkty</h4>
-                        <div className="space-y-2">
-                          {presetData.topProducts.map((product, index) => (
-                            <motion.div
-                              key={product.name}
-                              initial={{ opacity: 0, x: 10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.7 + index * 0.1 }}
-                              className="flex items-center justify-between p-2 bg-white rounded-lg"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xs font-bold">
-                                  {index + 1}
-                                </span>
-                                <span className="text-sm text-gray-700">{product.name}</span>
-                              </div>
-                              <span className="text-sm font-semibold text-gray-900">{product.revenue}</span>
-                            </motion.div>
-                          ))}
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <div>
+                          <h3 className="font-semibold text-gray-900">Dashboard</h3>
+                          <p className="text-xs text-gray-500">Dzienny raport sprzedaży</p>
                         </div>
-                      </motion.div>
+                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                          Aktywny
+                        </span>
+                      </div>
+
+                      {/* KPI Cards */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 }}
+                          className="bg-blue-50 border border-blue-100 rounded-xl p-4"
+                        >
+                          <p className="text-xs text-blue-600 font-medium">Zamówienia</p>
+                          <p className="text-2xl font-bold text-blue-900">
+                            {ordersCount.toLocaleString('pl-PL')}
+                          </p>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="bg-green-50 border border-green-100 rounded-xl p-4"
+                        >
+                          <p className="text-xs text-green-600 font-medium">Sprzedaż</p>
+                          <p className="text-2xl font-bold text-green-900">
+                            {revenueCount.toLocaleString('pl-PL')} zł
+                          </p>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="bg-purple-50 border border-purple-100 rounded-xl p-4"
+                        >
+                          <p className="text-xs text-purple-600 font-medium">Średni koszyk</p>
+                          <p className="text-2xl font-bold text-purple-900">
+                            {(avgCartCount / 100).toFixed(2)} zł
+                          </p>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className="bg-orange-50 border border-orange-100 rounded-xl p-4"
+                        >
+                          <p className="text-xs text-orange-600 font-medium">Sprzedane szt.</p>
+                          <p className="text-2xl font-bold text-orange-900">
+                            {Math.floor(ordersCount * 3.12).toLocaleString('pl-PL')}
+                          </p>
+                        </motion.div>
+                      </div>
+
+                      {/* Chart and Table */}
+                      <div className="grid lg:grid-cols-2 gap-4">
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="border border-gray-200 rounded-xl p-4"
+                        >
+                          <h4 className="font-medium text-gray-900 text-sm mb-3">Sprzedaż w czasie</h4>
+                          <MiniChart data={presetData.chartData} animate={showDashboard} />
+                        </motion.div>
+
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6 }}
+                          className="border border-gray-200 rounded-xl p-4"
+                        >
+                          <h4 className="font-medium text-gray-900 text-sm mb-3">Top produkty</h4>
+                          <div className="space-y-2">
+                            {presetData.topProducts.map((product, index) => (
+                              <motion.div
+                                key={product.name}
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.7 + index * 0.1 }}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="w-5 h-5 rounded bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-medium">
+                                    {index + 1}
+                                  </span>
+                                  <span className="text-sm text-gray-700">{product.name}</span>
+                                </div>
+                                <span className="text-sm font-semibold text-gray-900">{product.revenue}</span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      </div>
                     </div>
 
                     {/* Restart button */}
@@ -663,10 +706,20 @@ export default function DashboardPreview() {
                         >
                           <button
                             onClick={resetAnimation}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-600 hover:border-primary-300 hover:text-primary-600 transition-colors"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors text-sm font-medium"
                           >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                              />
                             </svg>
                             Obejrzyj ponownie
                           </button>
@@ -677,6 +730,27 @@ export default function DashboardPreview() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Footer bar - navigation */}
+            {currentStep < 4 && (
+              <div className="bg-white border-t border-gray-200 px-4 sm:px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <button className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 font-medium">
+                    Anuluj
+                  </button>
+                  <div className="flex items-center gap-3">
+                    {currentStep > 1 && (
+                      <button className="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                        Wstecz
+                      </button>
+                    )}
+                    <button className="px-6 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                      {currentStep === 3 ? 'Zapisz' : 'Dalej'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Decorative gradient blur */}
