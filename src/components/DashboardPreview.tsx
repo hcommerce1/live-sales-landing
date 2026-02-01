@@ -1,6 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
 
 // Źródła danych
 const dataSources = [
@@ -29,33 +34,44 @@ const exportDestinations = [
 ];
 
 export default function DashboardPreview() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.4,
+    ease: [0.25, 0.1, 0.25, 1],
+  };
+
   return (
-    <section className="py-24 bg-gray-50 overflow-hidden">
+    <section id="edytor" className="py-24 bg-gray-50 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={transition}
             className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
           >
             Edytor eksportu
           </motion.span>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
             Wybierz dane, ustaw cel — resztę robimy my
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-4 text-lg text-gray-600"
           >
             Konfigurujesz raz, dane lecą automatycznie do Sheets lub na maila
@@ -64,10 +80,11 @@ export default function DashboardPreview() {
 
         {/* Editor mockup */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
           className="relative"
         >
           {/* Browser frame */}
@@ -107,10 +124,11 @@ export default function DashboardPreview() {
             <div className="grid lg:grid-cols-3 gap-4">
               {/* Sources panel */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.12 }}
                 className="bg-white rounded-xl p-4 shadow-sm"
               >
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -146,10 +164,11 @@ export default function DashboardPreview() {
 
               {/* Columns panel */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.14 }}
                 className="bg-white rounded-xl p-4 shadow-sm"
               >
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -180,10 +199,11 @@ export default function DashboardPreview() {
 
               {/* Export destinations panel */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 }}
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.16 }}
                 className="bg-white rounded-xl p-4 shadow-sm"
               >
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -219,29 +239,30 @@ export default function DashboardPreview() {
 
             {/* Flow visualization */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.18 }}
               className="mt-4 bg-white rounded-xl p-4 shadow-sm"
             >
-              <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg">
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
-                  2 źródła aktywne
+                  <span className="whitespace-nowrap">2 źródła</span>
                 </div>
-                <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <svg className="hidden sm:block w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
-                <div className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg">
+                <div className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg whitespace-nowrap">
                   6 kolumn
                 </div>
-                <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <svg className="hidden sm:block w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg">
                   <span className="w-2 h-2 bg-primary-500 rounded-full" />
-                  2 cele aktywne
+                  <span className="whitespace-nowrap">2 cele</span>
                 </div>
               </div>
             </motion.div>
@@ -254,10 +275,11 @@ export default function DashboardPreview() {
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.2 }}
           className="text-center mt-12"
         >
           <a

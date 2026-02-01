@@ -1,6 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const tiers = [
   {
@@ -44,33 +49,44 @@ const tiers = [
 ];
 
 export default function Pricing() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.4,
+    ease: [0.25, 0.1, 0.25, 1],
+  };
+
   return (
     <section id="cennik" className="py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={transition}
             className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
           >
             Cennik
           </motion.span>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
             Prosty i przejrzysty
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-4 text-lg text-gray-600"
           >
             Wybierz plan dopasowany do Twoich potrzeb
@@ -82,13 +98,14 @@ export default function Pricing() {
           {tiers.map((tier, index) => (
             <motion.div
               key={tier.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : index * 0.05 }}
               className={`relative rounded-2xl p-8 ${
                 tier.highlighted
-                  ? 'bg-gradient-brand text-white shadow-2xl shadow-primary-500/30 scale-105'
+                  ? 'bg-gradient-brand text-white shadow-2xl shadow-primary-500/30 md:scale-105'
                   : 'bg-white border border-gray-200'
               }`}
             >
@@ -144,7 +161,8 @@ export default function Pricing() {
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.4 }}
           className="text-center text-gray-500 mt-12"
         >
           Szczegółowe ceny i warunki przedstawimy po kontakcie — dopasujemy ofertę do Twoich potrzeb.

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const partners = [
   {
@@ -30,51 +30,67 @@ const partners = [
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
+const fadeInUp = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
 };
 
 export default function TrustedBy() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.4,
+    ease: [0.25, 0.1, 0.25, 1],
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: shouldReduceMotion ? 0 : 0.05 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: shouldReduceMotion ? 0 : 0.3 },
+    },
+  };
+
   return (
-    <section className="py-20 bg-white">
+    <section id="integracje" className="py-20 bg-white bg-subtle-pattern">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={transition}
             className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
           >
             Integracje
           </motion.span>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
             Łączymy się z Twoimi narzędziami
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-4 text-lg text-gray-600"
           >
             Pobieramy dane bezpośrednio z platform, z których już korzystasz
@@ -86,14 +102,14 @@ export default function TrustedBy() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: '-50px' }}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
         >
           {partners.map((partner) => (
             <motion.div
               key={partner.name}
               variants={itemVariants}
-              className="group bg-gray-50 hover:bg-white rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg border-2 border-transparent hover:border-primary-100"
+              className="group bg-gray-50 hover:bg-white rounded-2xl p-4 sm:p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg border-2 border-transparent hover:border-primary-100"
             >
               <div className="w-full h-16 flex items-center justify-center mb-4">
                 <img
@@ -110,10 +126,11 @@ export default function TrustedBy() {
 
         {/* More integrations coming */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.15 }}
           className="mt-12 text-center"
         >
           <p className="text-gray-500">

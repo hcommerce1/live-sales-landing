@@ -2,19 +2,20 @@
 
 import { useState } from 'react';
 import { Dialog, DialogPanel } from '@headlessui/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 const navigation = [
-  { name: 'Jak to działa', href: '#jak-to-dziala' },
-  { name: 'Funkcje', href: '#funkcje' },
-  { name: 'Dla kogo', href: '#dla-kogo' },
   { name: 'Integracje', href: '#integracje' },
+  { name: 'Jak to działa', href: '#jak-to-dziala' },
+  { name: 'Edytor', href: '#edytor' },
+  { name: 'Połączenia', href: '#polaczenia' },
   { name: 'Cennik', href: '#cennik' },
   { name: 'Kontakt', href: '#kontakt' },
 ];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -77,14 +78,20 @@ export default function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
               className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm"
             />
             <DialogPanel
               as={motion.div}
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              initial={{ x: shouldReduceMotion ? 0 : '100%', opacity: shouldReduceMotion ? 0 : 1 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: shouldReduceMotion ? 0 : '100%', opacity: shouldReduceMotion ? 0 : 1 }}
+              transition={{
+                type: shouldReduceMotion ? 'tween' : 'spring',
+                damping: 30,
+                stiffness: 300,
+                duration: shouldReduceMotion ? 0.15 : undefined
+              }}
               className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-white px-6 py-6 shadow-xl"
             >
               <div className="flex items-center justify-between">

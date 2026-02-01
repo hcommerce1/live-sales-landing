@@ -1,6 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const integrationTypes = [
   {
@@ -60,33 +65,44 @@ const integrationTypes = [
 ];
 
 export default function Integrations() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.4,
+    ease: [0.25, 0.1, 0.25, 1],
+  };
+
   return (
-    <section id="integracje" className="py-24 bg-gray-50">
+    <section id="polaczenia" className="py-24 bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={transition}
             className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
           >
             Integracje
           </motion.span>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
             className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
           >
             Połącz się ze wszystkim
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-4 text-lg text-gray-600"
           >
             Wiele źródeł danych, jeden spójny widok
@@ -98,10 +114,11 @@ export default function Integrations() {
           {integrationTypes.map((type, index) => (
             <motion.div
               key={type.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : index * 0.05 }}
               className="bg-white rounded-2xl p-6 text-center hover:shadow-lg transition-shadow border border-gray-100"
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
@@ -115,9 +132,11 @@ export default function Integrations() {
 
         {/* Security note */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.15 }}
           className="bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl p-8 text-center text-white"
         >
           <div className="flex items-center justify-center gap-3 mb-3">

@@ -1,15 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
+    wantsAutomation: false,
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const shouldReduceMotion = useReducedMotion();
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.4,
+    ease: [0.25, 0.1, 0.25, 1],
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,47 +31,52 @@ export default function Contact() {
     // For now, simulate success
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setStatus('success');
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: '', email: '', message: '', wantsAutomation: false });
   };
 
   return (
-    <section id="kontakt" className="py-24 bg-white">
+    <section id="kontakt" className="py-24 bg-white bg-subtle-pattern">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Content */}
           <div>
             <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={transition}
               className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
             >
               Kontakt
             </motion.span>
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
               className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
             >
               Porozmawiajmy
             </motion.h2>
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
               className="mt-4 text-lg text-gray-600"
             >
               Odezwiemy się z propozycją dopasowaną do Twoich danych i procesów. Bez zobowiązań, bez spamu.
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.15 }}
               className="mt-10 space-y-6"
             >
               <div className="flex items-center gap-4">
@@ -100,12 +117,13 @@ export default function Contact() {
 
           {/* Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
           >
-            <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-8">
+            <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 sm:p-8">
               <div className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -148,6 +166,19 @@ export default function Contact() {
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all resize-none"
                     placeholder="Opisz krótko jakie dane chcesz analizować..."
                   />
+                </div>
+                <div>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.wantsAutomation}
+                      onChange={(e) => setFormData({ ...formData, wantsAutomation: e.target.checked })}
+                      className="w-5 h-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-gray-700">
+                      Chcę umówić się na konsultację ws. automatyzacji
+                    </span>
+                  </label>
                 </div>
                 <button
                   type="submit"
