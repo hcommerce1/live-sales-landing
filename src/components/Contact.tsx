@@ -13,7 +13,6 @@ export default function Contact() {
     name: '',
     email: '',
     message: '',
-    wantsAutomation: false,
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const shouldReduceMotion = useReducedMotion();
@@ -35,13 +34,12 @@ export default function Contact() {
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          wantsAutomation: formData.wantsAutomation ? 'Tak' : 'Nie',
         }),
       });
 
       if (response.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', message: '', wantsAutomation: false });
+        setFormData({ name: '', email: '', message: '' });
       } else {
         setStatus('error');
       }
@@ -95,17 +93,6 @@ export default function Contact() {
               transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.15 }}
               className="mt-10 space-y-6"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-900">kontakt@live-sales.pl</p>
-                </div>
-              </div>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -182,19 +169,6 @@ export default function Contact() {
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all resize-none"
                     placeholder="Opisz krótko jakie dane chcesz analizować..."
                   />
-                </div>
-                <div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.wantsAutomation}
-                      onChange={(e) => setFormData({ ...formData, wantsAutomation: e.target.checked })}
-                      className="w-5 h-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
-                    />
-                    <span className="text-sm text-gray-700">
-                      Chcę umówić się na konsultację ws. automatyzacji
-                    </span>
-                  </label>
                 </div>
                 <button
                   type="submit"
