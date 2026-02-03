@@ -3,14 +3,12 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import astroI18next from 'astro-i18next';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: node({
-    mode: 'standalone',
-  }),
+  adapter: vercel(),
   integrations: [
     react(),
     astroI18next(),
