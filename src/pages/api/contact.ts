@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     await resend.emails.send({
-      from: import.meta.env.FROM_EMAIL || 'LiveSales <kontakt@live-sales.pl>',
+      from: import.meta.env.EMAIL_FROM || 'LiveSales <kontakt@live-sales.pl>',
       to: import.meta.env.CONTACT_EMAIL || 'kontakt@live-sales.pl',
       replyTo: email,
       subject: `Nowa wiadomość od ${name}`,
