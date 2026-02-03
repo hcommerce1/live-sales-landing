@@ -27,11 +27,27 @@ export default function Contact() {
     e.preventDefault();
     setStatus('sending');
 
-    // TODO: Implement actual form submission
-    // For now, simulate success
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setStatus('success');
-    setFormData({ name: '', email: '', message: '', wantsAutomation: false });
+    try {
+      const response = await fetch('https://formspree.io/f/TWOJ_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          wantsAutomation: formData.wantsAutomation ? 'Tak' : 'Nie',
+        }),
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        setFormData({ name: '', email: '', message: '', wantsAutomation: false });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
@@ -98,7 +114,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Telefon</p>
-                  <p className="font-medium text-gray-900">+48 XXX XXX XXX</p>
+                  <p className="font-medium text-gray-900">+48 500 816 559</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">

@@ -87,7 +87,7 @@ export default function Hero() {
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto"
           >
-            Łącz dane z Baselinker, Allegro, hurtowni dropshipping — twórz raporty do Google Sheets,
+            Łącz dane z Baselinker, Allegro, hurtowniami dropshipping — twórz raporty do Google Sheets,
             alerty na Telegram, eksporty na maila.
           </motion.p>
 

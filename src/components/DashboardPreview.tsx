@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 // Preset data
@@ -39,6 +39,18 @@ const presetData = {
     { name: 'Spodnie Cargo', sales: 201, revenue: '8,040 zł' },
   ],
   chartData: [20, 35, 45, 30, 55, 70, 65, 80, 75, 90, 85, 95],
+  spreadsheetData: {
+    headers: ['A', 'B', 'C', 'D', 'E', 'F'],
+    columns: ['ID zamówienia', 'SKU', 'Nazwa produktu', 'Ilość', 'Wartość', 'Status'],
+    rows: [
+      ['#12847', 'SKU-001', 'Koszulka Premium', '2', '149,00 zł', 'Wysłane'],
+      ['#12848', 'SKU-002', 'Bluza Oversize', '1', '289,00 zł', 'W realizacji'],
+      ['#12849', 'SKU-003', 'Spodnie Cargo', '3', '357,00 zł', 'Wysłane'],
+      ['#12850', 'SKU-001', 'Koszulka Premium', '1', '74,50 zł', 'Nowe'],
+      ['#12851', 'SKU-004', 'Czapka Basic', '2', '78,00 zł', 'Wysłane'],
+      ['#12852', 'SKU-002', 'Bluza Oversize', '1', '289,00 zł', 'Wysłane'],
+    ],
+  },
 };
 
 const steps = [
@@ -155,11 +167,151 @@ function CheckIcon({ className = 'w-4 h-4' }: { className?: string }) {
   );
 }
 
+// Visibility observer hook for 80% threshold
+function useVisibilityObserver(threshold: number = 0.8) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.intersectionRatio >= threshold);
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0] }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
+
+// Google Sheets visualization component
+function GoogleSheetsView({
+  animate,
+  visibleRows
+}: {
+  animate: boolean;
+  visibleRows: number;
+}) {
+  const { spreadsheetData } = presetData;
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Google Sheets Header Bar */}
+      <div className="bg-[#1a73e8] px-4 py-2 flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/>
+          </svg>
+          <span className="text-white text-sm font-medium">Dzienny raport sprzedaży</span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-white/70 text-xs">Ostatnia synchronizacja: teraz</span>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="bg-[#f1f3f4] px-3 py-1.5 border-b border-gray-200 flex items-center gap-2">
+        <div className="flex items-center gap-1 text-gray-600">
+          <span className="text-xs px-2 py-0.5 bg-white border border-gray-300 rounded text-gray-500">Arial</span>
+          <span className="text-xs px-2 py-0.5 bg-white border border-gray-300 rounded text-gray-500">10</span>
+        </div>
+      </div>
+
+      {/* Spreadsheet Grid */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs border-collapse min-w-[500px]">
+          {/* Column Headers (A, B, C, D, E, F) */}
+          <thead>
+            <tr className="bg-[#f8f9fa]">
+              <th className="w-8 border-r border-b border-gray-200 text-gray-400 font-normal py-1.5"></th>
+              {spreadsheetData.headers.map((header) => (
+                <th
+                  key={header}
+                  className="min-w-[80px] border-r border-b border-gray-200 text-gray-400 font-normal py-1.5 text-center"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {/* Row 1: Column Names */}
+            <tr className="bg-blue-50">
+              <td className="border-r border-b border-gray-200 text-gray-400 text-center py-2 bg-[#f8f9fa] text-xs">1</td>
+              {spreadsheetData.columns.map((col, i) => (
+                <td
+                  key={i}
+                  className="border-r border-b border-gray-200 px-2 py-2 font-semibold text-gray-700 text-xs"
+                >
+                  {col}
+                </td>
+              ))}
+            </tr>
+
+            {/* Data Rows */}
+            {spreadsheetData.rows.map((row, rowIndex) => (
+              <motion.tr
+                key={rowIndex}
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: animate && rowIndex < visibleRows ? 1 : 0.3,
+                  backgroundColor: rowIndex < visibleRows && animate ?
+                    (rowIndex === visibleRows - 1 ? '#e8f0fe' : '#ffffff') : '#ffffff'
+                }}
+                transition={{ duration: 0.3 }}
+                className="transition-colors"
+              >
+                <td className="border-r border-b border-gray-200 text-gray-400 text-center py-2 bg-[#f8f9fa] text-xs">
+                  {rowIndex + 2}
+                </td>
+                {row.map((cell, cellIndex) => (
+                  <td
+                    key={cellIndex}
+                    className="border-r border-b border-gray-200 px-2 py-2 text-gray-600 text-xs"
+                  >
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: animate && rowIndex < visibleRows ? 1 : 0
+                      }}
+                      transition={{
+                        duration: 0.15,
+                        delay: cellIndex * 0.05
+                      }}
+                    >
+                      {cell}
+                    </motion.span>
+                  </td>
+                ))}
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Status bar */}
+      <div className="bg-[#f8f9fa] px-3 py-1.5 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+        <span>Arkusz 1</span>
+        <span className="font-medium">{visibleRows} / {spreadsheetData.rows.length} wierszy</span>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPreview() {
   const shouldReduceMotion = useReducedMotion();
   const [currentStep, setCurrentStep] = useState(1);
   const [isFinished, setIsFinished] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+
+  // Visibility observer for 80% threshold
+  const { ref: containerRef, isVisible } = useVisibilityObserver(0.8);
 
   // Step 1 states
   const [selectedSource, setSelectedSource] = useState(-1);
@@ -175,17 +327,18 @@ export default function DashboardPreview() {
   const [selectedFrequency, setSelectedFrequency] = useState(-1);
   const [showSaveButton, setShowSaveButton] = useState(false);
 
-  // Step 4 states
-  const [showDashboard, setShowDashboard] = useState(false);
+  // Step 4 states - Google Sheets
+  const [showGoogleSheets, setShowGoogleSheets] = useState(false);
+  const [visibleSheetRows, setVisibleSheetRows] = useState(0);
+
+  // Animation tracking refs
+  const animationStartRef = useRef<number | null>(null);
+  const pausedAtRef = useRef<number>(0);
+  const completedStepsRef = useRef<Set<string>>(new Set());
 
   // Typewriter texts
   const urlText = useTypewriter(presetData.sheetUrl, 30, showUrlInput);
   const nameText = useTypewriter(presetData.exportName, 50, showNameInput);
-
-  // Counter values
-  const ordersCount = useCounter(presetData.kpis.orders, 2000, showDashboard);
-  const revenueCount = useCounter(presetData.kpis.revenue, 2000, showDashboard);
-  const avgCartCount = useCounter(Math.floor(presetData.kpis.avgCart * 100), 2000, showDashboard);
 
   const resetAnimation = useCallback(() => {
     setCurrentStep(1);
@@ -198,12 +351,45 @@ export default function DashboardPreview() {
     setShowFrequency(false);
     setSelectedFrequency(-1);
     setShowSaveButton(false);
-    setShowDashboard(false);
+    setShowGoogleSheets(false);
+    setVisibleSheetRows(0);
+
+    // Reset animation tracking
+    animationStartRef.current = null;
+    pausedAtRef.current = 0;
+    completedStepsRef.current.clear();
+
     setAnimationKey((k) => k + 1);
   }, []);
 
-  // Animation sequence
+  // Animation timeline definition
+  const animationTimeline = useCallback(() => [
+    { id: 'selectSource', delay: 800, action: () => setSelectedSource(0) },
+    { id: 'field0', delay: 1500, action: () => setVisibleFields(prev => [...prev, 0]) },
+    { id: 'field1', delay: 1850, action: () => setVisibleFields(prev => [...prev, 1]) },
+    { id: 'field2', delay: 2200, action: () => setVisibleFields(prev => [...prev, 2]) },
+    { id: 'field3', delay: 2550, action: () => setVisibleFields(prev => [...prev, 3]) },
+    { id: 'field4', delay: 2900, action: () => setVisibleFields(prev => [...prev, 4]) },
+    { id: 'field5', delay: 3250, action: () => setVisibleFields(prev => [...prev, 5]) },
+    { id: 'goToStep2', delay: 4200, action: () => { setCurrentStep(2); setShowUrlInput(true); } },
+    { id: 'showVerified', delay: 7000, action: () => setShowVerified(true) },
+    { id: 'goToStep3', delay: 8000, action: () => { setCurrentStep(3); setShowNameInput(true); } },
+    { id: 'showFrequency', delay: 10000, action: () => setShowFrequency(true) },
+    { id: 'selectFrequency', delay: 10500, action: () => setSelectedFrequency(2) },
+    { id: 'showSaveButton', delay: 11500, action: () => setShowSaveButton(true) },
+    { id: 'goToStep4', delay: 12500, action: () => { setCurrentStep(4); setShowGoogleSheets(true); } },
+    { id: 'row1', delay: 13000, action: () => setVisibleSheetRows(1) },
+    { id: 'row2', delay: 13500, action: () => setVisibleSheetRows(2) },
+    { id: 'row3', delay: 14000, action: () => setVisibleSheetRows(3) },
+    { id: 'row4', delay: 14500, action: () => setVisibleSheetRows(4) },
+    { id: 'row5', delay: 15000, action: () => setVisibleSheetRows(5) },
+    { id: 'row6', delay: 15500, action: () => setVisibleSheetRows(6) },
+    { id: 'finished', delay: 17000, action: () => setIsFinished(true) },
+  ], []);
+
+  // Animation sequence with visibility-based control
   useEffect(() => {
+    // Handle reduced motion preference
     if (shouldReduceMotion) {
       setSelectedSource(0);
       setVisibleFields([0, 1, 2, 3, 4, 5]);
@@ -213,59 +399,57 @@ export default function DashboardPreview() {
       setShowFrequency(true);
       setSelectedFrequency(2);
       setShowSaveButton(true);
-      setShowDashboard(true);
+      setShowGoogleSheets(true);
+      setVisibleSheetRows(6);
       setCurrentStep(4);
       setIsFinished(true);
       return;
     }
 
-    const timers: NodeJS.Timeout[] = [];
+    // Don't run animation if not visible (80% threshold)
+    if (!isVisible) {
+      // Save current elapsed time when pausing
+      if (animationStartRef.current !== null) {
+        pausedAtRef.current = performance.now() - animationStartRef.current;
+      }
+      return;
+    }
 
-    // Step 1: Select source and fields
-    timers.push(setTimeout(() => setSelectedSource(0), 800));
-    presetData.fields.forEach((_, i) => {
-      timers.push(
-        setTimeout(() => {
-          setVisibleFields((prev) => [...prev, i]);
-        }, 1500 + i * 350)
-      );
+    // Start or resume animation
+    const now = performance.now();
+
+    if (animationStartRef.current === null) {
+      // First start
+      animationStartRef.current = now;
+    } else {
+      // Resume - adjust start time to account for paused duration
+      animationStartRef.current = now - pausedAtRef.current;
+    }
+
+    const timers: NodeJS.Timeout[] = [];
+    const timeline = animationTimeline();
+
+    timeline.forEach((step) => {
+      // Skip already completed steps
+      if (completedStepsRef.current.has(step.id)) {
+        return;
+      }
+
+      const elapsed = now - animationStartRef.current!;
+      const remainingDelay = Math.max(0, step.delay - elapsed);
+
+      const timer = setTimeout(() => {
+        step.action();
+        completedStepsRef.current.add(step.id);
+      }, remainingDelay);
+
+      timers.push(timer);
     });
 
-    // Step 2: Sheet URL
-    timers.push(
-      setTimeout(() => {
-        setCurrentStep(2);
-        setShowUrlInput(true);
-      }, 4200)
-    );
-    timers.push(setTimeout(() => setShowVerified(true), 7000));
-
-    // Step 3: Save
-    timers.push(
-      setTimeout(() => {
-        setCurrentStep(3);
-        setShowNameInput(true);
-      }, 8000)
-    );
-    timers.push(
-      setTimeout(() => {
-        setShowFrequency(true);
-      }, 10000)
-    );
-    timers.push(setTimeout(() => setSelectedFrequency(2), 10500));
-    timers.push(setTimeout(() => setShowSaveButton(true), 11500));
-
-    // Step 4: Dashboard
-    timers.push(
-      setTimeout(() => {
-        setCurrentStep(4);
-        setShowDashboard(true);
-      }, 12500)
-    );
-    timers.push(setTimeout(() => setIsFinished(true), 16000));
-
-    return () => timers.forEach(clearTimeout);
-  }, [shouldReduceMotion, animationKey]);
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, [shouldReduceMotion, animationKey, isVisible, animationTimeline]);
 
   const transition = {
     duration: shouldReduceMotion ? 0 : 0.3,
@@ -308,6 +492,7 @@ export default function DashboardPreview() {
 
         {/* Demo container */}
         <motion.div
+          ref={containerRef}
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
@@ -586,7 +771,7 @@ export default function DashboardPreview() {
                   </motion.div>
                 )}
 
-                {/* Step 4: Dashboard */}
+                {/* Step 4: Google Sheets Data Export */}
                 {currentStep === 4 && (
                   <motion.div
                     key="step4"
@@ -595,105 +780,58 @@ export default function DashboardPreview() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">Dashboard</h3>
-                          <p className="text-xs text-gray-500">Dzienny raport sprzedaży</p>
+                    <div className="space-y-4">
+                      {/* Success message */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-200"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                          <CheckIcon className="w-5 h-5 text-white" />
                         </div>
-                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                          Aktywny
-                        </span>
-                      </div>
+                        <div>
+                          <p className="font-semibold text-green-800">Eksport uruchomiony!</p>
+                          <p className="text-sm text-green-600">
+                            Dane są zapisywane do arkusza Google Sheets...
+                          </p>
+                        </div>
+                      </motion.div>
 
-                      {/* KPI Cards */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                          className="bg-blue-50 border border-blue-100 rounded-xl p-4"
-                        >
-                          <p className="text-xs text-blue-600 font-medium">Zamówienia</p>
-                          <p className="text-2xl font-bold text-blue-900">
-                            {ordersCount.toLocaleString('pl-PL')}
-                          </p>
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="bg-green-50 border border-green-100 rounded-xl p-4"
-                        >
-                          <p className="text-xs text-green-600 font-medium">Sprzedaż</p>
-                          <p className="text-2xl font-bold text-green-900">
-                            {revenueCount.toLocaleString('pl-PL')} zł
-                          </p>
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="bg-purple-50 border border-purple-100 rounded-xl p-4"
-                        >
-                          <p className="text-xs text-purple-600 font-medium">Średni koszyk</p>
-                          <p className="text-2xl font-bold text-purple-900">
-                            {(avgCartCount / 100).toFixed(2)} zł
-                          </p>
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 }}
-                          className="bg-orange-50 border border-orange-100 rounded-xl p-4"
-                        >
-                          <p className="text-xs text-orange-600 font-medium">Sprzedane szt.</p>
-                          <p className="text-2xl font-bold text-orange-900">
-                            {Math.floor(ordersCount * 3.12).toLocaleString('pl-PL')}
-                          </p>
-                        </motion.div>
-                      </div>
+                      {/* Google Sheets visualization */}
+                      <GoogleSheetsView
+                        animate={showGoogleSheets}
+                        visibleRows={visibleSheetRows}
+                      />
 
-                      {/* Chart and Table */}
-                      <div className="grid lg:grid-cols-2 gap-4">
+                      {/* Progress indicator */}
+                      {!isFinished && (
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
                           transition={{ delay: 0.5 }}
-                          className="border border-gray-200 rounded-xl p-4"
+                          className="flex items-center justify-center gap-2 text-sm text-gray-500"
                         >
-                          <h4 className="font-medium text-gray-900 text-sm mb-3">Sprzedaż w czasie</h4>
-                          <MiniChart data={presetData.chartData} animate={showDashboard} />
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"
+                          />
+                          <span>Synchronizacja w toku... {visibleSheetRows}/{presetData.spreadsheetData.rows.length} wierszy</span>
                         </motion.div>
+                      )}
 
+                      {/* Completion message */}
+                      {isFinished && (
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6 }}
-                          className="border border-gray-200 rounded-xl p-4"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex items-center justify-center gap-2 text-sm text-green-600"
                         >
-                          <h4 className="font-medium text-gray-900 text-sm mb-3">Top produkty</h4>
-                          <div className="space-y-2">
-                            {presetData.topProducts.map((product, index) => (
-                              <motion.div
-                                key={product.name}
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.7 + index * 0.1 }}
-                                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <span className="w-5 h-5 rounded bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-medium">
-                                    {index + 1}
-                                  </span>
-                                  <span className="text-sm text-gray-700">{product.name}</span>
-                                </div>
-                                <span className="text-sm font-semibold text-gray-900">{product.revenue}</span>
-                              </motion.div>
-                            ))}
-                          </div>
+                          <CheckIcon className="w-4 h-4" />
+                          <span>Synchronizacja zakończona!</span>
                         </motion.div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Restart button */}
