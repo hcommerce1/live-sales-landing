@@ -27,7 +27,7 @@ export default function Contact() {
     setStatus('sending');
 
     try {
-      const response = await fetch('https://formspree.io/f/TWOJ_FORM_ID', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
