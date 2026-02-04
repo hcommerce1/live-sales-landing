@@ -33,7 +33,11 @@ export default function Navbar() {
             <a
               key={item.name}
               href={item.href}
-              className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
+              className={`text-sm font-medium transition-colors ${
+                item.name === 'Kontakt'
+                  ? 'text-primary-600 hover:text-primary-700'
+                  : 'text-gray-600 hover:text-primary-600'
+              }`}
             >
               {item.name}
             </a>
@@ -102,7 +106,11 @@ export default function Navbar() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block py-3 text-base font-medium text-gray-900 hover:text-primary-600 transition-colors"
+                      className={`block py-3 text-base font-medium transition-colors ${
+                        item.name === 'Kontakt'
+                          ? 'text-primary-600 hover:text-primary-700'
+                          : 'text-gray-900 hover:text-primary-600'
+                      }`}
                     >
                       {item.name}
                     </a>
