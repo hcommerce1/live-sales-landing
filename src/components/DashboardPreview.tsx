@@ -466,7 +466,7 @@ export default function DashboardPreview() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={transition}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Zobacz jak to działa
           </motion.span>
@@ -475,7 +475,7 @@ export default function DashboardPreview() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             Konfiguracja w 3 prostych krokach
           </motion.h2>
@@ -484,7 +484,7 @@ export default function DashboardPreview() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             Wybierz dane, podaj arkusz, ustaw harmonogram — gotowe
           </motion.p>

@@ -29,10 +29,10 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
 
-    <!-- Fonts - Inter -->
+    <!-- Fonts - Outfit for logo/headings, Inter for body -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <title>{title}</title>
   </head>
@@ -44,5 +44,9 @@ const {
 <style is:global>
   body {
     font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
   }
 </style>

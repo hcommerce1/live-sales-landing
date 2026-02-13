@@ -59,7 +59,7 @@ export default function ForWhom() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Dla kogo
           </motion.span>
@@ -68,7 +68,7 @@ export default function ForWhom() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             Czy to rozwiązanie dla Ciebie?
           </motion.h2>
@@ -77,7 +77,7 @@ export default function ForWhom() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             Zobacz, jak pomagamy różnym zespołom i firmom
           </motion.p>
@@ -104,7 +104,7 @@ export default function ForWhom() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                <h3 className="card-title mb-4">
                   {segment.title}
                 </h3>
 
@@ -118,7 +118,7 @@ export default function ForWhom() {
                     </div>
                     <div>
                       <span className="text-xs font-semibold text-red-600 uppercase tracking-wider">Problem</span>
-                      <p className="text-gray-600 mt-1">{segment.problem}</p>
+                      <p className="card-description mt-1">{segment.problem}</p>
                     </div>
                   </div>
                 </div>

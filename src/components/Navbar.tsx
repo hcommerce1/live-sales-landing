@@ -5,10 +5,15 @@ import { Dialog, DialogPanel } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 const navigation = [
-  { name: 'Integracje', href: '#integracje' },
+  { name: 'Blog', href: '/pl/blog' },
+  { name: 'Funkcje', href: '#funkcje' },
+  { name: 'Dla kogo', href: '#dla-kogo' },
   { name: 'Jak to działa', href: '#jak-to-dziala' },
+  { name: 'Integracje', href: '#integracje' },
   { name: 'Edytor', href: '#edytor' },
   { name: 'Połączenia', href: '#polaczenia' },
+  { name: 'Bezpieczeństwo', href: '#bezpieczenstwo' },
+  { name: 'Cennik', href: '#cennik' },
   { name: 'Kontakt', href: '#kontakt' },
 ];
 
@@ -33,11 +38,15 @@ export default function Navbar() {
             <a
               key={item.name}
               href={item.href}
+<<<<<<< HEAD
               className={`text-sm font-medium transition-colors ${
                 item.name === 'Kontakt'
                   ? 'text-primary-600 hover:text-primary-700'
                   : 'text-gray-600 hover:text-primary-600'
               }`}
+=======
+              className="nav-link"
+>>>>>>> 8b3639e (fix: Naprawa nawigacji, routingu i bezpieczeństwa)
             >
               {item.name}
             </a>

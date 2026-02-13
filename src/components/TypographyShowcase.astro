@@ -1,0 +1,269 @@
+---
+/**
+ * Typography Showcase Component
+ * Pokazuje wszystkie style typograficzne z LiveSales Design System
+ * Używaj tego jako referencję przy tworzeniu nowych komponentów
+ */
+---
+
+<div class="py-20 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-16 text-center">
+      <h1 class="heading-xl mb-4">
+        LiveSales <span class="text-gradient-brand">Typography</span>
+      </h1>
+      <p class="body-lg text-gray-600">
+        Kompletny system typografii z pełną obsługą polskich znaków
+      </p>
+    </div>
+
+    <!-- Headings -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Nagłówki (Outfit)</h2>
+
+      <div class="space-y-6">
+        <div>
+          <p class="text-caption mb-2">heading-xl (56px, Bold)</p>
+          <h1 class="heading-xl">Łączność z różnymi źródłami danych</h1>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">heading-lg (48px, Bold)</p>
+          <h1 class="heading-lg">Współpraca z platformami sprzedażowymi</h1>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">heading-md (36px, Bold)</p>
+          <h2 class="heading-md">Automatyzacja procesów biznesowych</h2>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">heading-sm (24px, SemiBold)</p>
+          <h3 class="heading-sm">Gotowe dashboardy i raporty</h3>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">h4-h6 (Tailwind defaults)</p>
+          <h4 class="text-2xl font-semibold">H4 - Funkcje analityczne</h4>
+          <h5 class="text-xl font-semibold">H5 - Integracje zewnętrzne</h5>
+          <h6 class="text-lg font-semibold">H6 - Szczegóły techniczne</h6>
+        </div>
+      </div>
+    </section>
+
+    <!-- Body Text -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Tekst (Inter)</h2>
+
+      <div class="space-y-6">
+        <div>
+          <p class="text-caption mb-2">body-lg (18px, Regular)</p>
+          <p class="body-lg">
+            LiveSales to kompleksowa platforma do analizy i automatyzacji danych sprzedażowych.
+            Łączy informacje z różnych źródeł, umożliwiając pełną kontrolę nad procesami biznesowymi.
+          </p>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">body-md (16px, Regular) - Default</p>
+          <p class="body-md">
+            Nasza platforma wspiera polskie znaki: ą, ć, ę, ł, ń, ó, ś, ź, ż.
+            Wszystkie czcionki są zoptymalizowane pod kątem czytelności i wydajności.
+          </p>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">body-sm (14px, Regular)</p>
+          <p class="body-sm">
+            Mniejszy tekst używany do dodatkowych informacji, podpisów i metadanych.
+            Również z pełną obsługą polskich znaków diakrytycznych.
+          </p>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">text-ui (14px, Medium)</p>
+          <span class="text-ui">UI Text - dla buttonów, labels, navigation</span>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">text-caption (12px, Regular)</p>
+          <span class="text-caption">Ostatnia aktualizacja: 13 lutego 2025</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Special Effects -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Efekty specjalne</h2>
+
+      <div class="space-y-6">
+        <div>
+          <p class="text-caption mb-2">text-gradient-brand</p>
+          <h1 class="heading-lg text-gradient-brand">
+            Gradient Text Effect
+          </h1>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">Mixed gradient</p>
+          <h2 class="heading-md">
+            Analiza danych w <span class="text-gradient-brand">czasie rzeczywistym</span>
+          </h2>
+        </div>
+
+        <div>
+          <p class="text-caption mb-2">font-mono (Code)</p>
+          <code class="font-mono bg-gray-100 px-3 py-2 rounded text-sm">
+            const apiKey = 'your-api-key-here';
+          </code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Przyciski</h2>
+
+      <div class="flex flex-wrap gap-4">
+        <button class="btn-primary">
+          Primary Button
+        </button>
+
+        <button class="btn-secondary">
+          Secondary Button
+        </button>
+
+        <button class="btn-ghost">
+          Ghost Button
+        </button>
+      </div>
+
+      <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <p class="body-sm text-gray-600">
+          Wszystkie przyciski używają fontu <code class="font-mono text-xs bg-white px-2 py-1 rounded">Outfit SemiBold</code>
+        </p>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Karty (Cards)</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="heading-sm mb-3">Gotowe dashboardy</h3>
+          <p class="body-md text-gray-600 mb-4">
+            Analizuj dane w czasie rzeczywistym z intuicyjnych dashboardów.
+          </p>
+          <span class="badge-primary">Nowe</span>
+        </div>
+
+        <div class="card">
+          <h3 class="heading-sm mb-3">Automatyzacja</h3>
+          <p class="body-md text-gray-600 mb-4">
+            Oszczędzaj czas dzięki automatycznym exportom i alertom.
+          </p>
+          <span class="badge-secondary">Pro</span>
+        </div>
+
+        <div class="card">
+          <h3 class="heading-sm mb-3">Integracje</h3>
+          <p class="body-md text-gray-600">
+            Łącz dane z Allegro, Baselinker, Excel i wielu innych źródeł.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="heading-sm mb-3">Raporty i eksporty</h3>
+          <p class="body-md text-gray-600">
+            Generuj szczegółowe raporty i eksportuj dane w różnych formatach.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Polish Characters Test -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Test polskich znaków</h2>
+
+      <div class="space-y-4">
+        <div class="card">
+          <h3 class="heading-sm mb-3">Łączność i współpraca</h3>
+          <p class="body-md text-gray-600">
+            Żadnych problemów z polskimi znakami! Ąćęłńóśźż ĄĆĘŁŃÓŚŹŻ.
+            Każda litera renderuje się perfekcyjnie dzięki Latin Extended support.
+          </p>
+        </div>
+
+        <div class="p-4 bg-gradient-brand rounded-lg">
+          <h4 class="text-xl font-bold text-white mb-2">Białe czcionki na gradiencie</h4>
+          <p class="text-white">
+            Świetna czytelność polskich znaków: ąćęłńóśźż na ciemnym tle.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Responsive Example -->
+    <section class="mb-16">
+      <h2 class="heading-md mb-8 pb-4 border-b">Responsywność</h2>
+
+      <div class="card">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-display font-bold mb-4">
+          Responsywny nagłówek
+        </h1>
+        <p class="text-sm md:text-base lg:text-lg font-body text-gray-600">
+          Tekst automatycznie skaluje się w zależności od rozmiaru ekranu.
+          Zmień szerokość okna przeglądarki żeby zobaczyć efekt.
+        </p>
+      </div>
+    </section>
+
+    <!-- Usage Code Example -->
+    <section>
+      <h2 class="heading-md mb-8 pb-4 border-b">Przykład użycia w kodzie</h2>
+
+      <div class="bg-gray-950 text-gray-100 p-6 rounded-lg overflow-x-auto">
+        <pre class="font-mono text-sm"><code>{`<!-- Hero Section -->
+<section class="py-20">
+  <h1 class="heading-xl text-center mb-6">
+    Analiza danych w <span class="text-gradient-brand">czasie rzeczywistym</span>
+  </h1>
+
+  <p class="body-lg text-center text-gray-600 max-w-2xl mx-auto mb-8">
+    Jedno miejsce do analizy, porównywania i automatyzacji danych.
+  </p>
+
+  <div class="flex gap-4 justify-center">
+    <button class="btn-primary">Rozpocznij za darmo</button>
+    <button class="btn-secondary">Zobacz demo</button>
+  </div>
+</section>
+
+<!-- Features -->
+<div class="grid gap-6">
+  <div class="card">
+    <h3 class="heading-sm mb-4">Gotowe dashboardy</h3>
+    <p class="body-md text-gray-600">Opis funkcji...</p>
+  </div>
+</div>`}</code></pre>
+      </div>
+    </section>
+
+    <!-- Footer Note -->
+    <div class="mt-16 p-6 bg-navy-50 rounded-lg border border-navy-200">
+      <h4 class="heading-sm mb-3">📚 Dokumentacja</h4>
+      <p class="body-md text-gray-700 mb-4">
+        Więcej informacji o systemie typografii znajdziesz w:
+      </p>
+      <ul class="body-sm text-gray-600 space-y-2">
+        <li>• <code class="font-mono bg-white px-2 py-1 rounded text-xs">src/styles/TYPOGRAPHY_GUIDE.md</code> - Pełny przewodnik</li>
+        <li>• <code class="font-mono bg-white px-2 py-1 rounded text-xs">src/styles/global.css</code> - Implementacja CSS</li>
+        <li>• <code class="font-mono bg-white px-2 py-1 rounded text-xs">public/brand/BRAND_IDENTITY.md</code> - Brand guidelines</li>
+      </ul>
+    </div>
+
+  </div>
+</div>

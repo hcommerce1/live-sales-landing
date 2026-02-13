@@ -100,7 +100,7 @@ export default function Features() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Gdzie patrzeć
           </motion.span>
@@ -109,7 +109,7 @@ export default function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             4 miejsca, które decydują o zysku
           </motion.h2>
@@ -118,7 +118,7 @@ export default function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             To tutaj tracisz lub zarabiasz pieniądze. My to monitorujemy za Ciebie.
           </motion.p>
@@ -148,7 +148,7 @@ export default function Features() {
 
                 <div className="flex-1">
                   {/* Content */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="card-title mb-2">
                     {feature.title}
                     {feature.highlight && (
                       <span className="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full font-medium">
@@ -156,14 +156,14 @@ export default function Features() {
                       </span>
                     )}
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="card-description mb-4">
                     {feature.description}
                   </p>
 
                   {/* Items */}
                   <ul className="grid grid-cols-2 gap-2">
                     {feature.items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
+                      <li key={item} className="list-item flex items-center gap-2">
                         <svg className="w-4 h-4 text-primary-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>

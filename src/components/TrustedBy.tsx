@@ -71,7 +71,7 @@ export default function TrustedBy() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={transition}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Integracje
           </motion.span>
@@ -81,7 +81,7 @@ export default function TrustedBy() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             Łączymy się z Twoimi narzędziami
           </motion.h2>
@@ -91,7 +91,7 @@ export default function TrustedBy() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             Pobieramy dane bezpośrednio z platform, z których już korzystasz
           </motion.p>
@@ -118,7 +118,7 @@ export default function TrustedBy() {
                   className="max-h-14 max-w-full object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300"
                 />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{partner.name}</h3>
+              <h3 className="feature-title mb-1">{partner.name}</h3>
               <p className="text-sm text-gray-500">{partner.description}</p>
             </motion.div>
           ))}

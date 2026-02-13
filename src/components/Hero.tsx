@@ -61,7 +61,7 @@ export default function Hero() {
             animate="visible"
             transition={transition}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-medium mb-8">
+            <span className="badge-secondary inline-flex items-center gap-2 mb-8">
               <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
               Dashboardy i eksporty dla e-commerce
             </span>
@@ -73,7 +73,7 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight"
+            className="heading-responsive-hero tracking-tight"
           >
             Buduj dashboardy i{' '}
             <span className="text-gradient-brand">automatyczne wydruki</span>
@@ -85,7 +85,7 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto"
+            className="text-section-subtitle mt-6 max-w-2xl mx-auto"
           >
             Łącz dane z Baselinker, Allegro, hurtowniami dropshipping — twórz raporty do Google Sheets,
             alerty na Telegram, eksporty na maila.
@@ -127,7 +127,7 @@ export default function Hero() {
             {benefits.map((benefit, index) => (
               <div key={index} className="flex items-center gap-3 text-gray-600">
                 <div className="text-primary-600">{benefit.icon}</div>
-                <span className="text-sm font-medium">{benefit.text}</span>
+                <span className="text-ui">{benefit.text}</span>
               </div>
             ))}
           </motion.div>

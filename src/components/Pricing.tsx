@@ -67,7 +67,7 @@ export default function Pricing() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={transition}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Cennik
           </motion.span>
@@ -77,7 +77,7 @@ export default function Pricing() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             Prosty i przejrzysty
           </motion.h2>
@@ -87,7 +87,7 @@ export default function Pricing() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             Wybierz plan dopasowany do Twoich potrzeb
           </motion.p>
@@ -116,17 +116,17 @@ export default function Pricing() {
               )}
 
               <div className="text-center mb-8">
-                <h3 className={`text-xl font-bold mb-2 ${tier.highlighted ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`card-title mb-2 ${tier.highlighted ? 'text-white' : ''}`}>
                   {tier.name}
                 </h3>
-                <p className={tier.highlighted ? 'text-white/80' : 'text-gray-500'}>
+                <p className={`card-description ${tier.highlighted ? 'text-white/80' : ''}`}>
                   {tier.description}
                 </p>
               </div>
 
               <ul className="space-y-4 mb-8">
                 {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
+                  <li key={feature} className="list-item flex items-center gap-3">
                     <svg
                       className={`w-5 h-5 flex-shrink-0 ${tier.highlighted ? 'text-white' : 'text-primary-600'}`}
                       fill="none"
@@ -136,7 +136,7 @@ export default function Pricing() {
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <span className={tier.highlighted ? 'text-white/90' : 'text-gray-600'}>
+                    <span className={tier.highlighted ? 'text-white/90' : ''}>
                       {feature}
                     </span>
                   </li>

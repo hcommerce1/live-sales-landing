@@ -53,7 +53,7 @@ export default function Security() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+              className="text-eyebrow"
             >
               Bezpieczeństwo
             </motion.span>
@@ -62,7 +62,7 @@ export default function Security() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+              className="heading-responsive-section mt-3"
             >
               Pełna kontrola nad Twoimi danymi
             </motion.h2>
@@ -71,7 +71,7 @@ export default function Security() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="mt-4 text-lg text-gray-600"
+              className="text-section-subtitle mt-4"
             >
               Bez marketingowego bełkotu. Konkretne zasady bezpieczeństwa, które naprawdę chronią Twoje dane.
             </motion.p>
@@ -90,8 +90,8 @@ export default function Security() {
                     {point.icon}
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">{point.title}</h3>
-                    <p className="text-gray-600 text-sm">{point.description}</p>
+                    <h3 className="feature-title font-bold mb-1">{point.title}</h3>
+                    <p className="feature-text">{point.description}</p>
                   </div>
                 </motion.div>
               ))}
