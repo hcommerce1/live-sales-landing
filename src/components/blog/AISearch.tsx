@@ -107,8 +107,11 @@ export default function AISearch({
         });
 
         if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error('Zbyt wiele zapytań — spróbuj ponownie za chwilę');
+          }
           const error = await response.json();
-          throw new Error(error.error || 'Search failed');
+          throw new Error(error.error || 'Wyszukiwanie nie powiodło się');
         }
 
         const data: SearchResponse = await response.json();
@@ -272,7 +275,7 @@ export default function AISearch({
           className="absolute z-50 w-full mt-2 p-4 bg-white border border-gray-200 rounded-xl shadow-xl"
         >
           <p className="text-sm text-gray-500 text-center">
-            No results found for "{query}"
+            Brak wyników dla „{query}"
           </p>
         </motion.div>
       )}
