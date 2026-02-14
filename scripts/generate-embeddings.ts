@@ -258,9 +258,12 @@ async function main() {
       process.exit(1);
     }
 
-    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-      console.error('❌ Error: Upstash Redis credentials not found');
-      console.error('   Please add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to .env.local');
+    const hasRedis = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL)
+      && (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN);
+    if (!hasRedis) {
+      console.error('❌ Error: Redis credentials not found');
+      console.error('   Please add KV_REST_API_URL + KV_REST_API_TOKEN (Vercel)');
+      console.error('   or UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN to .env.local');
       process.exit(1);
     }
 

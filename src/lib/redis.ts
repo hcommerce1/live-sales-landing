@@ -10,14 +10,17 @@
 import { Redis } from '@upstash/redis';
 
 // Initialize Redis client with REST API credentials
-// Support both import.meta.env (Astro/Vite) and process.env (Node.js)
-const redisUrl = typeof import.meta !== 'undefined' && import.meta.env?.UPSTASH_REDIS_REST_URL
-  ? import.meta.env.UPSTASH_REDIS_REST_URL
-  : process.env.UPSTASH_REDIS_REST_URL;
+// Support: Vercel KV (KV_REST_API_*), Upstash direct (UPSTASH_REDIS_REST_*),
+// and both import.meta.env (Astro/Vite) and process.env (Node.js)
+function getEnv(key: string): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.[key]) {
+    return import.meta.env[key];
+  }
+  return process.env[key];
+}
 
-const redisToken = typeof import.meta !== 'undefined' && import.meta.env?.UPSTASH_REDIS_REST_TOKEN
-  ? import.meta.env.UPSTASH_REDIS_REST_TOKEN
-  : process.env.UPSTASH_REDIS_REST_TOKEN;
+const redisUrl = getEnv('KV_REST_API_URL') || getEnv('UPSTASH_REDIS_REST_URL');
+const redisToken = getEnv('KV_REST_API_TOKEN') || getEnv('UPSTASH_REDIS_REST_TOKEN');
 
 export const redis = new Redis({
   url: redisUrl,
