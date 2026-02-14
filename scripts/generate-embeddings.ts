@@ -21,9 +21,6 @@ import { join } from 'path';
 const envPath = join(process.cwd(), '.env.local');
 if (existsSync(envPath)) {
   config({ path: envPath });
-} else {
-  console.error(`✗ .env.local not found at: ${envPath}`);
-  process.exit(1);
 }
 
 // Now dynamically import modules that need env vars
