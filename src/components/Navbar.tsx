@@ -38,15 +38,11 @@ export default function Navbar() {
             <a
               key={item.name}
               href={item.href}
-<<<<<<< HEAD
               className={`text-sm font-medium transition-colors ${
                 item.name === 'Kontakt'
                   ? 'text-primary-600 hover:text-primary-700'
                   : 'text-gray-600 hover:text-primary-600'
               }`}
-=======
-              className="nav-link"
->>>>>>> 8b3639e (fix: Naprawa nawigacji, routingu i bezpieczeństwa)
             >
               {item.name}
             </a>
