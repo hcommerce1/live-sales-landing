@@ -83,7 +83,7 @@ export default function AISearch({
     }
 
     // Don't search for very short queries
-    if (query.trim().length < 2) {
+    if (query.trim().length < 3) {
       setStatus('idle');
       return;
     }
@@ -91,7 +91,7 @@ export default function AISearch({
     // Set searching status
     setStatus('searching');
 
-    // Debounce search (500ms)
+    // Debounce search (800ms)
     debounceTimerRef.current = setTimeout(async () => {
       try {
         const response = await fetch('/api/search', {
@@ -265,7 +265,7 @@ export default function AISearch({
       </AnimatePresence>
 
       {/* No Results */}
-      {isOpen && status === 'success' && results.length === 0 && query.trim().length >= 2 && (
+      {isOpen && status === 'success' && results.length === 0 && query.trim().length >= 3 && (
         <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}

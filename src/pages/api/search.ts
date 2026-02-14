@@ -3,266 +3,195 @@
  *
  * POST /api/search
  *
- * Request body:
- * {
- *   "query": "jak zaoszczędzić czas",
- *   "language": "pl",  // optional: "pl" | "en" | "all" (default: "all")
- *   "limit": 5         // optional: number (default: 5)
- * }
- *
- * Response:
- * {
- *   "results": [...],
- *   "method": "semantic" | "keyword" | "none",
- *   "count": 5
- * }
+ * Protected by:
+ * - In-memory response cache (5 min TTL) — avoids duplicate OpenAI calls
+ * - Rate limiting (30 req/min per IP)
+ * - Input validation (3-500 chars)
  */
 
 import type { APIRoute } from 'astro';
 import { searchWithFallback } from '@lib/embeddings/search';
 
-// Disable prerendering for this API route
 export const prerender = false;
 
-/**
- * Sanitize user input query
- *
- * @param query - Raw query string
- * @returns Sanitized query
- */
+// --- Response Cache ---
+interface CachedResponse {
+  data: string;
+  timestamp: number;
+}
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const responseCache = new Map<string, CachedResponse>();
+
+function getCacheKey(query: string, language: string, limit: number): string {
+  return `${query.toLowerCase().trim()}:${language}:${limit}`;
+}
+
+// --- Rate Limiter ---
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 30; // 30 requests per minute
+const rateLimitMap = new Map<string, RateLimitEntry>();
+let gcCounter = 0;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+
+  // Garbage collect every 100 requests
+  if (++gcCounter % 100 === 0) {
+    for (const [key, entry] of rateLimitMap) {
+      if (now > entry.resetAt) rateLimitMap.delete(key);
+    }
+    for (const [key, entry] of responseCache) {
+      if (now - entry.timestamp > CACHE_TTL) responseCache.delete(key);
+    }
+  }
+
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
+// --- Helpers ---
 function sanitizeQuery(query: string): string {
-  // Remove control characters
   return query.replace(/[\x00-\x1F\x7F]/g, '').trim();
 }
 
-/**
- * Validate search request
- *
- * @param body - Request body
- * @returns Validation result
- */
 function validateRequest(body: any): {
   valid: boolean;
   error?: string;
-  data?: {
-    query: string;
-    language: 'pl' | 'en' | 'all';
-    limit: number;
-  };
+  data?: { query: string; language: 'pl' | 'en' | 'all'; limit: number };
 } {
-  // Check if body exists
   if (!body || typeof body !== 'object') {
-    return {
-      valid: false,
-      error: 'Invalid request body',
-    };
+    return { valid: false, error: 'Invalid request body' };
   }
 
-  // Check if query exists
   if (!body.query || typeof body.query !== 'string') {
-    return {
-      valid: false,
-      error: 'Query is required and must be a string',
-    };
+    return { valid: false, error: 'Query is required and must be a string' };
   }
 
-  // Sanitize query
   const sanitizedQuery = sanitizeQuery(body.query);
 
-  // Check if query is empty after sanitization
-  if (sanitizedQuery.length === 0) {
-    return {
-      valid: false,
-      error: 'Query cannot be empty',
-    };
+  if (sanitizedQuery.length < 3) {
+    return { valid: false, error: 'Query must be at least 3 characters' };
   }
 
-  // Check query length
   if (sanitizedQuery.length > 500) {
-    return {
-      valid: false,
-      error: 'Query is too long (maximum 500 characters)',
-    };
+    return { valid: false, error: 'Query is too long (maximum 500 characters)' };
   }
 
-  // Validate language
   const language = body.language || 'all';
   if (!['pl', 'en', 'all'].includes(language)) {
-    return {
-      valid: false,
-      error: 'Language must be "pl", "en", or "all"',
-    };
+    return { valid: false, error: 'Language must be "pl", "en", or "all"' };
   }
 
-  // Validate limit
   const limit = parseInt(body.limit) || 5;
   if (limit < 1 || limit > 20) {
-    return {
-      valid: false,
-      error: 'Limit must be between 1 and 20',
-    };
+    return { valid: false, error: 'Limit must be between 1 and 20' };
   }
 
-  return {
-    valid: true,
-    data: {
-      query: sanitizedQuery,
-      language: language as 'pl' | 'en' | 'all',
-      limit,
-    },
-  };
+  return { valid: true, data: { query: sanitizedQuery, language, limit } };
 }
 
-/**
- * POST /api/search
- * Perform semantic search on blog posts
- */
+function jsonResponse(data: object, status: number, extraHeaders: Record<string, string> = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
+  });
+}
+
+// --- Route Handlers ---
+
 export const POST: APIRoute = async ({ request }) => {
   const startTime = Date.now();
 
+  // Rate limit check
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+
+  if (isRateLimited(ip)) {
+    return jsonResponse(
+      { error: 'Too many requests. Please try again later.' },
+      429,
+      { 'Retry-After': '60' }
+    );
+  }
+
+  // Parse body
+  let body: any;
   try {
-    // Parse request body
-    let body: any;
-    try {
-      body = await request.json();
-    } catch (error) {
-      return new Response(
-        JSON.stringify({
-          error: 'Invalid JSON in request body',
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON in request body' }, 400);
+  }
 
-    // Validate request
-    const validation = validateRequest(body);
+  // Validate
+  const validation = validateRequest(body);
+  if (!validation.valid) {
+    return jsonResponse({ error: validation.error }, 400);
+  }
 
-    if (!validation.valid) {
-      return new Response(
-        JSON.stringify({
-          error: validation.error,
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
+  const { query, language, limit } = validation.data!;
 
-    const { query, language, limit } = validation.data!;
+  // Check cache first
+  const cacheKey = getCacheKey(query, language, limit);
+  const cached = responseCache.get(cacheKey);
 
-    // Log request
-    console.log('[API Search]', {
-      query,
-      language,
-      limit,
-      timestamp: new Date().toISOString(),
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return new Response(cached.data, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+        'X-Cache': 'HIT',
+      },
     });
+  }
 
-    // Perform search with fallback
-    const { results, method } = await searchWithFallback({
-      query,
-      language,
-      limit,
-    });
-
+  // Perform search
+  try {
+    const { results, method } = await searchWithFallback({ query, language, limit });
     const latency = Date.now() - startTime;
 
-    // Log result
-    console.log('[API Search] Result', {
-      query,
-      resultsCount: results.length,
-      method,
-      latency: `${latency}ms`,
-    });
+    const responseData = JSON.stringify({ results, method, count: results.length, latency });
 
-    // Return results
-    return new Response(
-      JSON.stringify({
-        results,
-        method,
-        count: results.length,
-        latency,
-      }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-        },
-      }
-    );
+    // Store in cache
+    responseCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+
+    return new Response(responseData, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+        'X-Cache': 'MISS',
+      },
+    });
   } catch (error: any) {
-    const latency = Date.now() - startTime;
+    console.error('[API Search] Error', { message: error?.message, latency: `${Date.now() - startTime}ms` });
 
-    // Log error
-    console.error('[API Search] Error', {
-      message: error?.message,
-      stack: error?.stack,
-      latency: `${latency}ms`,
-    });
-
-    // Check if it's an OpenAI error
     if (error?.message?.includes('OpenAI')) {
-      return new Response(
-        JSON.stringify({
-          error: 'Search service temporarily unavailable',
-          details: 'AI service error',
-        }),
-        {
-          status: 503,
-          headers: {
-            'Content-Type': 'application/json',
-            'Retry-After': '60', // Retry after 1 minute
-          },
-        }
+      return jsonResponse(
+        { error: 'Search service temporarily unavailable' },
+        503,
+        { 'Retry-After': '60' }
       );
     }
 
-    // Check if it's a Redis error
-    if (error?.message?.includes('Redis')) {
-      return new Response(
-        JSON.stringify({
-          error: 'Search service temporarily unavailable',
-          details: 'Storage service error',
-        }),
-        {
-          status: 503,
-          headers: {
-            'Content-Type': 'application/json',
-            'Retry-After': '30', // Retry after 30 seconds
-          },
-        }
-      );
-    }
-
-    // Generic error
-    return new Response(
-      JSON.stringify({
-        error: 'Internal server error',
-        details: 'An unexpected error occurred',
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    return jsonResponse({ error: 'Internal server error' }, 500);
   }
 };
 
-/**
- * OPTIONS /api/search
- * Handle CORS preflight requests
- */
 export const OPTIONS: APIRoute = async () => {
   return new Response(null, {
     status: 204,

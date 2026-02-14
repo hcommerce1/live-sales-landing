@@ -13,7 +13,7 @@ const posts = await getCollection('blog', ({ data }) =>
 posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const featuredPosts = posts.filter(p => p.data.featured);
-const regularPosts = posts.filter(p => !p.data.featured);
+const regularPosts = posts;
 
 const title = 'Blog - LiveSales';
 const description = 'Przewodniki, case studies i najlepsze praktyki automatyzacji danych dla e-commerce. Dowiedz się jak oszczędzić czas i podejmować lepsze decyzje biznesowe.';
@@ -39,7 +39,7 @@ const description = 'Przewodniki, case studies i najlepsze praktyki automatyzacj
             <AISearch
               client:load
               language="pl"
-              placeholder="Szukaj artykułów... (np. 'jak zaoszczędzić czas')"
+              placeholder="Szukaj artykułów... (np. 'KPI w e-commerce')"
               limit={5}
             />
           </div>
