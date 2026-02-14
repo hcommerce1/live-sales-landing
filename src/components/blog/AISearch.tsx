@@ -237,28 +237,12 @@ export default function AISearch({
                   animate="visible"
                   className="block p-4 rounded-lg hover:bg-gray-50 transition-colors group"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-gray-900 group-hover:text-sky-600 transition-colors truncate">
-                        {result.postTitle}
-                      </h4>
-                      {result.sectionTitle && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          → {result.sectionTitle}
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                        {result.description}
-                      </p>
-                    </div>
-
-                    {/* Similarity Score */}
-                    <div className="flex-shrink-0">
-                      <div className="text-xs font-medium text-gray-400">
-                        {Math.round(result.similarity * 100)}%
-                      </div>
-                    </div>
-                  </div>
+                  <h4 className="text-sm font-semibold text-gray-900 group-hover:text-sky-600 transition-colors">
+                    {result.postTitle}
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                    {result.excerpt || result.description}
+                  </p>
                 </motion.a>
               ))}
             </div>

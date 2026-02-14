@@ -80,6 +80,49 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
 }
 
 /**
+ * Generate contextual search summaries using GPT-4o-mini
+ *
+ * For each search result, generates a 1-sentence description
+ * explaining why the article is relevant to the user's query.
+ */
+export async function generateSearchSummaries(
+  query: string,
+  results: Array<{ postTitle: string; sectionTitle?: string; content: string }>
+): Promise<string[]> {
+  if (results.length === 0) return [];
+
+  const articles = results.map((r, i) =>
+    `[${i + 1}] "${r.postTitle}"${r.sectionTitle ? ` (sekcja: ${r.sectionTitle})` : ''}\nTreść: ${r.content.slice(0, 300)}`
+  ).join('\n\n');
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.3,
+      max_tokens: 200,
+      messages: [{
+        role: 'system',
+        content: 'Jesteś asystentem wyszukiwarki blogów. Dla każdego artykułu napisz JEDNO krótkie zdanie (max 15 słów) wyjaśniające co czytelnik znajdzie w artykule w kontekście zapytania. Odpowiedz w formacie: 1. zdanie\n2. zdanie\nitd. Pisz po polsku, zachęcająco.'
+      }, {
+        role: 'user',
+        content: `Zapytanie: "${query}"\n\nArtykuły:\n${articles}`
+      }],
+    });
+
+    const text = response.choices[0]?.message?.content || '';
+    const lines = text.split('\n').filter(l => l.trim());
+
+    return results.map((_, i) => {
+      const line = lines.find(l => l.startsWith(`${i + 1}.`));
+      return line ? line.replace(/^\d+\.\s*/, '').trim() : '';
+    });
+  } catch (error) {
+    console.error('[OpenAI] Summary generation failed:', error);
+    return results.map(() => '');
+  }
+}
+
+/**
  * Get estimated token count for text
  * Rough approximation: 1 token ≈ 4 characters
  *

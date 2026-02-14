@@ -11,7 +11,7 @@
  * - Configurable similarity threshold
  */
 
-import { generateEmbedding } from '../openai';
+import { generateEmbedding, generateSearchSummaries } from '../openai';
 import embeddingsData from '../../data/embeddings.json';
 
 interface EmbeddingRecord {
@@ -168,6 +168,31 @@ export async function keywordSearch(
 }
 
 /**
+ * Enrich results with GPT-generated contextual summaries
+ */
+async function enrichWithSummaries(query: string, results: SearchResult[]): Promise<SearchResult[]> {
+  if (results.length === 0) return results;
+
+  // Get content for each result from embeddings data
+  const allData = embeddingsData as EmbeddingRecord[];
+  const resultsWithContent = results.map(r => {
+    const match = allData.find(d => d.slug === r.slug && d.lang === r.lang);
+    return {
+      postTitle: r.postTitle,
+      sectionTitle: r.sectionTitle,
+      content: match?.content || r.excerpt || '',
+    };
+  });
+
+  const summaries = await generateSearchSummaries(query, resultsWithContent);
+
+  return results.map((r, i) => ({
+    ...r,
+    excerpt: summaries[i] || r.description,
+  }));
+}
+
+/**
  * Search with automatic fallback
  */
 export async function searchWithFallback(options: SearchOptions): Promise<{
@@ -177,13 +202,15 @@ export async function searchWithFallback(options: SearchOptions): Promise<{
   try {
     const semanticResults = await semanticSearch(options);
     if (semanticResults.length > 0) {
-      return { results: semanticResults, method: 'semantic' };
+      const enriched = await enrichWithSummaries(options.query, semanticResults);
+      return { results: enriched, method: 'semantic' };
     }
 
     console.log('[Search] Semantic search returned no results, trying keyword search');
     const keywordResults = await keywordSearch(options.query, options.language);
     if (keywordResults.length > 0) {
-      return { results: keywordResults, method: 'keyword' };
+      const enriched = await enrichWithSummaries(options.query, keywordResults);
+      return { results: enriched, method: 'keyword' };
     }
 
     return { results: [], method: 'none' };
