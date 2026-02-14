@@ -196,23 +196,6 @@ export default function AISearch({
           `}
         />
 
-        {/* AI Badge */}
-        {searchMethod && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-            <span
-              className={`
-                px-2 py-1 text-xs font-semibold rounded-full
-                ${
-                  searchMethod === 'semantic'
-                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }
-              `}
-            >
-              {searchMethod === 'semantic' ? '✨ AI' : '🔍 Keyword'}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Error Message */}
@@ -277,24 +260,6 @@ export default function AISearch({
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
-              <p className="text-xs text-gray-500 text-center">
-                {searchMethod === 'semantic' ? (
-                  <>
-                    ✨ Powered by AI •{' '}
-                    <span className="font-medium">{results.length}</span> result
-                    {results.length !== 1 ? 's' : ''}
-                  </>
-                ) : (
-                  <>
-                    🔍 Keyword search •{' '}
-                    <span className="font-medium">{results.length}</span> result
-                    {results.length !== 1 ? 's' : ''}
-                  </>
-                )}
-              </p>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
