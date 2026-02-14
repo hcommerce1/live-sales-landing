@@ -108,7 +108,16 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
 
   results.sort((a, b) => b.similarity - a.similarity);
 
-  return results.filter(r => r.similarity >= minSimilarity).slice(0, limit);
+  // Deduplicate: keep only the best-matching chunk per post
+  const seen = new Set<string>();
+  const unique = results.filter(r => {
+    const key = `${r.lang}:${r.slug}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return unique.filter(r => r.similarity >= minSimilarity).slice(0, limit);
 }
 
 /**
@@ -142,10 +151,20 @@ export async function keywordSearch(
     };
   });
 
-  return results
+  const sorted = results
     .filter(r => r.similarity > 0)
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, 5);
+    .sort((a, b) => b.similarity - a.similarity);
+
+  // Deduplicate: keep only the best-matching chunk per post
+  const seen = new Set<string>();
+  const unique = sorted.filter(r => {
+    const key = `${r.lang}:${r.slug}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return unique.slice(0, 5);
 }
 
 /**
