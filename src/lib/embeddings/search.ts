@@ -2,7 +2,7 @@
  * Semantic Search Implementation
  *
  * Performs AI-powered semantic search using cosine similarity
- * on OpenAI embeddings stored in Redis.
+ * on OpenAI embeddings stored in a JSON file (generated at build time).
  *
  * Features:
  * - Cosine similarity matching
@@ -12,11 +12,30 @@
  */
 
 import { generateEmbedding } from '../openai';
-import { getAllEmbeddings, type SearchResult, type EmbeddingRecord } from '../redis';
+import embeddingsData from '../../data/embeddings.json';
 
-/**
- * Search options
- */
+interface EmbeddingRecord {
+  slug: string;
+  lang: 'pl' | 'en';
+  postTitle: string;
+  description: string;
+  sectionTitle?: string;
+  content: string;
+  url: string;
+  embedding: number[];
+}
+
+export interface SearchResult {
+  slug: string;
+  lang: 'pl' | 'en';
+  postTitle: string;
+  description: string;
+  sectionTitle?: string;
+  url: string;
+  similarity: number;
+  excerpt?: string;
+}
+
 export interface SearchOptions {
   query: string;
   language?: 'pl' | 'en' | 'all';
@@ -25,11 +44,16 @@ export interface SearchOptions {
 }
 
 /**
+ * Get all embeddings, optionally filtered by language
+ */
+function getAllEmbeddings(language: 'pl' | 'en' | 'all' = 'all'): EmbeddingRecord[] {
+  const data = embeddingsData as EmbeddingRecord[];
+  if (language === 'all') return data;
+  return data.filter(r => r.lang === language);
+}
+
+/**
  * Calculate cosine similarity between two vectors
- *
- * @param a - First vector
- * @param b - Second vector
- * @returns Similarity score (0-1, where 1 is identical)
  */
 export function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) {
@@ -47,19 +71,11 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   }
 
   const magnitude = Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB);
-
-  if (magnitude === 0) {
-    return 0;
-  }
-
-  return dotProduct / magnitude;
+  return magnitude === 0 ? 0 : dotProduct / magnitude;
 }
 
 /**
  * Perform semantic search using embeddings
- *
- * @param options - Search configuration
- * @returns Array of search results sorted by similarity
  */
 export async function semanticSearch(options: SearchOptions): Promise<SearchResult[]> {
   const {
@@ -69,174 +85,97 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     minSimilarity = 0.65,
   } = options;
 
-  try {
-    // Generate embedding for search query
-    const queryEmbedding = await generateEmbedding(query);
+  const allEmbeddings = getAllEmbeddings(language);
 
-    // Get all embeddings from Redis
-    const allEmbeddings = await getAllEmbeddings(language);
-
-    if (allEmbeddings.length === 0) {
-      console.warn('[Search] No embeddings found in Redis');
-      return [];
-    }
-
-    // Calculate similarity scores for all embeddings
-    const results = allEmbeddings.map((record) => {
-      const similarity = cosineSimilarity(queryEmbedding, record.embedding);
-
-      return {
-        slug: record.slug,
-        lang: record.lang,
-        postTitle: record.postTitle,
-        description: record.description,
-        sectionTitle: record.sectionTitle,
-        url: record.url,
-        similarity,
-        excerpt: record.content.slice(0, 200) + '...',
-      } as SearchResult;
-    });
-
-    // Sort by similarity (highest first)
-    results.sort((a, b) => b.similarity - a.similarity);
-
-    // Filter by minimum similarity threshold
-    const filteredResults = results.filter((r) => r.similarity >= minSimilarity);
-
-    // Return top N results
-    return filteredResults.slice(0, limit);
-  } catch (error) {
-    console.error('[Search] Semantic search failed:', error);
-    throw error;
+  if (allEmbeddings.length === 0) {
+    console.warn('[Search] No embeddings found');
+    return [];
   }
+
+  // Generate embedding for search query
+  const queryEmbedding = await generateEmbedding(query);
+
+  const results = allEmbeddings.map((record) => ({
+    slug: record.slug,
+    lang: record.lang,
+    postTitle: record.postTitle,
+    description: record.description,
+    sectionTitle: record.sectionTitle,
+    url: record.url,
+    similarity: cosineSimilarity(queryEmbedding, record.embedding),
+    excerpt: record.content.slice(0, 200) + '...',
+  }));
+
+  results.sort((a, b) => b.similarity - a.similarity);
+
+  return results.filter(r => r.similarity >= minSimilarity).slice(0, limit);
 }
 
 /**
  * Keyword-based fallback search
- * Used when semantic search returns no results
- *
- * @param query - Search query
- * @param language - Language filter
- * @returns Array of search results
  */
 export async function keywordSearch(
   query: string,
   language: 'pl' | 'en' | 'all' = 'all'
 ): Promise<SearchResult[]> {
-  try {
-    const allEmbeddings = await getAllEmbeddings(language);
-    const queryLower = query.toLowerCase();
-    const keywords = queryLower.split(/\s+/);
+  const allEmbeddings = getAllEmbeddings(language);
+  const queryLower = query.toLowerCase();
+  const keywords = queryLower.split(/\s+/);
 
-    // Score each embedding based on keyword matches
-    const results = allEmbeddings.map((record) => {
-      const searchText = `${record.postTitle} ${record.description} ${record.content}`.toLowerCase();
+  const results = allEmbeddings.map((record) => {
+    const searchText = `${record.postTitle} ${record.description} ${record.content}`.toLowerCase();
+    let matchCount = 0;
+    for (const keyword of keywords) {
+      if (searchText.includes(keyword)) matchCount++;
+    }
+    const similarity = keywords.length > 0 ? matchCount / keywords.length : 0;
 
-      // Count keyword matches
-      let matchCount = 0;
-      for (const keyword of keywords) {
-        if (searchText.includes(keyword)) {
-          matchCount++;
-        }
-      }
+    return {
+      slug: record.slug,
+      lang: record.lang,
+      postTitle: record.postTitle,
+      description: record.description,
+      sectionTitle: record.sectionTitle,
+      url: record.url,
+      similarity,
+      excerpt: record.content.slice(0, 200) + '...',
+    };
+  });
 
-      // Calculate pseudo-similarity score (0-1)
-      const similarity = keywords.length > 0 ? matchCount / keywords.length : 0;
-
-      return {
-        slug: record.slug,
-        lang: record.lang,
-        postTitle: record.postTitle,
-        description: record.description,
-        sectionTitle: record.sectionTitle,
-        url: record.url,
-        similarity,
-        excerpt: record.content.slice(0, 200) + '...',
-      } as SearchResult;
-    });
-
-    // Filter and sort
-    const filteredResults = results
-      .filter((r) => r.similarity > 0)
-      .sort((a, b) => b.similarity - a.similarity);
-
-    return filteredResults.slice(0, 5);
-  } catch (error) {
-    console.error('[Search] Keyword search failed:', error);
-    return [];
-  }
+  return results
+    .filter(r => r.similarity > 0)
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, 5);
 }
 
 /**
  * Search with automatic fallback
- * Tries semantic search first, falls back to keyword search if needed
- *
- * @param options - Search configuration
- * @returns Array of search results
  */
 export async function searchWithFallback(options: SearchOptions): Promise<{
   results: SearchResult[];
   method: 'semantic' | 'keyword' | 'none';
 }> {
   try {
-    // Try semantic search first
     const semanticResults = await semanticSearch(options);
-
     if (semanticResults.length > 0) {
-      return {
-        results: semanticResults,
-        method: 'semantic',
-      };
+      return { results: semanticResults, method: 'semantic' };
     }
 
-    // Fall back to keyword search
     console.log('[Search] Semantic search returned no results, trying keyword search');
     const keywordResults = await keywordSearch(options.query, options.language);
-
     if (keywordResults.length > 0) {
-      return {
-        results: keywordResults,
-        method: 'keyword',
-      };
+      return { results: keywordResults, method: 'keyword' };
     }
 
-    // No results found
-    return {
-      results: [],
-      method: 'none',
-    };
+    return { results: [], method: 'none' };
   } catch (error) {
     console.error('[Search] Search with fallback failed:', error);
 
-    // Last resort: try keyword search
     try {
       const keywordResults = await keywordSearch(options.query, options.language);
-      return {
-        results: keywordResults,
-        method: 'keyword',
-      };
+      return { results: keywordResults, method: 'keyword' };
     } catch {
-      return {
-        results: [],
-        method: 'none',
-      };
+      return { results: [], method: 'none' };
     }
   }
-}
-
-/**
- * Generate cache key for search results
- *
- * @param query - Search query
- * @param language - Language filter
- * @param limit - Result limit
- * @returns Cache key string
- */
-export function generateCacheKey(
-  query: string,
-  language: string,
-  limit: number
-): string {
-  const normalized = query.toLowerCase().trim();
-  return `search:${language}:${limit}:${normalized}`;
 }

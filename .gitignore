@@ -15,7 +15,11 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
 .env.production
+
+# generated embeddings (created during build)
+src/data/embeddings.json
 
 # macOS-specific files
 .DS_Store

@@ -6,15 +6,11 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 const navigation = [
   { name: 'Blog', href: '/pl/blog' },
-  { name: 'Funkcje', href: '#funkcje' },
-  { name: 'Dla kogo', href: '#dla-kogo' },
-  { name: 'Jak to działa', href: '#jak-to-dziala' },
-  { name: 'Integracje', href: '#integracje' },
-  { name: 'Edytor', href: '#edytor' },
-  { name: 'Połączenia', href: '#polaczenia' },
-  { name: 'Bezpieczeństwo', href: '#bezpieczenstwo' },
-  { name: 'Cennik', href: '#cennik' },
-  { name: 'Kontakt', href: '#kontakt' },
+  { name: 'Jak to działa', href: '/#jak-to-dziala' },
+  { name: 'Integracje', href: '/#integracje' },
+  { name: 'Połączenia', href: '/#polaczenia' },
+  { name: 'Bezpieczeństwo', href: '/#bezpieczenstwo' },
+  { name: 'Kontakt', href: '/#kontakt' },
 ];
 
 export default function Navbar() {

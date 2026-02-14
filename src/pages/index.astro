@@ -2,14 +2,10 @@
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import Hero from '@components/Hero';
-import Features from '@components/Features';
 import TrustedBy from '@components/TrustedBy';
-import ForWhom from '@components/ForWhom';
 import HowItWorks from '@components/HowItWorks';
-import DashboardPreview from '@components/DashboardPreview';
 import Integrations from '@components/Integrations';
 import Security from '@components/Security';
-import Pricing from '@components/Pricing';
 import Contact from '@components/Contact';
 import Footer from '@components/Footer';
 ---
@@ -18,14 +14,10 @@ import Footer from '@components/Footer';
   <Navbar client:load />
   <main>
     <Hero client:load />
-    <Features client:visible />
     <TrustedBy client:visible />
-    <ForWhom client:visible />
     <HowItWorks client:visible />
-    <DashboardPreview client:visible />
     <Integrations client:visible />
     <Security client:visible />
-    <Pricing client:visible />
     <Contact client:load />
   </main>
   <Footer />
