@@ -173,14 +173,17 @@ export async function keywordSearch(
 async function enrichWithSummaries(query: string, results: SearchResult[]): Promise<SearchResult[]> {
   if (results.length === 0) return results;
 
-  // Get content for each result from embeddings data
+  // Get content for each result from embeddings data — match by sectionTitle to get the right chunk
   const allData = embeddingsData as EmbeddingRecord[];
   const resultsWithContent = results.map(r => {
-    const match = allData.find(d => d.slug === r.slug && d.lang === r.lang);
+    const match = r.sectionTitle
+      ? allData.find(d => d.slug === r.slug && d.lang === r.lang && d.sectionTitle === r.sectionTitle)
+      : allData.find(d => d.slug === r.slug && d.lang === r.lang && !d.sectionTitle);
+    const finalMatch = match || allData.find(d => d.slug === r.slug && d.lang === r.lang);
     return {
       postTitle: r.postTitle,
       sectionTitle: r.sectionTitle,
-      content: match?.content || r.excerpt || '',
+      content: finalMatch?.content || r.excerpt || '',
     };
   });
 

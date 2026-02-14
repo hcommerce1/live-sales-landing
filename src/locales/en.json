@@ -25,17 +25,17 @@
   "howItWorks": {
     "title": "How it works",
     "steps": {
-      "register": {
-        "title": "Sign up",
-        "description": "Quick account creation without unnecessary formalities"
+      "contact": {
+        "title": "Get in touch",
+        "description": "A free, no-obligation conversation. We get to know your business and determine if data analysis can help you."
       },
-      "connect": {
-        "title": "Connect your data sources",
-        "description": "Intuitive connection to spreadsheets, databases, and APIs"
+      "analyze": {
+        "title": "We analyze your needs",
+        "description": "We review the data you work with, the challenges you face, and what's worth automating."
       },
-      "get": {
-        "title": "Get ready solutions",
-        "description": "Dashboards, exports, and alerts work immediately"
+      "implement": {
+        "title": "We implement the solution",
+        "description": "We deliver dashboards, reports, and automations tailored to your business. Ready to go."
       }
     }
   },

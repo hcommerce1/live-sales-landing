@@ -92,17 +92,29 @@ export async function generateSearchSummaries(
   if (results.length === 0) return [];
 
   const articles = results.map((r, i) =>
-    `[${i + 1}] "${r.postTitle}"${r.sectionTitle ? ` (sekcja: ${r.sectionTitle})` : ''}\nTreść: ${r.content.slice(0, 300)}`
+    `[${i + 1}] "${r.postTitle}"${r.sectionTitle ? ` (sekcja: ${r.sectionTitle})` : ''}\nTreść: ${r.content.slice(0, 600)}`
   ).join('\n\n');
 
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       temperature: 0.3,
-      max_tokens: 200,
+      max_tokens: 300,
       messages: [{
         role: 'system',
-        content: 'Jesteś asystentem wyszukiwarki blogów. Dla każdego artykułu napisz JEDNO krótkie zdanie (max 15 słów) wyjaśniające co czytelnik znajdzie w artykule w kontekście zapytania. Odpowiedz w formacie: 1. zdanie\n2. zdanie\nitd. Pisz po polsku, zachęcająco.'
+        content: `Jesteś asystentem wyszukiwarki. Dla każdego artykułu napisz JEDNO zdanie (max 20 słów) odpowiadające BEZPOŚREDNIO na zapytanie użytkownika.
+
+ZASADY:
+- Użyj konkretnych terminów z zapytania (np. jeśli pytanie o "CAC", napisz o CAC)
+- NIE pisz ogólników typu "dowiedz się" czy "poznaj klucze do sukcesu"
+- Odnieś się do treści artykułu, nie wymyślaj
+
+PRZYKŁAD:
+Zapytanie: "jak obliczyć ROAS"
+Artykuł: "15 metryk e-commerce" (sekcja: ROAS)
+Wynik: Wzór na ROAS, benchmarki (2x-6x) i praktyczne przykłady z Meta Ads.
+
+Format: 1. zdanie\n2. zdanie`
       }, {
         role: 'user',
         content: `Zapytanie: "${query}"\n\nArtykuły:\n${articles}`
