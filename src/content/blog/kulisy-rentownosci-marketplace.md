@@ -2,12 +2,10 @@
 title: "Kulisy rentowności marketplace – czego nie widać w raportach sprzedaży"
 description: "Głęboka analiza ukrytych kosztów marketplace i atrybucja kosztów w e-commerce. Praktyczny przewodnik dla sprzedawców online."
 pubDate: 2024-02-12
-author:
-  name: "LiveSales Team"
-  role: "Eksperci e-commerce"
-tags: ["e-commerce", "marketplace", "rentowność", "analiza-danych"]
+lang: pl
+category: guide
 featured: true
-lang: "pl"
+tags: ["e-commerce", "marketplace", "rentowność", "analiza-danych"]
 ---
 
 Z perspektywy rynku można zauważyć ciekawy trend, o którym rzadko mówi się publicznie. Z informacji płynących z branży wynika, że nawet bardzo duże i rozpoznawalne marki technologiczne osiągają na marketplace'ach – szczególnie na Allegro – relatywnie niskie marże, a w niektórych segmentach operują praktycznie na granicy rentowności.
