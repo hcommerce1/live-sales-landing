@@ -1,0 +1,204 @@
+---
+/**
+ * Client-Side Analytics Tracker
+ *
+ * Vanilla JS (~3KB gzipped), zero React dependency.
+ * Injected into Layout.astro before </body>.
+ *
+ * Tracks:
+ * - Copy events (text selection + Ctrl+C)
+ * - Scroll heatmap (dwell time per 5% segment)
+ * - Quit depth (max scroll % on page leave)
+ * - Return visits (localStorage-based)
+ * - CTA / link clicks
+ * - Ctrl+K → search overlay open
+ *
+ * Exposes window.__ls_track(type, meta) for React islands.
+ */
+
+interface Props {
+  slug?: string;
+  lang?: string;
+}
+
+const { slug, lang = 'pl' } = Astro.props;
+---
+
+<script define:vars={{ slug, lang }}>
+(function() {
+  'use strict';
+
+  const API = '/api/analytics';
+  const sid = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+  const currentSlug = slug || window.location.pathname.replace(/^\/|\/$/g, '') || 'home';
+  const currentLang = lang || document.documentElement.lang || 'pl';
+
+  // --- Safe localStorage helpers ---
+  function safeGet(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+    catch { return fallback; }
+  }
+  function safeSet(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch { /* storage full or disabled */ }
+  }
+
+  // --- Event Queue + Flush ---
+  const queue = [];
+  let flushTimer = null;
+  const FLUSH_INTERVAL = 5000;
+
+  function track(type, meta) {
+    queue.push({ type, slug: currentSlug, lang: currentLang, meta, ts: Date.now() });
+    if (!flushTimer) {
+      flushTimer = setTimeout(flush, FLUSH_INTERVAL);
+    }
+  }
+
+  function flush() {
+    if (queue.length === 0) { flushTimer = null; return; }
+    const payload = JSON.stringify({ events: queue.splice(0), sid });
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(API, new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch(API, { method: 'POST', body: payload, keepalive: true }).catch(() => {});
+    }
+    flushTimer = null;
+  }
+
+  // === 1. PAGE VIEW ===
+  track('pageview', { referrer: document.referrer, path: window.location.pathname });
+
+  // === 2. COPY TRACKING ===
+  document.addEventListener('copy', function() {
+    var sel = window.getSelection();
+    var text = sel ? sel.toString().trim() : '';
+    if (text.length >= 5 && text.length <= 2000) {
+      track('copy', { text: text.slice(0, 500), length: text.length });
+    }
+  });
+
+  // === 3. SCROLL HEATMAP (dwell time per 5% segment) ===
+  var dwellMap = new Array(20).fill(0); // 20 segments: 0-5%, 5-10%, ..., 95-100%
+  var maxScrollReached = 0;
+
+  var dwellInterval = setInterval(function() {
+    if (document.hidden) return;
+
+    var docHeight = document.documentElement.scrollHeight;
+    var winHeight = window.innerHeight;
+    var scrollable = docHeight - winHeight;
+
+    if (scrollable <= 0) {
+      // Article fits in viewport — 100% read
+      dwellMap[19] += 2;
+      maxScrollReached = 100;
+      return;
+    }
+
+    var pct = Math.min(Math.round((window.scrollY / scrollable) * 100), 100);
+    var segment = Math.min(Math.floor(pct / 5), 19);
+    dwellMap[segment] += 2;
+
+    if (pct > maxScrollReached) maxScrollReached = pct;
+  }, 2000);
+
+  // === 4. TIME TRACKING (visible time only) ===
+  var startTime = Date.now();
+  var isVisible = true;
+  var totalVisibleTime = 0;
+  var lastVisibleStart = startTime;
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      isVisible = false;
+      totalVisibleTime += Date.now() - lastVisibleStart;
+      flush(); // Partial flush when switching tabs
+    } else {
+      isVisible = true;
+      lastVisibleStart = Date.now();
+    }
+  });
+
+  // === 5. RETURN VISITS ===
+  var visitKey = 'ls_visited_' + currentSlug;
+  var previousVisits = safeGet(visitKey, []);
+  var visitCount = previousVisits.length + 1;
+  previousVisits.push(Date.now());
+  safeSet(visitKey, previousVisits.slice(-20));
+
+  if (visitCount > 1) {
+    var firstVisit = previousVisits[0];
+    var daysSinceFirst = Math.floor((Date.now() - firstVisit) / 86400000);
+    track('return_visit', { visitCount: visitCount, daysSinceFirst: daysSinceFirst });
+  }
+
+  // === 6. CTA CLICK TRACKING ===
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+
+    // CTA clicks
+    var cta = target.closest && target.closest('a[href*="kontakt"], a[href*="contact"], [data-track-cta]');
+    if (cta) {
+      track('cta_click', {
+        text: (cta.textContent || '').trim().slice(0, 50),
+        href: cta.getAttribute('href'),
+      });
+    }
+
+    // Related post clicks
+    var related = target.closest && target.closest('[data-track-related]');
+    if (related) {
+      track('cta_click', {
+        text: (related.textContent || '').trim().slice(0, 50),
+        href: related.getAttribute('href'),
+        targetSlug: related.getAttribute('data-track-related'),
+      });
+    }
+  }, true);
+
+  // === 7. CTRL+K → SEARCH OVERLAY ===
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('open-search'));
+      track('search_overlay', { trigger: 'keyboard' });
+    }
+  });
+
+  // === 8. FINAL FLUSH (beforeunload + pagehide) ===
+  var hasFlushed = false;
+
+  function finalFlush() {
+    if (hasFlushed) return;
+    hasFlushed = true;
+
+    clearInterval(dwellInterval);
+
+    if (isVisible) {
+      totalVisibleTime += Date.now() - lastVisibleStart;
+    }
+
+    var timeSpentSeconds = Math.round(totalVisibleTime / 1000);
+
+    // Scroll dwell heatmap
+    track('scroll_dwell', { segments: dwellMap });
+
+    // Quit depth
+    track('quit', { depth: maxScrollReached, timeSpent: timeSpentSeconds });
+
+    flush();
+  }
+
+  window.addEventListener('pagehide', finalFlush);
+  window.addEventListener('beforeunload', finalFlush);
+
+  // === GLOBAL API FOR REACT ISLANDS ===
+  window.__ls_track = track;
+  window.__ls_flush = flush;
+})();
+</script>

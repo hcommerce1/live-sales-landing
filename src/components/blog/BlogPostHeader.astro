@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { formatDate } from '@/lib/blogUtils';
+import AudioPlayer from '@/components/blog/AudioPlayer';
 
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -54,6 +55,10 @@ const { title, description, pubDate, author, tags, heroImage } = post.data;
         <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
         <span class="mx-2">•</span>
         <span>{readingTime} min czytania</span>
+      </div>
+
+      <div class="ml-auto">
+        <AudioPlayer client:idle slug={post.slug} lang={post.data.lang} />
       </div>
     </div>
   </div>

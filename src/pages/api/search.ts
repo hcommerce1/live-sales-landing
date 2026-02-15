@@ -11,6 +11,7 @@
 
 import type { APIRoute } from 'astro';
 import { searchWithFallback } from '@lib/embeddings/search';
+import { logSearchQuery } from '@lib/analytics/events';
 
 export const prerender = false;
 
@@ -168,6 +169,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Store in cache
     responseCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+
+    // Log search query to analytics (fire-and-forget)
+    logSearchQuery({ query, language, resultsCount: results.length }).catch(() => {});
 
     return new Response(responseData, {
       status: 200,
