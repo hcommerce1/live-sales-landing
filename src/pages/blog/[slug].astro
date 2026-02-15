@@ -1,0 +1,84 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import BlogPostHeader from '@/components/blog/BlogPostHeader.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { getReadingTime } from '@/lib/blogUtils';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const readingTime = getReadingTime(post.body);
+---
+
+<Layout
+  title={`${post.data.title} - Blog LiveSales`}
+  description={post.data.description}
+  lang={post.data.lang}
+>
+  <!-- OpenGraph Meta Tags -->
+  <meta property="og:type" content="article" slot="head" />
+  <meta property="og:title" content={post.data.title} slot="head" />
+  <meta property="og:description" content={post.data.description} slot="head" />
+  {post.data.heroImage && <meta property="og:image" content={post.data.heroImage} slot="head" />}
+  <meta property="article:published_time" content={post.data.pubDate.toISOString()} slot="head" />
+  <meta property="article:author" content={post.data.author.name} slot="head" />
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.data.title,
+    "description": post.data.description,
+    "image": post.data.heroImage,
+    "datePublished": post.data.pubDate.toISOString(),
+    "dateModified": post.data.updatedDate?.toISOString() || post.data.pubDate.toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": post.data.author.name
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "LiveSales"
+    }
+  })} />
+
+  <Navbar client:load />
+
+  <main class="pt-24 pb-16 min-h-screen bg-gray-50">
+    <article class="max-w-5xl mx-auto bg-white shadow-sm">
+      <BlogPostHeader post={post} readingTime={readingTime} />
+
+      <div class="prose-blog py-8">
+        <Content />
+      </div>
+
+      <!-- Back to Blog Link -->
+      <div class="max-w-3xl mx-auto px-4 pt-8 pb-12 border-t border-gray-200">
+        <a
+          href="/blog"
+          class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Powrót do bloga
+        </a>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

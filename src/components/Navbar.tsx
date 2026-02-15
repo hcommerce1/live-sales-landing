@@ -9,6 +9,7 @@ const navigation = [
   { name: 'Jak to działa', href: '#jak-to-dziala' },
   { name: 'Edytor', href: '#edytor' },
   { name: 'Połączenia', href: '#polaczenia' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Kontakt', href: '#kontakt' },
 ];
 
