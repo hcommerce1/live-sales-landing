@@ -8,9 +8,12 @@ import Integrations from '@components/Integrations';
 import Security from '@components/Security';
 import Contact from '@components/Contact';
 import Footer from '@components/Footer';
+
+const title = 'LiveSales - Dashboards and Exports for E-commerce';
+const description = 'Build dashboards and automatic exports. Connect data from Baselinker, Allegro, dropshipping wholesalers.';
 ---
 
-<Layout>
+<Layout title={title} description={description} lang="en">
   <Navbar client:load />
   <main>
     <Hero client:load />

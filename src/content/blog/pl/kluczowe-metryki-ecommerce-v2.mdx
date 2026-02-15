@@ -1,0 +1,501 @@
+---
+title: "15 najważniejszych metryk e-commerce które musisz śledzić w 2026"
+description: "Interaktywny przewodnik po KPI dla sklepów internetowych. Wzory matematyczne, wykresy, benchmarki i kalkulatory - wszystko czego potrzebujesz aby mierzyć sukces swojego biznesu."
+pubDate: 2026-02-15
+lang: pl
+category: guide
+featured: true
+tags: ['metryki', 'kpi', 'analityka', 'dashboards']
+calculators: ['roi', 'savings', 'custom']
+---
+
+import { MetricsCalculator } from '@components/blog/MetricsCalculator';
+import { ConversionRateChart } from '@components/blog/charts/ConversionRateChart';
+import { ROASComparisonChart } from '@components/blog/charts/ROASComparisonChart';
+import { LTVCalculator } from '@components/blog/charts/LTVCalculator';
+import { FunnelVisualization } from '@components/blog/charts/FunnelVisualization';
+import { Calculator, TrendingUp, Target, DollarSign, Users, Package, Clock, ShoppingCart, PieChart } from 'lucide-react';
+
+<div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 mb-12 border border-blue-100">
+  <h2 className="text-3xl font-bold mb-4 text-gray-900">Dlaczego metryki są ważne?</h2>
+
+  <blockquote className="border-l-4 border-blue-600 pl-6 my-6 text-lg italic text-gray-700">
+    "Co nie jest mierzone, nie może być poprawione" - Peter Drucker
+  </blockquote>
+
+  <p className="text-lg text-gray-700 mb-6 leading-loose">
+    W e-commerce <strong>intuicja to za mało</strong>. Musisz <strong>wiedzieć</strong>, nie <strong>zgadywać</strong>:
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-4">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <PieChart className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Które produkty są rentowne?</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Dane {'>'} intuicja</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Target className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Skąd przychodzą najlepsi klienci?</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Attribution tracking</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <DollarSign className="w-6 h-6 text-purple-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Ile możesz wydać na klienta?</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">CAC vs LTV</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <TrendingUp className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Czy biznes się rozwija?</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Growth metrics</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## <ShoppingCart className="inline w-8 h-8 mr-2 text-blue-600" /> Metryki sprzedażowe
+
+### 1. Conversion Rate (CR) - Wskaźnik konwersji
+
+<div className="bg-white p-6 rounded-xl border-l-4 border-blue-600 shadow-sm mb-6">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór matematyczny:</h4>
+
+$$
+CR = \frac{\text{Liczba transakcji}}{\text{Liczba odwiedzin}} \times 100\%
+$$
+
+**Przykład obliczenia:**
+- Odwiedziny: 10,000
+- Transakcje: 250
+
+$$
+CR = \frac{250}{10{,}000} \times 100\% = 2.5\%
+$$
+</div>
+
+**Benchmark e-commerce (2026):**
+
+<ConversionRateChart
+  client:visible
+  data={[
+    { segment: 'Mobile', rate: 1.5, benchmark: 'low' },
+    { segment: 'Desktop', rate: 3.5, benchmark: 'good' },
+    { segment: 'E-commerce średnia', rate: 2.5, benchmark: 'medium' },
+    { segment: 'Top 10% sklepów', rate: 7.5, benchmark: 'excellent' }
+  ]}
+/>
+
+<div className="bg-blue-50 p-6 rounded-xl mt-6 mb-8 border border-blue-200">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
+    <Target className="w-5 h-5 text-blue-600" />
+    Jak poprawić CR:
+  </h4>
+  <ul className="space-y-4 text-gray-700">
+    <li className="flex items-start gap-2">
+      <span className="text-green-600 font-bold mt-1">✓</span>
+      <span className="leading-loose">Lepsze zdjęcia produktów (zdjęcia 360°, lifestyle)</span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-600 font-bold mt-1">✓</span>
+      <span className="leading-loose">Jasne CTA (Call To Action) - kontrastowe kolory</span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-600 font-bold mt-1">✓</span>
+      <span className="leading-loose">Uproszczony checkout - maksymalnie 3 kroki</span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-600 font-bold mt-1">✓</span>
+      <span className="leading-loose">Social proof - opinie, certyfikaty, case studies</span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-600 font-bold mt-1">✓</span>
+      <span className="leading-loose">Live chat dla wsparcia w trakcie zakupów</span>
+    </li>
+  </ul>
+</div>
+
+---
+
+### 2. Average Order Value (AOV) - Średnia wartość zamówienia
+
+<div className="bg-white p-6 rounded-xl border-l-4 border-green-600 shadow-sm mb-6">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór:</h4>
+
+$$
+AOV = \frac{\text{Całkowity przychód}}{\text{Liczba zamówień}}
+$$
+
+**Przykład:**
+
+$$
+AOV = \frac{100{,}000 \text{ PLN}}{500 \text{ zamówień}} = 200 \text{ PLN}
+$$
+</div>
+
+**Strategie zwiększania AOV:**
+
+<div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+  <table className="min-w-full">
+    <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+      <tr>
+        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Strategia</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Przykład</th>
+        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Wzrost AOV</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-gray-200">
+      <tr className="hover:bg-gray-50">
+        <td className="px-6 py-4 font-medium text-gray-900">Cross-selling</td>
+        <td className="px-6 py-4 text-gray-700">"Klienci kupili również..."</td>
+        <td className="px-6 py-4 text-green-600 font-semibold">+15-25%</td>
+      </tr>
+      <tr className="hover:bg-gray-50">
+        <td className="px-6 py-4 font-medium text-gray-900">Bundling</td>
+        <td className="px-6 py-4 text-gray-700">"Kup zestaw i zaoszczędź 20%"</td>
+        <td className="px-6 py-4 text-green-600 font-semibold">+30-40%</td>
+      </tr>
+      <tr className="hover:bg-gray-50">
+        <td className="px-6 py-4 font-medium text-gray-900">Free shipping threshold</td>
+        <td className="px-6 py-4 text-gray-700">"Darmowa dostawa od 150 PLN"</td>
+        <td className="px-6 py-4 text-green-600 font-semibold">+20-30%</td>
+      </tr>
+      <tr className="hover:bg-gray-50">
+        <td className="px-6 py-4 font-medium text-gray-900">Upselling</td>
+        <td className="px-6 py-4 text-gray-700">"Wersja PRO za tylko 50 PLN więcej"</td>
+        <td className="px-6 py-4 text-green-600 font-semibold">+10-20%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200 mb-12">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
+    <Calculator className="w-5 h-5 text-green-600" />
+    Kalkulator wpływu AOV:
+  </h4>
+  <div className="bg-white p-4 rounded-lg font-mono text-sm space-y-4 text-gray-700 leading-relaxed">
+    <div>Obecny AOV: <span className="font-bold text-gray-900">200 PLN</span></div>
+    <div>Cel wzrostu: <span className="font-bold text-green-600">+20%</span></div>
+    <div>Nowy AOV: <span className="font-bold text-gray-900">240 PLN</span></div>
+    <div className="h-px bg-gray-200 my-2"></div>
+    <div className="font-semibold text-gray-900">Wpływ na przychód (500 zamówień/m-c):</div>
+    <div>Przed: 200 × 500 = <span className="text-gray-900">100,000 PLN</span></div>
+    <div>Po: 240 × 500 = <span className="text-green-600 font-bold">120,000 PLN</span></div>
+    <div className="text-lg font-bold text-green-600">Wzrost: +20,000 PLN/miesiąc (+240,000 PLN/rok)</div>
+  </div>
+</div>
+
+---
+
+## <DollarSign className="inline w-8 h-8 mr-2 text-green-600" /> Metryki marketingowe
+
+### 4. Customer Acquisition Cost (CAC)
+
+<div className="bg-white p-6 rounded-xl border-l-4 border-purple-600 shadow-sm mb-6">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór:</h4>
+
+$$
+CAC = \frac{\text{Całkowity koszt marketingu}}{\text{Liczba nowych klientów}}
+$$
+
+**Pełny wzór (uwzględniający koszty team):**
+
+$$
+CAC_{\text{full}} = \frac{\text{Marketing spend} + \text{Sales team} + \text{Software}}{\text{Nowi klienci}}
+$$
+</div>
+
+**Benchmark CAC według branży (2026):**
+
+<ROASComparisonChart
+  client:visible
+  data={[
+    { category: 'Fashion', cac: 45, ltv: 180, ratio: 4.0 },
+    { category: 'Elektronika', cac: 115, ltv: 450, ratio: 3.9 },
+    { category: 'Home & Garden', cac: 65, ltv: 220, ratio: 3.4 },
+    { category: 'Health & Beauty', cac: 38, ltv: 160, ratio: 4.2 },
+    { category: 'Luksusowe produkty', cac: 350, ltv: 1400, ratio: 4.0 }
+  ]}
+/>
+
+<div className="bg-yellow-50 p-6 rounded-xl border-2 border-yellow-300 mt-6 mb-8">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
+    <TrendingUp className="w-5 h-5 text-yellow-600" />
+    Złota zasada:
+  </h4>
+
+$$
+\frac{LTV}{CAC} > 3
+$$
+
+  <p className="text-sm text-gray-700 mt-3 leading-loose">
+    Jeśli LTV/CAC {'<'} 3, tracisz na klientach w długim terminie!
+  </p>
+</div>
+
+---
+
+## <Users className="inline w-8 h-8 mr-2 text-purple-600" /> Metryki klienta
+
+### 7. Customer Lifetime Value (LTV)
+
+<div className="bg-white p-6 rounded-xl border-l-4 border-indigo-600 shadow-sm mb-6">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór podstawowy:</h4>
+
+$$
+LTV = AOV \times \text{Zakupy/rok} \times \text{Lata życia klienta}
+$$
+
+**Wzór zaawansowany (z retention rate):**
+
+$$
+LTV = \frac{AOV \times \text{Purchase Frequency} \times \text{Gross Margin}}{\text{Churn Rate}}
+$$
+</div>
+
+**Interaktywny kalkulator LTV:**
+
+<LTVCalculator client:load />
+
+<div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl border border-blue-200 mt-6 mb-12">
+  <h4 className="font-semibold text-lg mb-3 text-gray-900">Kluczowa zależność LTV vs CAC:</h4>
+
+$$
+\text{LTV:CAC Ratio} = \frac{LTV}{CAC}
+$$
+
+**Interpretacja:**
+
+<div className="mt-4 space-y-4 text-sm">
+  <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+    <span className="text-2xl">🔴</span>
+    <div>
+      <div className="font-semibold text-gray-900 leading-relaxed">{'<'} 1: Tracisz pieniądze na każdym kliencie</div>
+      <div className="text-gray-600 text-xs leading-relaxed">Pilnie optymalizuj CAC lub zwiększ LTV</div>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+    <span className="text-2xl">🟡</span>
+    <div>
+      <div className="font-semibold text-gray-900 leading-relaxed">1-3: Niski zwrot, ryzykowne</div>
+      <div className="text-gray-600 text-xs leading-relaxed">Biznes przetrwa, ale nie skaluj jeszcze</div>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+    <span className="text-2xl">✅</span>
+    <div>
+      <div className="font-semibold text-gray-900 leading-relaxed">3-5: Zdrowy biznes</div>
+      <div className="text-gray-600 text-xs leading-relaxed">Dobra ekonomika, można powoli skalować</div>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
+    <span className="text-2xl">🚀</span>
+    <div>
+      <div className="font-semibold text-gray-900 leading-relaxed">{'>'} 5: Świetna ekonomika, skaluj!</div>
+      <div className="text-gray-600 text-xs leading-relaxed">Agresywnie inwestuj w marketing</div>
+    </div>
+  </div>
+</div>
+</div>
+
+---
+
+## <Calculator className="inline w-8 h-8 mr-2 text-orange-600" /> Wypróbuj interaktywny kalkulator!
+
+<div className="my-12">
+  <MetricsCalculator client:load />
+</div>
+
+---
+
+## <Target className="inline w-8 h-8 mr-2 text-blue-600" /> Jak zacząć śledzić metryki?
+
+### Dashboard podstawowy (Must-have w 2026)
+
+<div className="grid md:grid-cols-3 gap-4 mb-12">
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    <div className="flex items-center gap-3 mb-4">
+      <Clock className="w-8 h-8 text-blue-600" />
+      <h4 className="font-semibold text-lg text-gray-900">Daily</h4>
+    </div>
+    <div className="space-y-2 text-sm text-gray-700 leading-relaxed">
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Przychód:</span>
+          <span className="font-semibold text-gray-900">12,450 PLN (+8%)</span>
+        </div>
+        <div className="text-xs text-gray-500">Całkowita wartość sprzedaży w ciągu dnia. Monitoruj trendy dzień do dnia.</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Zamówienia:</span>
+          <span className="font-semibold text-gray-900">62 (+5%)</span>
+        </div>
+        <div className="text-xs text-gray-500">Liczba zrealizowanych transakcji. Wzrost zamówień = więcej klientów lub lepsza konwersja.</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">CR (Conversion Rate):</span>
+          <span className="font-semibold text-green-600">3.1% (+0.2pp)</span>
+        </div>
+        <div className="text-xs text-gray-500">% odwiedzających którzy kupują. Wzrost o 0.2pp to świetny progres!</div>
+      </div>
+      <div className="pt-4 pb-2">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">AOV (Average Order Value):</span>
+          <span className="font-semibold text-gray-900">201 PLN (+3)</span>
+        </div>
+        <div className="text-xs text-gray-500">Średnia wartość koszyka. Wzrost o 3 PLN dziennie = dodatkowe 93 PLN/miesiąc przy 500 zamówieniach.</div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    <div className="flex items-center gap-3 mb-4">
+      <TrendingUp className="w-8 h-8 text-green-600" />
+      <h4 className="font-semibold text-lg text-gray-900">Weekly</h4>
+    </div>
+    <div className="space-y-2 text-sm text-gray-700 leading-relaxed">
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">ROAS Google:</span>
+          <span className="font-semibold text-green-600">5.2x (-0.3x)</span>
+        </div>
+        <div className="text-xs text-gray-500">Return on Ad Spend Google Ads. 5.2x = każda złotówka wydana zwraca 5.20 PLN przychodu. Cel: {'>'}3x.</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">ROAS Meta (Facebook/Instagram):</span>
+          <span className="font-semibold text-green-600">3.8x (+0.5x)</span>
+        </div>
+        <div className="text-xs text-gray-500">Zwrot z reklam Meta. Wzrost o 0.5x to 13% poprawa efektywności! Świetna optymalizacja kampanii.</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">CAC (Customer Acquisition Cost):</span>
+          <span className="font-semibold text-green-600">68 PLN (-4)</span>
+        </div>
+        <div className="text-xs text-gray-500">Koszt pozyskania klienta. Spadek o 4 PLN = oszczędność 2,000 PLN przy 500 klientach/miesiąc!</div>
+      </div>
+      <div className="pt-4 pb-2">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Top produkt:</span>
+          <span className="font-semibold text-gray-900">Product X (45)</span>
+        </div>
+        <div className="text-xs text-gray-500">Bestseller tygodnia. Monitoruj stan magazynowy i promocje konkurencji dla tego produktu.</div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+    <div className="flex items-center gap-3 mb-4">
+      <PieChart className="w-8 h-8 text-purple-600" />
+      <h4 className="font-semibold text-lg text-gray-900">Monthly</h4>
+    </div>
+    <div className="space-y-2 text-sm text-gray-700 leading-relaxed">
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Revenue (MoM):</span>
+          <span className="font-semibold text-green-600">+12% MoM</span>
+        </div>
+        <div className="text-xs text-gray-500">Wzrost przychodu miesiąc do miesiąca. 12% MoM = 289% wzrostu rocznie (compound growth)!</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">LTV/CAC (Unit Economics):</span>
+          <span className="font-semibold text-green-600">4.2 (healthy)</span>
+        </div>
+        <div className="text-xs text-gray-500">Stosunek wartości życiowej klienta do kosztu pozyskania. 4.2 = świetna ekonomika! Cel: {'>'}3.</div>
+      </div>
+      <div className="py-4 border-b border-gray-200">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Repeat % (Retention):</span>
+          <span className="font-semibold text-green-600">28% (+3pp)</span>
+        </div>
+        <div className="text-xs text-gray-500">% klientów którzy wracają i kupują ponownie. Wzrost o 3pp to ogromna poprawa lojalności!</div>
+      </div>
+      <div className="pt-4 pb-2">
+        <div className="flex justify-between mb-1">
+          <span className="font-medium">Margin (Marża brutto):</span>
+          <span className="font-semibold text-yellow-600">42% (-1pp)</span>
+        </div>
+        <div className="text-xs text-gray-500">% zysku po kosztach towaru. Spadek może być OK jeśli zwiększasz wolumen sprzedaży.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## <Package className="inline w-8 h-8 mr-2 text-green-600" /> Podsumowanie: Twój action plan
+
+<div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border-2 border-green-200 mb-12">
+  <h3 className="text-2xl font-bold mb-6 text-gray-900">Tydzień 1: Start with Top 5</h3>
+
+  <p className="text-gray-700 mb-6 leading-loose">
+    Skoncentruj się tylko na <strong>najważniejszych 5 metrykach</strong>:
+  </p>
+
+  <div className="grid md:grid-cols-5 gap-4">
+    <div className="bg-white p-4 rounded-xl shadow-sm text-center border border-green-200">
+      <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
+      <div className="font-semibold text-gray-900 mb-1">Revenue</div>
+      <div className="text-xs text-gray-600">Podstawa</div>
+    </div>
+
+    <div className="bg-white p-4 rounded-xl shadow-sm text-center border border-blue-200">
+      <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+      <div className="font-semibold text-gray-900 mb-1">CR</div>
+      <div className="text-xs text-gray-600">Efektywność</div>
+    </div>
+
+    <div className="bg-white p-4 rounded-xl shadow-sm text-center border border-purple-200">
+      <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+      <div className="font-semibold text-gray-900 mb-1">CAC</div>
+      <div className="text-xs text-gray-600">Koszt klienta</div>
+    </div>
+
+    <div className="bg-white p-4 rounded-xl shadow-sm text-center border border-orange-200">
+      <TrendingUp className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+      <div className="font-semibold text-gray-900 mb-1">ROAS</div>
+      <div className="text-xs text-gray-600">Zwrot z reklam</div>
+    </div>
+
+    <div className="bg-white p-4 rounded-xl shadow-sm text-center border border-pink-200">
+      <PieChart className="w-8 h-8 text-pink-600 mx-auto mb-2" />
+      <div className="font-semibold text-gray-900 mb-1">Margin</div>
+      <div className="text-xs text-gray-600">Rentowność</div>
+    </div>
+  </div>
+
+  <div className="mt-6 p-4 bg-white rounded-lg border border-green-300">
+    <p className="text-sm text-gray-700 leading-loose">
+      <strong className="text-green-700">Te 5 metryk da Ci 80% potrzebnego obrazu biznesu.</strong>
+      <br />
+      Dopiero gdy je opanujesz, dodawaj kolejne (LTV, Repeat Rate, etc.)
+    </p>
+  </div>
+</div>
+

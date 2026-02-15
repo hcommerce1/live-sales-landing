@@ -7,15 +7,14 @@ const blogCollection = defineCollection({
     description: z.string(),
     pubDate: z.date(),
     updatedDate: z.date().optional(),
-    author: z.object({
-      name: z.string(),
-      role: z.string().optional(),
-    }),
-    heroImage: z.string().optional(),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
+    lang: z.enum(['pl', 'en']),
+    category: z.enum(['tutorial', 'case-study', 'guide', 'announcement']),
     featured: z.boolean().default(false),
-    lang: z.enum(['pl', 'en']).default('pl'),
+    draft: z.boolean().default(false),
+    ogImage: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    // Dla przyszłych kalkulatorów embeddable w MDX
+    calculators: z.array(z.enum(['roi', 'savings', 'integration', 'custom'])).optional(),
   }),
 });
 

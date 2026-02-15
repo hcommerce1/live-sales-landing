@@ -83,7 +83,7 @@ export default function Integrations() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={transition}
-            className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+            className="text-eyebrow"
           >
             Integracje
           </motion.span>
@@ -93,7 +93,7 @@ export default function Integrations() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-            className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+            className="heading-responsive-section mt-3"
           >
             Połącz się ze wszystkim
           </motion.h2>
@@ -103,7 +103,7 @@ export default function Integrations() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="mt-4 text-lg text-gray-600"
+            className="text-section-subtitle mt-4"
           >
             Wiele źródeł danych, jeden spójny widok
           </motion.p>
@@ -124,7 +124,7 @@ export default function Integrations() {
               <div className="w-16 h-16 mx-auto mb-4 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600">
                 {type.icon}
               </div>
-              <h3 className="font-bold text-gray-900 mb-1">{type.name}</h3>
+              <h3 className="feature-title font-bold mb-1">{type.name}</h3>
               <p className="text-sm text-gray-500">{type.description}</p>
             </motion.div>
           ))}

@@ -1,0 +1,187 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/Navbar';
+import Footer from '@components/Footer';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => data.lang === 'pl' && !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+// Schema.org BlogPosting markup
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: post.data.updatedDate?.toISOString() || post.data.pubDate.toISOString(),
+  author: {
+    '@type': 'Organization',
+    name: 'LiveSales',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'LiveSales',
+    logo: {
+      '@type': 'ImageObject',
+      url: `${Astro.site}favicon.svg`
+    }
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': Astro.url.href
+  }
+};
+
+if (post.data.ogImage) {
+  jsonLd['image'] = post.data.ogImage;
+}
+---
+
+<Layout
+  title={post.data.title}
+  description={post.data.description}
+  lang={post.data.lang}
+>
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- OG Image if exists -->
+  {post.data.ogImage && (
+    <meta property="og:image" content={post.data.ogImage} slot="head" />
+  )}
+
+  <Navbar client:load />
+
+  <main>
+    <article class="py-24">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <nav class="mb-8 flex items-center gap-2 text-sm text-gray-500">
+          <a href="/" class="hover:text-blue-600 transition-colors">Home</a>
+          <span>→</span>
+          <a href="/pl/blog" class="hover:text-blue-600 transition-colors">Blog</a>
+          <span>→</span>
+          <span class="text-gray-900">{post.data.title}</span>
+        </nav>
+
+        <!-- Article Header -->
+        <header class="mb-12">
+          <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString('pl-PL', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+            <span>•</span>
+            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium uppercase tracking-wider">
+              {post.data.category}
+            </span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
+            {post.data.title}
+          </h1>
+
+          <p class="mt-6 text-xl text-gray-600 leading-relaxed">
+            {post.data.description}
+          </p>
+
+          {post.data.tags.length > 0 && (
+            <div class="mt-6 flex flex-wrap gap-2">
+              {post.data.tags.map(tag => (
+                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </header>
+
+        <!-- Article Content -->
+        <div class="
+          prose prose-lg max-w-none
+          prose-headings:font-bold prose-headings:text-gray-900
+          prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8
+          prose-h3:text-2xl prose-h3:mt-16 prose-h3:mb-6
+          prose-h4:text-xl prose-h4:mt-10 prose-h4:mb-5
+          prose-p:text-gray-700 prose-p:leading-loose prose-p:mb-6
+          prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+          prose-strong:text-gray-900 prose-strong:font-semibold
+          prose-ul:my-8 prose-ul:list-disc
+          prose-ol:my-8 prose-ol:list-decimal
+          prose-li:text-gray-700 prose-li:my-3 prose-li:leading-loose
+          prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+          prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:border prose-pre:border-gray-700 prose-pre:my-8
+          prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:my-8
+          prose-img:rounded-xl prose-img:shadow-lg prose-img:my-10
+          prose-hr:border-gray-300 prose-hr:my-20
+          prose-table:border prose-table:border-gray-200 prose-table:my-8
+          prose-th:bg-gray-50 prose-th:font-semibold prose-th:py-4
+          prose-td:border prose-td:border-gray-200 prose-td:py-3
+        ">
+          <Content />
+        </div>
+
+        <!-- Article Footer -->
+        <footer class="mt-16 pt-8 border-t border-gray-200">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <a
+              href="/pl/blog"
+              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Powrót do bloga
+            </a>
+
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+              {post.data.updatedDate && (
+                <span>
+                  Zaktualizowano: {post.data.updatedDate.toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+          </div>
+        </footer>
+
+        <!-- CTA Section -->
+        <section class="mt-16 p-8 bg-gradient-to-br from-blue-50 to-sky-50 rounded-2xl border border-blue-100">
+          <div class="text-center">
+            <h3 class="text-2xl font-bold text-gray-900">
+              Zainteresowany automatyzacją danych?
+            </h3>
+            <p class="mt-3 text-gray-600 max-w-2xl mx-auto">
+              LiveSales pomoże Ci zaoszczędzić czas i podejmować lepsze decyzje biznesowe dzięki automatycznym raportom i dashboardom.
+            </p>
+            <div class="mt-6">
+              <a
+                href="/#kontakt"
+                class="inline-block bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+              >
+                Skontaktuj się z nami
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

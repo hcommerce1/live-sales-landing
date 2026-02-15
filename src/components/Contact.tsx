@@ -60,7 +60,7 @@ export default function Contact() {
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               transition={transition}
-              className="text-primary-600 font-semibold text-sm uppercase tracking-wider"
+              className="text-eyebrow"
             >
               Kontakt
             </motion.span>
@@ -70,7 +70,7 @@ export default function Contact() {
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.05 }}
-              className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900"
+              className="heading-responsive-section mt-3"
             >
               Porozmawiajmy
             </motion.h2>
@@ -80,7 +80,7 @@ export default function Contact() {
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
-              className="mt-4 text-lg text-gray-600"
+              className="text-section-subtitle mt-4"
             >
               Odezwiemy się z propozycją dopasowaną do Twoich danych i procesów. Bez zobowiązań, bez spamu.
             </motion.p>
@@ -129,7 +129,7 @@ export default function Contact() {
             <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 sm:p-8">
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="form-label">
                     Imię
                   </label>
                   <input
@@ -138,12 +138,12 @@ export default function Contact() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="Jan"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="form-label">
                     Email
                   </label>
                   <input
@@ -152,12 +152,12 @@ export default function Contact() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="jan@firma.pl"
                   />
                 </div>
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="form-label">
                     Wiadomość
                   </label>
                   <textarea
@@ -166,7 +166,7 @@ export default function Contact() {
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all resize-none"
+                    className="form-input w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all resize-none"
                     placeholder="Opisz krótko jakie dane chcesz analizować..."
                   />
                 </div>

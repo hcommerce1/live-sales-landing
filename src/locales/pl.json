@@ -25,17 +25,17 @@
   "howItWorks": {
     "title": "Jak to działa",
     "steps": {
-      "register": {
-        "title": "Rejestrujesz się",
-        "description": "Szybkie założenie konta bez zbędnych formalności"
+      "contact": {
+        "title": "Kontaktujesz się z nami",
+        "description": "Bezpłatna, niezobowiązująca rozmowa. Poznajemy Twoją firmę i ustalamy, czy analiza danych może Ci pomóc."
       },
-      "connect": {
-        "title": "Podłączasz źródła danych",
-        "description": "Intuicyjne łączenie z arkuszami, bazami i API"
+      "analyze": {
+        "title": "Analizujemy Twoje potrzeby",
+        "description": "Sprawdzamy, z jakimi danymi pracujesz, jakie masz wyzwania i co warto zautomatyzować."
       },
-      "get": {
-        "title": "Dostajesz gotowe rozwiązania",
-        "description": "Dashboardy, eksporty i alerty działają od razu"
+      "implement": {
+        "title": "Wdrażamy rozwiązanie",
+        "description": "Dostarczamy dashboardy, raporty i automatyzacje dopasowane do Twojego biznesu. Gotowe do pracy."
       }
     }
   },
