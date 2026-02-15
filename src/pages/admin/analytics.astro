@@ -1,0 +1,24 @@
+---
+/**
+ * Analytics Dashboard Page
+ *
+ * SSR page at /admin/analytics.
+ * Authentication via cookie-based login flow (handled by Dashboard.tsx).
+ * No token in URL — security best practice.
+ */
+
+import Layout from '@/layouts/Layout.astro';
+import Dashboard from '@/components/analytics/Dashboard';
+
+export const prerender = false;
+---
+
+<Layout title="Analytics Dashboard" lang="en">
+  <main class="pt-24 pb-16 max-w-7xl mx-auto px-4">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Blog Analytics</h1>
+      <p class="text-gray-500 mt-1">Zaangażowanie użytkowników na blogu LiveSales</p>
+    </div>
+    <Dashboard client:load />
+  </main>
+</Layout>

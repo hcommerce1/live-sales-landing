@@ -1,16 +1,20 @@
 ---
 import '@/styles/global.css';
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker.astro';
+import SearchOverlay from '@/components/blog/SearchOverlay';
 
 interface Props {
   title?: string;
   description?: string;
   lang?: string;
+  slug?: string;
 }
 
 const {
   title = 'LiveSales - Analiza i automatyzacja danych',
   description = 'Jedno miejsce do analizy, porównywania i automatyzacji danych z różnych źródeł — z gotowymi dashboardami, eksportami i alertami.',
-  lang = 'pl'
+  lang = 'pl',
+  slug,
 } = Astro.props;
 ---
 
@@ -43,6 +47,8 @@ const {
   </head>
   <body class="min-h-screen bg-white font-sans">
     <slot />
+    <SearchOverlay client:idle language={lang === 'en' ? 'en' : 'pl'} />
+    <AnalyticsTracker slug={slug} lang={lang} />
   </body>
 </html>
 

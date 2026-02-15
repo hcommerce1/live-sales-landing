@@ -266,6 +266,16 @@ export default function AISearch({
                   initial="hidden"
                   animate="visible"
                   className="block p-4 rounded-lg hover:bg-gray-50 transition-colors group"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && (window as any).__ls_track) {
+                      (window as any).__ls_track('search_click', {
+                        query,
+                        clickedSlug: result.slug,
+                        position: index,
+                      });
+                      (window as any).__ls_flush?.();
+                    }
+                  }}
                 >
                   <h4 className="text-sm font-semibold text-gray-900 group-hover:text-sky-600 transition-colors">
                     {result.postTitle}
