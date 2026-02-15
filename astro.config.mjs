@@ -7,12 +7,24 @@ import astroI18next from 'astro-i18next';
 import vercel from '@astrojs/vercel';
 import path from 'path';
 
+// KaTeX plugins for math formulas
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
 // https://astro.build/config
 export default defineConfig({
   adapter: vercel(),
   integrations: [
     react(),
-    mdx(),
+    mdx({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+      syntaxHighlight: 'shiki',
+      shikiConfig: {
+        theme: 'github-dark',
+        wrap: true,
+      }
+    }),
     astroI18next(),
   ],
   vite: {
