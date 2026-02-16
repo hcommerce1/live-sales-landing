@@ -9,7 +9,9 @@ interface Props {
 }
 
 const { post, readingTime } = Astro.props;
-const { title, description, pubDate, author, tags, heroImage } = post.data;
+const { title, description, pubDate, tags } = post.data;
+const author = (post.data as any).author;
+const heroImage = (post.data as any).heroImage;
 ---
 
 <header class="mb-12">
@@ -41,15 +43,24 @@ const { title, description, pubDate, author, tags, heroImage } = post.data;
     </p>
 
     <div class="flex items-center gap-6 text-gray-600 border-t border-b border-gray-200 py-4">
-      <div class="flex items-center gap-2">
-        <div class="w-10 h-10 bg-gradient-brand rounded-full flex items-center justify-center">
-          <span class="text-white font-semibold text-sm">{author.name.charAt(0)}</span>
+      {author?.name ? (
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 bg-gradient-brand rounded-full flex items-center justify-center">
+            <span class="text-white font-semibold text-sm">{author.name.charAt(0)}</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900">{author.name}</p>
+            {author.role && <p class="text-sm text-gray-500">{author.role}</p>}
+          </div>
         </div>
-        <div>
-          <p class="font-medium text-gray-900">{author.name}</p>
-          {author.role && <p class="text-sm text-gray-500">{author.role}</p>}
+      ) : (
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 bg-gradient-brand rounded-full flex items-center justify-center">
+            <span class="text-white font-semibold text-sm">L</span>
+          </div>
+          <p class="font-medium text-gray-900">LiveSales</p>
         </div>
-      </div>
+      )}
 
       <div class="text-sm">
         <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
