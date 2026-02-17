@@ -74,6 +74,14 @@ const MAX_METADATA_TEXT = 2000;
 const MAX_EVENTS = 50;
 const MAX_BODY_SIZE = 65_536; // 64KB
 
+// --- Bot Detection ---
+const BOT_UA_PATTERNS = /bot|crawl|spider|slurp|mediapartners|facebookexternalhit|bingpreview|yandex|baidu|duckduckgo|semrush|ahrefs|mj12bot|dotbot|rogerbot|archive\.org|headlesschrome|phantomjs|puppeteer|playwright|selenium|webdriver|httrack|wget|curl|python-requests|go-http-client|java\/|libwww|httpunit|nutch|biglotron|teoma|convera|gigablast|ia_archiver|webmon|htdig|grub|netresearchserver|speedy|fluffy|findlink|msrbot|panscient|yacy|finbot|ichiro|mogimogi|ips-agent|ltx71|scrapy/i;
+
+function isBot(ua: string): boolean {
+  if (!ua || ua === 'unknown' || ua.length < 10) return true;
+  return BOT_UA_PATTERNS.test(ua);
+}
+
 function sanitizeMetadata(meta: Record<string, unknown> | undefined): string | null {
   if (!meta) return null;
 
@@ -126,6 +134,12 @@ export const POST: APIRoute = async ({ request }) => {
 
   // Compute visitor hash server-side
   const ua = request.headers.get('user-agent') || 'unknown';
+
+  // Silently drop bot traffic (204 so bots don't retry)
+  if (isBot(ua)) {
+    return new Response(null, { status: 204 });
+  }
+
   const visitorHash = await computeVisitorHash(ip, ua);
 
   // Ensure schema

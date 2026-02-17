@@ -5,7 +5,7 @@
  */
 
 import { db } from './db';
-import type { SessionSummary, SessionDetail, SessionPageVisit, RealtimeDataPoint } from './types';
+import type { SessionSummary, SessionDetail, SessionPageVisit, RealtimeDataPoint, VisitorHistory } from './types';
 
 function sinceDate(days: number): string {
   return new Date(Date.now() - days * 86400000).toISOString();
@@ -319,9 +319,28 @@ export async function getSubscriptionStats(days: number) {
   };
 }
 
-// --- Realtime Traffic (5-min intervals) ---
+// --- Realtime Traffic (5-min intervals, all slots filled) ---
 
-export async function getRealtimeTraffic(hours: 24 | 48 = 24): Promise<RealtimeDataPoint[]> {
+function generateAllBuckets(hours: number): string[] {
+  const buckets: string[] = [];
+  const now = new Date();
+  // Round down to nearest 5 min
+  now.setMinutes(Math.floor(now.getMinutes() / 5) * 5, 0, 0);
+  const totalSlots = (hours * 60) / 5; // 48h = 576 slots, 24h = 288
+
+  for (let i = totalSlots - 1; i >= 0; i--) {
+    const t = new Date(now.getTime() - i * 5 * 60_000);
+    const yyyy = t.getUTCFullYear();
+    const mm = String(t.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(t.getUTCDate()).padStart(2, '0');
+    const hh = String(t.getUTCHours()).padStart(2, '0');
+    const min = String(Math.floor(t.getUTCMinutes() / 5) * 5).padStart(2, '0');
+    buckets.push(`${yyyy}-${mm}-${dd}T${hh}:${min}`);
+  }
+  return buckets;
+}
+
+export async function getRealtimeTraffic(hours: 24 | 48 = 48): Promise<RealtimeDataPoint[]> {
   if (!db) return [];
 
   const since = new Date(Date.now() - hours * 3600000).toISOString();
@@ -340,10 +359,20 @@ export async function getRealtimeTraffic(hours: 24 | 48 = 24): Promise<RealtimeD
     args: [since],
   });
 
-  return result.rows.map(r => ({
-    timeBucket: r.time_bucket as string,
-    pageviews: r.pageviews as number,
-    uniqueVisitors: r.unique_visitors as number,
+  // Build lookup from DB results
+  const dataMap = new Map<string, { pageviews: number; uniqueVisitors: number }>();
+  for (const r of result.rows) {
+    dataMap.set(r.time_bucket as string, {
+      pageviews: r.pageviews as number,
+      uniqueVisitors: r.unique_visitors as number,
+    });
+  }
+
+  // Fill ALL 5-min slots (including zeros)
+  return generateAllBuckets(hours).map(bucket => ({
+    timeBucket: bucket,
+    pageviews: dataMap.get(bucket)?.pageviews ?? 0,
+    uniqueVisitors: dataMap.get(bucket)?.uniqueVisitors ?? 0,
   }));
 }
 
@@ -410,7 +439,7 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
   if (!db) return null;
 
   const result = await db.execute({
-    sql: `SELECT event_type, slug, metadata, created_at
+    sql: `SELECT event_type, slug, metadata, created_at, visitor_hash
           FROM analytics_events
           WHERE session_id = ?
           ORDER BY created_at ASC`,
@@ -418,6 +447,8 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
   });
 
   if (result.rows.length === 0) return null;
+
+  const visitorHash = result.rows[0].visitor_hash as string;
 
   const events = result.rows.map(r => ({
     eventType: r.event_type as string,
@@ -452,6 +483,9 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
 
   const firstPageview = events.find(e => e.eventType === 'pageview');
 
+  // Fetch visitor history — other sessions by the same visitor_hash
+  const visitorHistory = await getVisitorHistory(visitorHash, sessionId);
+
   return {
     sessionId,
     referrer: (firstPageview?.metadata?.referrer as string) || '(direct)',
@@ -460,5 +494,38 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
     sessionEnd: events[events.length - 1].createdAt,
     totalEvents: events.length,
     pageVisits,
+    visitorHistory,
+  };
+}
+
+// --- Visitor History (all sessions by same visitor_hash) ---
+
+async function getVisitorHistory(visitorHash: string, currentSessionId: string): Promise<VisitorHistory> {
+  if (!db) return { visitorHash: visitorHash.slice(0, 8), totalSessions: 1, previousSessions: [] };
+
+  const result = await db.execute({
+    sql: `SELECT
+            session_id,
+            MIN(created_at) as session_start,
+            COUNT(*) FILTER (WHERE event_type = 'pageview') as page_count,
+            MIN(CASE WHEN event_type = 'pageview' THEN slug END) as landing_page
+          FROM analytics_events
+          WHERE visitor_hash = ? AND session_id != ?
+          GROUP BY session_id
+          HAVING page_count > 0
+          ORDER BY session_start DESC
+          LIMIT 10`,
+    args: [visitorHash, currentSessionId],
+  });
+
+  return {
+    visitorHash: visitorHash.slice(0, 8),
+    totalSessions: result.rows.length + 1, // +1 for current session
+    previousSessions: result.rows.map(r => ({
+      sessionId: r.session_id as string,
+      sessionStart: r.session_start as string,
+      pageCount: r.page_count as number,
+      landingPage: r.landing_page as string,
+    })),
   };
 }

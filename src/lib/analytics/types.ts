@@ -113,6 +113,19 @@ export interface SessionPageVisit {
   }>;
 }
 
+export interface VisitorPastSession {
+  sessionId: string;
+  sessionStart: string;
+  pageCount: number;
+  landingPage: string;
+}
+
+export interface VisitorHistory {
+  visitorHash: string;
+  totalSessions: number;
+  previousSessions: VisitorPastSession[];
+}
+
 export interface SessionDetail {
   sessionId: string;
   referrer: string;
@@ -121,6 +134,7 @@ export interface SessionDetail {
   sessionEnd: string;
   totalEvents: number;
   pageVisits: SessionPageVisit[];
+  visitorHistory: VisitorHistory;
 }
 
 export interface SessionListResponse {

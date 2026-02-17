@@ -20,7 +20,8 @@ interface FormattedPoint extends RealtimeDataPoint {
 
 function formatTimeBucket(bucket: string, hours: TimeWindow): string {
   try {
-    const date = new Date(bucket);
+    // bucket is "YYYY-MM-DDTHH:MM" in UTC — append Z so Date parses as UTC
+    const date = new Date(bucket + ':00Z');
     if (isNaN(date.getTime())) return bucket;
     if (hours === 24) {
       return date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -36,7 +37,7 @@ function formatTimeBucket(bucket: string, hours: TimeWindow): string {
 }
 
 export default function RealtimeChart() {
-  const [hours, setHours] = useState<TimeWindow>(24);
+  const [hours, setHours] = useState<TimeWindow>(48);
   const [data, setData] = useState<FormattedPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string>('');
