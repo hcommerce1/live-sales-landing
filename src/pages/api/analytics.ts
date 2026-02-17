@@ -90,6 +90,7 @@ function sanitizeMetadata(meta: Record<string, unknown> | undefined): string | n
 // --- Route Handler ---
 export const POST: APIRoute = async ({ request }) => {
   if (!db) {
+    console.error('[Analytics API] db is null — TURSO_DATABASE_URL missing');
     return new Response(null, { status: 503 });
   }
 
@@ -123,7 +124,12 @@ export const POST: APIRoute = async ({ request }) => {
   const visitorHash = await computeVisitorHash(ip, ua);
 
   // Ensure schema
-  await ensureSchema();
+  try {
+    await ensureSchema();
+  } catch (err) {
+    console.error('[Analytics API] Schema init error:', err);
+    return new Response(null, { status: 500 });
+  }
 
   // Filter and validate events
   const validEvents = body.events
