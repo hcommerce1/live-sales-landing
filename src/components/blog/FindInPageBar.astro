@@ -1,0 +1,380 @@
+---
+/**
+ * Find-in-Page Bar (Ctrl+F override)
+ *
+ * Custom search-in-page overlay for blog posts.
+ * Intercepts Ctrl+F, highlights matches in .prose-blog,
+ * and tracks search queries via window.__ls_track('find_in_page', ...).
+ *
+ * Uses CSS Custom Highlight API where supported, falls back to <mark>.
+ */
+---
+
+<div id="find-bar" class="find-bar" role="search" aria-label="Szukaj na stronie" hidden>
+  <div class="find-bar-inner">
+    <svg class="find-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input
+      id="find-input"
+      type="text"
+      placeholder="Szukaj w artykule..."
+      autocomplete="off"
+      aria-label="Szukaj tekst"
+    />
+    <span id="find-count" class="find-bar-count" aria-live="polite"></span>
+    <button id="find-prev" class="find-bar-btn" aria-label="Poprzedni" title="Poprzedni (Shift+Enter)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+    <button id="find-next" class="find-bar-btn" aria-label="Następny" title="Następny (Enter)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <button id="find-close" class="find-bar-btn" aria-label="Zamknij (Escape)" title="Zamknij (Escape)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .find-bar {
+    position: fixed;
+    top: 0;
+    right: 1rem;
+    z-index: 90;
+    transform: translateY(-100%);
+    transition: transform 0.2s ease;
+  }
+  .find-bar[data-open] {
+    transform: translateY(0);
+  }
+  .find-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .find-bar-icon {
+    flex-shrink: 0;
+    color: #9ca3af;
+  }
+  #find-input {
+    width: 200px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #find-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+  .find-bar-count {
+    font-size: 0.75rem;
+    color: #6b7280;
+    white-space: nowrap;
+    min-width: 3.5rem;
+    text-align: center;
+  }
+  .find-bar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .find-bar-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+</style>
+
+<!-- Highlight styles (global) -->
+<style is:global>
+  ::highlight(find-highlight) {
+    background-color: #fde68a;
+    color: inherit;
+  }
+  ::highlight(find-highlight-current) {
+    background-color: #f97316;
+    color: white;
+  }
+  mark.find-hl {
+    background-color: #fde68a;
+    color: inherit;
+    padding: 0;
+    border-radius: 2px;
+  }
+  mark.find-hl-current {
+    background-color: #f97316;
+    color: white;
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  var bar = document.getElementById('find-bar');
+  var input = document.getElementById('find-input');
+  var countEl = document.getElementById('find-count');
+  var prevBtn = document.getElementById('find-prev');
+  var nextBtn = document.getElementById('find-next');
+  var closeBtn = document.getElementById('find-close');
+
+  if (!bar || !input || !countEl || !prevBtn || !nextBtn || !closeBtn) return;
+
+  // Only activate on blog post pages
+  var articleEl = document.querySelector('.prose-blog');
+  if (!articleEl) return;
+
+  // --- State ---
+  var isOpen = false;
+  var matches = [];       // Array of Range objects
+  var currentIndex = -1;
+  var openedAt = 0;
+  var maxNavigated = 0;
+  var lastQuery = '';
+  var debounceTimer = null;
+  var hasHighlightAPI = typeof CSS !== 'undefined' && typeof CSS.highlights !== 'undefined';
+
+  // --- Open / Close ---
+  function openBar() {
+    if (isOpen) return;
+    // Don't open if search overlay (Ctrl+K) or modal is active
+    if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+    isOpen = true;
+    openedAt = Date.now();
+    maxNavigated = 0;
+    bar.hidden = false;
+    // Force reflow then animate
+    void bar.offsetHeight;
+    bar.setAttribute('data-open', '');
+    input.focus();
+    input.select();
+  }
+
+  function closeBar() {
+    if (!isOpen) return;
+    isOpen = false;
+    bar.removeAttribute('data-open');
+    trackSession();
+    setTimeout(function() { bar.hidden = true; }, 200);
+    clearHighlights();
+    lastQuery = '';
+    input.value = '';
+    countEl.textContent = '';
+    currentIndex = -1;
+    matches = [];
+  }
+
+  // --- Intercept Ctrl+F / Cmd+F ---
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      openBar();
+    }
+    if (e.key === 'Escape' && isOpen) {
+      e.preventDefault();
+      closeBar();
+    }
+  });
+
+  closeBtn.addEventListener('click', closeBar);
+
+  // --- Input handling with debounce ---
+  input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(performSearch, 200);
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) navigatePrev();
+      else navigateNext();
+    }
+  });
+
+  prevBtn.addEventListener('click', navigatePrev);
+  nextBtn.addEventListener('click', navigateNext);
+
+  // --- Search logic ---
+  function performSearch() {
+    var query = input.value.trim();
+    if (query === lastQuery) return;
+    lastQuery = query;
+    clearHighlights();
+    currentIndex = -1;
+    matches = [];
+
+    if (query.length < 2) {
+      countEl.textContent = '';
+      return;
+    }
+
+    var treeWalker = document.createTreeWalker(
+      articleEl,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    var textNode;
+    var queryLower = query.toLowerCase();
+
+    while ((textNode = treeWalker.nextNode())) {
+      var text = textNode.textContent;
+      if (!text) continue;
+      var textLower = text.toLowerCase();
+      var startPos = 0;
+      var idx;
+
+      while ((idx = textLower.indexOf(queryLower, startPos)) !== -1) {
+        var range = document.createRange();
+        range.setStart(textNode, idx);
+        range.setEnd(textNode, idx + query.length);
+        matches.push(range);
+        startPos = idx + query.length;
+      }
+    }
+
+    if (matches.length === 0) {
+      countEl.textContent = '0 wyników';
+    } else {
+      currentIndex = 0;
+      maxNavigated = 1;
+      updateCountDisplay();
+      applyHighlights();
+      scrollToCurrentMatch();
+    }
+  }
+
+  function updateCountDisplay() {
+    countEl.textContent = (currentIndex + 1) + ' / ' + matches.length;
+  }
+
+  // --- Highlight rendering ---
+  function applyHighlights() {
+    if (hasHighlightAPI) {
+      applyHighlightsCSS();
+    } else {
+      applyHighlightsMark();
+    }
+  }
+
+  function applyHighlightsCSS() {
+    var allRanges = new Highlight();
+    for (var i = 0; i < matches.length; i++) {
+      if (i !== currentIndex) allRanges.add(matches[i]);
+    }
+    CSS.highlights.set('find-highlight', allRanges);
+
+    if (currentIndex >= 0 && currentIndex < matches.length) {
+      var currentHL = new Highlight(matches[currentIndex]);
+      CSS.highlights.set('find-highlight-current', currentHL);
+    }
+  }
+
+  function applyHighlightsMark() {
+    // Remove existing marks first
+    clearMarkElements();
+    // Process in reverse to preserve positions
+    for (var i = matches.length - 1; i >= 0; i--) {
+      var range = matches[i];
+      var mark = document.createElement('mark');
+      mark.className = i === currentIndex ? 'find-hl find-hl-current' : 'find-hl';
+      try {
+        range.surroundContents(mark);
+      } catch(e) {
+        // Range spans multiple elements — skip
+      }
+    }
+  }
+
+  function clearHighlights() {
+    if (hasHighlightAPI) {
+      CSS.highlights.delete('find-highlight');
+      CSS.highlights.delete('find-highlight-current');
+    } else {
+      clearMarkElements();
+    }
+  }
+
+  function clearMarkElements() {
+    var marks = articleEl.querySelectorAll('mark.find-hl');
+    for (var j = 0; j < marks.length; j++) {
+      var mark = marks[j];
+      var parent = mark.parentNode;
+      while (mark.firstChild) {
+        parent.insertBefore(mark.firstChild, mark);
+      }
+      parent.removeChild(mark);
+      parent.normalize();
+    }
+  }
+
+  // --- Navigation ---
+  function navigateNext() {
+    if (matches.length === 0) return;
+    currentIndex = (currentIndex + 1) % matches.length;
+    if (currentIndex + 1 > maxNavigated) maxNavigated = currentIndex + 1;
+    updateCountDisplay();
+    applyHighlights();
+    scrollToCurrentMatch();
+  }
+
+  function navigatePrev() {
+    if (matches.length === 0) return;
+    currentIndex = (currentIndex - 1 + matches.length) % matches.length;
+    if (currentIndex + 1 > maxNavigated) maxNavigated = currentIndex + 1;
+    updateCountDisplay();
+    applyHighlights();
+    scrollToCurrentMatch();
+  }
+
+  function scrollToCurrentMatch() {
+    if (currentIndex < 0 || currentIndex >= matches.length) return;
+    var range = matches[currentIndex];
+    var rect = range.getBoundingClientRect();
+    var barHeight = bar.offsetHeight || 48;
+    window.scrollBy({
+      top: rect.top - barHeight - 20,
+      behavior: 'smooth'
+    });
+  }
+
+  // --- Analytics tracking ---
+  function trackSession() {
+    if (!lastQuery || lastQuery.length < 2) return;
+    var duration = Date.now() - openedAt;
+    if (typeof window.__ls_track === 'function') {
+      window.__ls_track('find_in_page', {
+        query: lastQuery.slice(0, 200),
+        matchCount: matches.length,
+        navigatedTo: maxNavigated,
+        durationMs: duration
+      });
+    }
+  }
+})();
+</script>

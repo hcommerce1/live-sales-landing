@@ -5,6 +5,7 @@
  */
 
 import { db } from './db';
+import type { SessionSummary, SessionDetail, SessionPageVisit, RealtimeDataPoint } from './types';
 
 function sinceDate(days: number): string {
   return new Date(Date.now() - days * 86400000).toISOString();
@@ -170,6 +171,41 @@ export async function getCopyLog(days: number, limit: number = 50) {
   }));
 }
 
+// --- Find-in-Page Log ---
+
+export async function getFindInPageLog(days: number, limit: number = 30) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT
+            json_extract(metadata, '$.query') as query,
+            slug,
+            COUNT(*) as count,
+            AVG(json_extract(metadata, '$.matchCount')) as avg_matches,
+            AVG(json_extract(metadata, '$.navigatedTo')) as avg_navigated,
+            AVG(json_extract(metadata, '$.durationMs')) as avg_duration_ms,
+            MAX(created_at) as last_searched
+          FROM analytics_events
+          WHERE event_type = 'find_in_page' AND created_at >= ?
+          GROUP BY query, slug
+          ORDER BY count DESC
+          LIMIT ?`,
+    args: [since, limit],
+  });
+
+  return result.rows.map(r => ({
+    query: r.query as string,
+    slug: r.slug as string,
+    count: r.count as number,
+    avgMatches: Math.round(r.avg_matches as number || 0),
+    avgNavigated: Math.round((r.avg_navigated as number || 0) * 10) / 10,
+    avgDurationMs: Math.round(r.avg_duration_ms as number || 0),
+    lastSearched: r.last_searched as string,
+  }));
+}
+
 // --- Quit Depth Distribution ---
 
 export async function getQuitDepthDistribution(days: number, slug?: string) {
@@ -280,5 +316,149 @@ export async function getSubscriptionStats(days: number) {
       slug: r.source_slug as string,
       count: r.count as number,
     })),
+  };
+}
+
+// --- Realtime Traffic (5-min intervals) ---
+
+export async function getRealtimeTraffic(hours: 24 | 48 = 24): Promise<RealtimeDataPoint[]> {
+  if (!db) return [];
+
+  const since = new Date(Date.now() - hours * 3600000).toISOString();
+
+  const result = await db.execute({
+    sql: `SELECT
+            strftime('%Y-%m-%dT%H:', created_at) ||
+              printf('%02d', (CAST(strftime('%M', created_at) AS INTEGER) / 5) * 5) as time_bucket,
+            COUNT(*) as pageviews,
+            COUNT(DISTINCT visitor_hash) as unique_visitors
+          FROM analytics_events
+          WHERE event_type = 'pageview'
+            AND created_at >= ?
+          GROUP BY time_bucket
+          ORDER BY time_bucket ASC`,
+    args: [since],
+  });
+
+  return result.rows.map(r => ({
+    timeBucket: r.time_bucket as string,
+    pageviews: r.pageviews as number,
+    uniqueVisitors: r.unique_visitors as number,
+  }));
+}
+
+// --- Recent Sessions ---
+
+export async function getRecentSessions(limit: number = 50, offset: number = 0): Promise<{ sessions: SessionSummary[]; total: number }> {
+  if (!db) return { sessions: [], total: 0 };
+
+  const since = sinceDate(7);
+
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(DISTINCT session_id) as total
+          FROM analytics_events
+          WHERE created_at >= ?`,
+    args: [since],
+  });
+  const total = countResult.rows[0]?.total as number || 0;
+
+  const result = await db.execute({
+    sql: `SELECT
+            session_id,
+            MIN(created_at) as session_start,
+            MAX(created_at) as session_end,
+            COUNT(*) FILTER (WHERE event_type = 'pageview') as page_count,
+            MIN(CASE WHEN event_type = 'pageview' THEN created_at END) as first_pv_time,
+            MIN(CASE WHEN event_type = 'pageview' THEN slug END) as landing_page,
+            MAX(CASE WHEN event_type = 'quit' THEN slug END) as exit_page,
+            json_extract(
+              MIN(CASE WHEN event_type = 'pageview' THEN metadata END),
+              '$.referrer'
+            ) as referrer,
+            MAX(json_extract(metadata, '$.timeSpent')) FILTER (WHERE event_type = 'quit') as total_time,
+            AVG(json_extract(metadata, '$.depth')) FILTER (WHERE event_type = 'quit') as avg_depth,
+            visitor_hash
+          FROM analytics_events
+          WHERE created_at >= ?
+          GROUP BY session_id
+          HAVING page_count > 0
+          ORDER BY session_start DESC
+          LIMIT ? OFFSET ?`,
+    args: [since, limit, offset],
+  });
+
+  return {
+    total,
+    sessions: result.rows.map(r => ({
+      sessionId: r.session_id as string,
+      sessionStart: r.session_start as string,
+      sessionEnd: r.session_end as string,
+      pageCount: r.page_count as number,
+      landingPage: r.landing_page as string,
+      exitPage: (r.exit_page as string) || (r.landing_page as string),
+      referrer: (r.referrer as string) || '(direct)',
+      totalTime: (r.total_time as number) || 0,
+      avgDepth: Math.round((r.avg_depth as number) || 0),
+      visitorHash: ((r.visitor_hash as string) || '').slice(0, 8),
+    })),
+  };
+}
+
+// --- Session Detail ---
+
+export async function getSessionDetail(sessionId: string): Promise<SessionDetail | null> {
+  if (!db) return null;
+
+  const result = await db.execute({
+    sql: `SELECT event_type, slug, metadata, created_at
+          FROM analytics_events
+          WHERE session_id = ?
+          ORDER BY created_at ASC`,
+    args: [sessionId],
+  });
+
+  if (result.rows.length === 0) return null;
+
+  const events = result.rows.map(r => ({
+    eventType: r.event_type as string,
+    slug: r.slug as string,
+    metadata: r.metadata ? JSON.parse(r.metadata as string) : null,
+    createdAt: r.created_at as string,
+  }));
+
+  // Build page visit timeline
+  const pageVisits: SessionPageVisit[] = [];
+  let currentPage: SessionPageVisit | null = null;
+
+  for (const event of events) {
+    if (event.eventType === 'pageview') {
+      if (currentPage) pageVisits.push(currentPage);
+      currentPage = {
+        slug: event.slug,
+        enteredAt: event.createdAt,
+        timeSpent: 0,
+        scrollDepth: 0,
+        events: [event],
+      };
+    } else if (currentPage) {
+      currentPage.events.push(event);
+      if (event.eventType === 'quit') {
+        currentPage.timeSpent = event.metadata?.timeSpent as number || 0;
+        currentPage.scrollDepth = event.metadata?.depth as number || 0;
+      }
+    }
+  }
+  if (currentPage) pageVisits.push(currentPage);
+
+  const firstPageview = events.find(e => e.eventType === 'pageview');
+
+  return {
+    sessionId,
+    referrer: (firstPageview?.metadata?.referrer as string) || '(direct)',
+    landingPage: (firstPageview?.metadata?.path as string) || firstPageview?.slug || '',
+    sessionStart: events[0].createdAt,
+    sessionEnd: events[events.length - 1].createdAt,
+    totalEvents: events.length,
+    pageVisits,
   };
 }

@@ -1,0 +1,467 @@
+---
+title: "Claude Code + VS Code: co naprawdę możesz zrobić w e-commerce"
+description: "Faktury z maila, scrapowanie konkurencji, hurtowa edycja zdjęć, automatyczne oferty na marketplace — praktyczny przewodnik po AI w e-commerce. Koszt: 300 zł/mies."
+pubDate: 2026-02-20
+lang: pl
+category: guide
+featured: true
+tags: ['claude code', 'AI', 'VS Code', 'e-commerce', 'automatyzacja', 'scraping', 'OpenAI']
+calculators: ['custom']
+---
+
+import { WorkflowComparisonChart } from '@components/blog/charts/WorkflowComparisonChart';
+import { UseCaseShowcase } from '@components/blog/UseCaseShowcase';
+import { MessageSquare, Download, FileText, Search, Image, ShoppingCart, BarChart3, Sparkles, ShieldCheck, CheckCircle, AlertTriangle, Terminal, Zap, DollarSign } from 'lucide-react';
+
+{/* ========== HERO SECTION ========== */}
+<div className="bg-gradient-to-br from-violet-50 via-blue-50 to-cyan-50 rounded-2xl p-8 mb-12 border border-violet-100">
+  <h2 className="text-3xl font-bold mb-4 text-gray-900">
+    Nie chodzi o to, co dostajesz w subskrypcji. Chodzi o to, jakie masz możliwości.
+  </h2>
+
+  <blockquote className="border-l-4 border-violet-600 pl-6 my-6 text-lg italic text-gray-700">
+    "U mnie AI siedzi na jednym monitorze cały dzień. To nie gadżet — to drugi pracownik, który nigdy nie narzeka, nie prosi o urlop i robi w 15 minut to, co ręcznie zajmowałoby 4 godziny."
+  </blockquote>
+
+  <p className="text-lg text-gray-700 mb-6 leading-loose">
+    Prowadzisz sklep internetowy, sprzedajesz na Allegro, korzystasz z BaseLinker? Masz dane, których <strong>nikt nie analizuje</strong>, bo nie ma na to czasu. Claude Code + VS Code to narzędzia, które pozwalają Ci <strong>rozmawiać z komputerem po polsku</strong> i dostawać gotowe analizy, skrypty i raporty. Bez bycia programistą.
+  </p>
+
+  <div className="grid md:grid-cols-3 gap-4">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <DollarSign className="w-6 h-6 text-violet-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">~300 zł/mies</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Koszt Claude Code Max — tyle co lunch biznesowy</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Terminal className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">VS Code = darmowy</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Profesjonalny edytor od Microsoftu — zero opłat</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <ShieldCheck className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Wszystko lokalnie</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Twoje dane nie opuszczają komputera</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+{/* ========== SEKCJA 1: JAK TO DZIAŁA ========== */}
+## <MessageSquare className="inline w-8 h-8 mr-2 text-violet-600" /> Jak to działa — "crowd computing" z AI
+
+Wyobraź sobie, że masz pracownika, który siedzi obok Ciebie i **czeka na polecenia**. Mówisz mu po polsku:
+
+> "Otwórz ten plik z zamówieniami, policz ile zarabiamy na każdym produkcie po odjęciu prowizji Allegro i kosztów dostawy, i pokaż mi to na wykresie."
+
+I on to robi. Dosłownie. Pisze kod, uruchamia go, generuje wykres — Ty patrzysz i mówisz: "OK, a teraz pokaż mi tylko te, które mają marżę poniżej 10%."
+
+To jest **Claude Code** — narzędzie od Anthropic, które działa jako rozszerzenie VS Code. Ale to nie jest jedyna opcja. **OpenAI** ma swoje API, istnieje **Cursor**, **GitHub Copilot** i inne narzędzia. Ten artykuł nie jest reklamą jednego produktu — to przewodnik po **możliwościach**, które daje AI w codziennej pracy e-commerce.
+
+### Kluczowa zasada: nie zostawiaj AI wolnej ręki
+
+AI to nie magiczna skrzynka, do której wrzucasz dane i wychodzi gotowy biznesplan. To **rozmowa**. Ono ciągnie Cię za rękę — ale musisz za nim iść, rozumieć co robi i mówić mu kiedy skręca w złą stronę.
+
+<div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-8">
+  <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+    <Terminal className="w-5 h-5" /> Dlaczego VS Code + Claude Code, a nie ChatGPT w przeglądarce?
+  </h4>
+  <div className="grid md:grid-cols-2 gap-4">
+    <div className="bg-white p-4 rounded-lg border border-red-200">
+      <h5 className="font-semibold text-red-700 mb-2">ChatGPT web</h5>
+      <ul className="text-sm text-gray-600 space-y-1">
+        <li>Kopiuj-wklej danych — limit znaków</li>
+        <li>Nie widzi Twoich plików</li>
+        <li>Nie uruchomi kodu</li>
+        <li>Traci kontekst między sesjami</li>
+      </ul>
+    </div>
+    <div className="bg-white p-4 rounded-lg border border-green-200">
+      <h5 className="font-semibold text-green-700 mb-2">Claude Code w VS Code</h5>
+      <ul className="text-sm text-gray-600 space-y-1">
+        <li>Czyta Twoje pliki CSV/Excel bezpośrednio</li>
+        <li>Uruchamia Python, SQL, cokolwiek</li>
+        <li>Ma pełny kontekst projektu</li>
+        <li>Wszystko działa na Twoim komputerze</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-8">
+  <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+    <Zap className="w-5 h-5" /> Co potrzebujesz na start?
+  </h4>
+  <ol className="text-gray-700 space-y-2">
+    <li><strong>1. VS Code</strong> — darmowy edytor od Microsoftu (<a href="https://code.visualstudio.com" className="text-blue-600 underline">code.visualstudio.com</a>)</li>
+    <li><strong>2. Python</strong> — darmowy język programowania (AI sam go zainstaluje za Ciebie)</li>
+    <li><strong>3. Claude Code</strong> — rozszerzenie do VS Code (~300 PLN/mies w planie Max) lub <strong>OpenAI API</strong> (pay-as-you-go)</li>
+    <li><strong>4. Twoje dane</strong> — eksporty z BaseLinker, Allegro, faktury, cokolwiek masz w CSV/Excel</li>
+  </ol>
+</div>
+
+---
+
+{/* ========== SEKCJA 1.5: NISKI PRÓG WEJŚCIA ========== */}
+## <Download className="inline w-8 h-8 mr-2 text-green-600" /> Niski próg wejścia — zacznij od eksportu z BaseLinker
+
+Nie musisz być programistą. Nie musisz rozumieć Pythona. Wystarczy, że:
+
+1. **Pobierzesz eksport** CSV/Excel z BaseLinker (zamówienia, produkty, faktury)
+2. **Wrzucisz go** do folderu na komputerze
+3. **Zapytasz AI** po polsku, co chcesz wiedzieć
+
+Serio — nawet **najgłupsze pytania** dają zaskakująco dobre odpowiedzi:
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <p className="text-gray-800 font-mono text-sm">"Na czym tracimy najwięcej?"</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <p className="text-gray-800 font-mono text-sm">"Na czym zarabiamy najwięcej?"</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <p className="text-gray-800 font-mono text-sm">"Jak zarobić więcej?"</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <p className="text-gray-800 font-mono text-sm">"Które produkty mają najgorszą marżę?"</p>
+  </div>
+</div>
+
+AI odpowie dobrze — bo **ma kontekst z Twoich danych**. Nie zgaduje. Analizuje Twój eksport, liczy, porównuje i podaje konkretne produkty, kwoty, procenty.
+
+Co więcej — AI **sam zaproponuje** co zrobić, żeby zarobić więcej. Pokaże Ci produkty do wycofania, ceny do podniesienia, kategorie do rozwoju. Ale jest jeden warunek:
+
+<div className="bg-green-50 p-6 rounded-xl border border-green-200 my-8">
+  <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+    <CheckCircle className="w-5 h-5" /> Klucz: dobre dane = dobre odpowiedzi
+  </h4>
+  <p className="text-gray-700">
+    Im lepsze dane dostarczysz, tym lepszy kontekst ma AI i tym trafniejsze są wnioski. Eksport z BaseLinker + jedno pytanie po polsku = analiza, na którą normalnie czekasz tydzień od analityka. Ale jeśli dasz mu brudne, niekompletne dane — dostaniesz brudne, niekompletne odpowiedzi.
+  </p>
+</div>
+
+W krótkim czasie — dosłownie kilkanaście minut — dostajesz relatywnie fajne wykresy i analizy. Nie idealne. Nie audytorskie. Ale **wystarczające, żeby podjąć decyzję biznesową** tu i teraz.
+
+---
+
+{/* ========== SEKCJA 2: FAKTURY ========== */}
+## <FileText className="inline w-8 h-8 mr-2 text-blue-600" /> Faktury i dokumenty — od maila do Google Sheets
+
+### Scenariusz
+
+Masz **50+ faktur zakupowych** w mailu co miesiąc. Od różnych dostawców, w różnych formatach PDF. Ręcznie przepisujesz je do Excela, sortujesz, liczysz. Tracisz na to pół dnia.
+
+### Co mówisz AI:
+
+```text
+Mam folder "faktury_luty" z 47 plikami PDF. Chcę żebyś:
+1. Odczytał każdą fakturę OCR-em
+2. Wyciągnął: numer faktury, nazwa kontrahenta, data, kwota netto, brutto, VAT
+3. Znormalizował nazwy — np. "transport", "dostawa", "przesyłka" = jedna kategoria "Logistyka"
+4. Zapisał wszystko do Google Sheets z podziałem na karty: wg kontrahenta i wg miesiąca
+5. Podsumował: kto nas kosztuje najwięcej, jaki % to logistyka
+```
+
+### Co dostajesz:
+
+AI krok po kroku:
+1. **Pisze skrypt Python** z biblioteką `pytesseract` do OCR lub wykorzystuje Claude Vision API
+2. **Parsuje każdą fakturę** — wyciąga dane do ustrukturyzowanej tabeli
+3. **Normalizuje dane** — sam rozpoznaje, że "Kurier DPD", "DPD Sp. z o.o." i "DPD dostawa" to ten sam kontrahent
+4. **Łączy się z Google Sheets API** i tworzy arkusz z podziałem na zakładki
+5. **Generuje podsumowanie** z wykresami — top kontrahenci, podział kosztów, trend miesięczny
+
+Cały proces? **15 minut** zamiast 4 godzin. A skrypt zostaje — następnym razem odpalisz go jednym kliknięciem.
+
+<div className="bg-green-50 p-6 rounded-xl border border-green-200 my-6">
+  <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+    <ShieldCheck className="w-5 h-5" /> Bezpieczeństwo
+  </h4>
+  <p className="text-gray-700">
+    Faktury zakupowe to dane krytyczne. W tym scenariuszu <strong>wszystko działa lokalnie</strong> na Twoim komputerze. Pliki nie lecą na żaden zewnętrzny serwer. Instalujesz Pythona, VS Code, Claude Code — i masz prywatne środowisko analityczne.
+  </p>
+</div>
+
+<div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 my-6">
+  <h4 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+    <AlertTriangle className="w-5 h-5" /> Uwaga
+  </h4>
+  <p className="text-gray-700">
+    AI nie jest księgowym. Zawsze weryfikuj wyniki z oryginalnymi dokumentami. Traktuj to jako <strong>narzędzie do wstępnej analizy</strong>, nie jako zamiennik księgowości.
+  </p>
+</div>
+
+---
+
+{/* ========== SEKCJA 3: SCRAPOWANIE KONKURENCJI ========== */}
+## <Search className="inline w-8 h-8 mr-2 text-orange-600" /> Scrapowanie konkurencji
+
+### Scenariusz
+
+Chcesz wiedzieć: **gdzie konkurencja ma wpięte oferty**, jakie oferty promuje, jak zmienia ceny, gdzie kończy się listing. Ręczne sprawdzanie 50 ofert to cały dzień.
+
+### Co mówisz AI:
+
+```text
+Mam listę 50 URL-i ofert konkurencji na Allegro w pliku urls.txt.
+Dla każdej oferty wyciągnij:
+- tytuł, cena, czy promowana, ilość sprzedanych, parametry
+Zapisz do pliku CSV. Potem porównaj z moimi ofertami z pliku moje_produkty.csv
+— pokaż gdzie mam wyższą cenę, gdzie brakuje mi parametrów, gdzie konkurencja sprzedaje więcej.
+```
+
+### Co AI zrobi:
+
+1. **Napisze scraper** w Playwright lub Selenium — przeglądarkowy bot, który odwiedza każdy URL
+2. **Parsuje dane** — wyciąga cenę, parametry, status promowania
+3. **Porównuje z Twoimi ofertami** — matching po nazwie produktu lub EAN
+4. **Generuje raport** — tabela z kolumnami: Twoja cena vs konkurencja, brakujące parametry, rekomendacje
+
+Efekt? Wiesz dokładnie **gdzie tracisz klientów** i co zmienić.
+
+```text
+Dodaj opóźnienia 2-5 sekund między requestami i rotuj User-Agent,
+żeby nie zostać zablokowanym. Zapisuj postęp, żeby móc wznowić po przerwie.
+```
+
+<div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-6">
+  <p className="text-gray-700">
+    <strong>Pro tip:</strong> Po przescrapowaniu danych konkurencji, poproś AI o wygenerowanie pliku CSV, który możesz <strong>bezpośrednio zaimportować do BaseLinker</strong> — z uzupełnionymi parametrami, które masz brakujące.
+  </p>
+</div>
+
+---
+
+{/* ========== SEKCJA 4: ZDJĘCIA ========== */}
+## <Image className="inline w-8 h-8 mr-2 text-pink-600" /> Hurtowa edycja zdjęć i upload
+
+### Scenariusz
+
+Masz **200 zdjęć produktów**. Do każdego chcesz dodać napis z długością w metrach. Potem zmniejszyć wagę, wrzucić na Cloudinary i dostać URL-e do importu.
+
+### Co mówisz AI:
+
+```text
+W folderze "zdjecia_produkty" mam 200 plików JPG.
+Plik wymiary.csv zawiera nazwę pliku i wymiar w metrach.
+Dla każdego zdjęcia:
+1. Dodaj napis z wymiarem (np. "2,5m") w prawym dolnym rogu, białe tło, czarna czcionka
+2. Zmniejsz do max 1200px szerokości
+3. Skompresuj do <200KB
+4. Wrzuć na Cloudinary (klucze API w pliku .env)
+5. Zapisz URL-e do pliku urls.csv w kolejności
+```
+
+### Co dostajesz:
+
+AI napisze skrypt Python z **Pillow** (do edycji zdjęć) i **Cloudinary SDK** (do uploadu):
+
+- Batch processing — 200 zdjęć leci automatycznie
+- Każde zdjęcie dostaje napis z wymiarami w zadanym stylu
+- Po uploadzie masz plik CSV z URL-ami — gotowy do importu do BaseLinker
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="bg-red-50 p-5 rounded-xl border border-red-200">
+    <h5 className="font-semibold text-red-700 mb-2">Ręcznie w Photoshopie</h5>
+    <p className="text-sm text-gray-700">200 zdjęć × 2 min = <strong>~7 godzin</strong></p>
+    <p className="text-sm text-gray-700">+ upload jeden po jednym</p>
+    <p className="text-sm text-gray-700">+ ręczne kopiowanie URL-i</p>
+  </div>
+  <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+    <h5 className="font-semibold text-green-700 mb-2">Ze skryptem od AI</h5>
+    <p className="text-sm text-gray-700">Rozmowa z AI: <strong>15 minut</strong></p>
+    <p className="text-sm text-gray-700">Skrypt robi resztę: <strong>5 minut</strong></p>
+    <p className="text-sm text-gray-700">URL-e w CSV automatycznie</p>
+  </div>
+</div>
+
+Wariacja: poproś **Claude Vision** o automatyczne rozpoznanie co jest na zdjęciu i wygenerowanie tagów — przydatne do SEO opisów.
+
+---
+
+{/* ========== SEKCJA 5: MARKETPLACE ========== */}
+## <ShoppingCart className="inline w-8 h-8 mr-2 text-green-600" /> Automatyzacja marketplace — BaseLinker, Allegro, oferty
+
+To jest sekcja, gdzie AI naprawdę błyszczy. Masa powtarzalnych operacji, które ręcznie zajmują godziny.
+
+### Co AI zrobi za Ciebie:
+
+**1. Auto-tworzenie produktów w BaseLinker**
+
+```text
+Mam plik new_products.csv z 150 nowymi produktami (nazwa, EAN, cena zakupu, cena sprzedaży, kategoria, wymiary).
+Napisz skrypt, który przez API BaseLinker stworzy te produkty w mojej bazie.
+Ustaw statusy, przypisz magazyn, wypełnij parametry.
+```
+
+AI napisze skrypt w Pythonie, który połączy się z API BaseLinker i za jednym uruchomieniem stworzy 150 produktów. Nie klikasz. Nie kopiujesz. Odpala się i działa.
+
+**2. Generowanie opisów SEO**
+
+```text
+Weź plik products.csv, dla każdego produktu wygeneruj:
+- Tytuł SEO pod Allegro (max 75 znaków, z kluczowymi cechami)
+- Opis 300 słów z nagłówkami H2, bulletpointami, słowami kluczowymi
+- Dopasuj kategorię Allegro na podstawie nazwy produktu
+Zapisz do pliku output.csv gotowego do importu.
+```
+
+**3. Hurtowa zmiana nazw i parametrów**
+
+Masz 500 ofert i chcesz zmienić format tytułu? AI napisze skrypt, który przez API pobierze wszystkie, zmodyfikuje i wrzuci z powrotem.
+
+**4. Przygotowanie pod różne marketplace**
+
+Allegro, Amazon, Erli, Empik — każdy ma inny format. AI przygotuje oddzielne pliki CSV z odpowiednimi kolumnami, formatowaniem i kategoriami dla każdej platformy z jednego źródła danych.
+
+---
+
+{/* ========== SEKCJA 6: ANALITYKA ========== */}
+## <BarChart3 className="inline w-8 h-8 mr-2 text-violet-600" /> Analityka — BigQuery, wykresy, raporty
+
+Masz dane w BigQuery, bazie SQL albo po prostu w dużych plikach CSV? AI wyciągnie z tego **konkretne wnioski**.
+
+### Przykłady pytań, które zadajesz:
+
+```text
+Połącz się z moją bazą BigQuery i wyciągnij:
+- Wartość sprzedaży per kategoria produktu za ostatnie 12 miesięcy
+- Wartość dostaw (koszty logistyki) per kategoria
+- Marżę netto per kategoria
+Zrób z tego wykresy (bar chart + trend line) i raport HTML, który mogę wysłać do zespołu.
+```
+
+AI:
+- Napisze **zapytania SQL** do BigQuery
+- Wygeneruje **wykresy** w matplotlib lub Plotly
+- Stworzy raport **HTML/PDF** z tabelami i wizualizacjami
+- Podzieli dane na **kategorie produktów**: elektronika, odzież, dom i ogród...
+
+A jeśli nie masz BigQuery? Eksport CSV z BaseLinker wystarczy. Pytasz: "Pokaż mi trend sprzedaży dziennej za ostatni miesiąc" i dostajesz wykres.
+
+<WorkflowComparisonChart client:visible />
+
+---
+
+{/* ========== SEKCJA 7: USE CASE SHOWCASE ========== */}
+## <Sparkles className="inline w-8 h-8 mr-2 text-violet-600" /> Przegląd scenariuszy — co jeszcze potrafi AI?
+
+To tylko wierzchołek góry lodowej. Kliknij kategorię i zobacz, co **konkretnie** AI zrobi za Ciebie:
+
+<UseCaseShowcase client:load />
+
+---
+
+{/* ========== SEKCJA 8: BEZPIECZEŃSTWO I KOSZTY ========== */}
+## <ShieldCheck className="inline w-8 h-8 mr-2 text-green-600" /> Bezpieczeństwo i koszty
+
+### Wszystko lokalne
+
+Czytanie maili, analiza faktur, dane sprzedażowe — to **krytyczne informacje**. Dlatego cały workflow działa na Twoim komputerze:
+
+- **VS Code** — zainstalowany lokalnie
+- **Python** — zainstalowany lokalnie
+- **Claude Code** — rozszerzenie VS Code, kod wykonuje się u Ciebie
+- Pliki **nie opuszczają Twojego dysku** (chyba że sam je gdzieś wyślesz)
+
+### Ile to kosztuje?
+
+<div className="grid md:grid-cols-3 gap-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm text-center">
+    <div className="text-3xl font-bold text-violet-600 mb-2">~300 zł</div>
+    <div className="text-sm text-gray-600">Claude Code Max / miesiąc</div>
+    <div className="text-xs text-gray-400 mt-1">lub pay-as-you-go przez API</div>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm text-center">
+    <div className="text-3xl font-bold text-blue-600 mb-2">0 zł</div>
+    <div className="text-sm text-gray-600">VS Code</div>
+    <div className="text-xs text-gray-400 mt-1">darmowy, od Microsoftu</div>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm text-center">
+    <div className="text-3xl font-bold text-green-600 mb-2">0 zł</div>
+    <div className="text-sm text-gray-600">Python</div>
+    <div className="text-xs text-gray-400 mt-1">darmowy, open-source</div>
+  </div>
+</div>
+
+<div className="bg-violet-50 p-6 rounded-xl border border-violet-200 my-8">
+  <h4 className="font-semibold text-violet-800 mb-3">Porównanie kosztów:</h4>
+  <div className="space-y-2 text-gray-700">
+    <div className="flex justify-between items-center">
+      <span>Zatrudnienie analityka danych</span>
+      <span className="font-bold text-red-600">8 000 – 15 000 zł/mies</span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span>Zlecenie analizy na zewnątrz</span>
+      <span className="font-bold text-orange-600">2 000 – 5 000 zł/projekt</span>
+    </div>
+    <div className="flex justify-between items-center border-t border-violet-200 pt-2">
+      <span>AI + VS Code + Twoja głowa</span>
+      <span className="font-bold text-green-600">~300 zł/mies</span>
+    </div>
+  </div>
+</div>
+
+---
+
+{/* ========== PODSUMOWANIE ========== */}
+## <CheckCircle className="inline w-8 h-8 mr-2 text-green-600" /> Podsumowanie
+
+<div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200 my-8">
+  <h3 className="text-xl font-bold text-green-800 mb-4">Co musisz zapamiętać:</h3>
+  <ul className="space-y-3 text-gray-700">
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Nie musisz być programistą.</strong> Mówisz po polsku, AI pisze kod za Ciebie.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Zacznij od eksportu z BaseLinker.</strong> Nawet proste pytanie "na czym tracimy?" da Ci konkretne odpowiedzi.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>AI ciągnie za rękę, ale Ty prowadzisz.</strong> Nie zostawiaj mu wolnej woli — idź krok po kroku.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Dobre dane = dobre odpowiedzi.</strong> Im lepszy kontekst dasz, tym trafniejsze wnioski dostaniesz.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>300 zł/mies zastępuje analityka za 10 000.</strong> Nie w 100%, ale w 80% codziennych zadań — wystarczy.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>To naprawdę działa.</strong> U mnie AI siedzi na monitorze cały dzień. To nie jest przyszłość — to teraźniejszość.</span>
+    </li>
+  </ul>
+</div>
+
+---
+
+{/* ========== CTA ========== */}
+<div className="bg-gradient-to-r from-blue-600 to-violet-600 p-8 rounded-2xl text-white my-8">
+  <h3 className="text-2xl font-bold mb-4">Nie chcesz robić tego sam?</h3>
+  <p className="text-blue-100 mb-6 text-lg leading-relaxed">
+    <strong>LiveSales</strong> automatyzuje dashboardy, raporty i analizy e-commerce — bez kodowania, bez VS Code, bez promptów. Jeśli wolisz gotowe rozwiązanie, które działa 24/7 w tle, sprawdź co oferujemy.
+  </p>
+  <a href="/#contact" className="inline-block bg-white text-blue-700 font-semibold px-8 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+    Umów się na rozmowę
+  </a>
+</div>

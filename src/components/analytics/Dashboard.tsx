@@ -19,6 +19,9 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
+import RealtimeChart from './RealtimeChart';
+import SessionList from './SessionList';
+import SessionDrawer from './SessionDrawer';
 
 type DateRange = 7 | 30 | 90;
 
@@ -44,6 +47,11 @@ interface DashboardData {
     total: number; confirmed: number; unsubscribed?: number;
     bySlug: Array<{ slug: string; count: number }>;
   };
+  findInPage: Array<{
+    query: string; slug: string; count: number;
+    avgMatches: number; avgNavigated: number;
+    avgDurationMs: number; lastSearched: string;
+  }>;
 }
 
 export default function Dashboard() {
@@ -53,6 +61,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState('');
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -178,6 +187,9 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Realtime Traffic */}
+      <RealtimeChart />
+
       {/* Pageviews Over Time */}
       <Section title="Odsłony w czasie">
         {data.pageviewsByDay.length > 0 ? (
@@ -263,6 +275,42 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <EmptyState />
+        )}
+      </Section>
+
+      {/* Find-in-Page Log */}
+      <Section title="Ctrl+F — co szukają w artykułach">
+        {data.findInPage && data.findInPage.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-gray-500">
+                  <th className="pb-2 font-medium">Zapytanie</th>
+                  <th className="pb-2 font-medium">Artykuł</th>
+                  <th className="pb-2 font-medium text-right">Ile razy</th>
+                  <th className="pb-2 font-medium text-right">Śr. trafienia</th>
+                  <th className="pb-2 font-medium text-right">Śr. czas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.findInPage.map((f, i) => (
+                  <tr key={i} className="border-b border-gray-100">
+                    <td className="py-2 font-medium text-gray-900">{f.query}</td>
+                    <td className="py-2 text-gray-600 max-w-xs truncate">{f.slug}</td>
+                    <td className="py-2 text-right">{f.count}</td>
+                    <td className="py-2 text-right">{f.avgMatches}</td>
+                    <td className="py-2 text-right">
+                      {f.avgDurationMs > 1000
+                        ? `${(f.avgDurationMs / 1000).toFixed(1)}s`
+                        : `${f.avgDurationMs}ms`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
           <EmptyState />
@@ -356,6 +404,17 @@ export default function Dashboard() {
           </div>
         )}
       </Section>
+
+      {/* Recent Sessions */}
+      <Section title="Ostatnie sesje">
+        <SessionList onSelectSession={setSelectedSession} />
+      </Section>
+
+      {/* Session Detail Drawer (from left) */}
+      <SessionDrawer
+        sessionId={selectedSession}
+        onClose={() => setSelectedSession(null)}
+      />
     </div>
   );
 }

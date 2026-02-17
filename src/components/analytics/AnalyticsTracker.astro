@@ -29,9 +29,24 @@ const { slug, lang = 'pl' } = Astro.props;
   'use strict';
 
   const API = '/api/analytics';
-  const sid = typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID()
-    : Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+  // Persistent session ID via sessionStorage (survives page navigations, 30min timeout)
+  const sid = (function() {
+    var KEY = 'ls_sid', TS_KEY = 'ls_sid_ts', TIMEOUT = 30 * 60 * 1000;
+    try {
+      var existing = sessionStorage.getItem(KEY);
+      var lastTs = parseInt(sessionStorage.getItem(TS_KEY) || '0');
+      if (existing && (Date.now() - lastTs) < TIMEOUT) {
+        sessionStorage.setItem(TS_KEY, String(Date.now()));
+        return existing;
+      }
+    } catch(e) {}
+    var newSid = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    try { sessionStorage.setItem(KEY, newSid); sessionStorage.setItem(TS_KEY, String(Date.now())); } catch(e) {}
+    return newSid;
+  })();
 
   const currentSlug = slug || window.location.pathname.replace(/^\/|\/$/g, '') || 'home';
   const currentLang = lang || document.documentElement.lang || 'pl';
@@ -60,6 +75,7 @@ const { slug, lang = 'pl' } = Astro.props;
 
   function flush() {
     if (queue.length === 0) { flushTimer = null; return; }
+    try { sessionStorage.setItem('ls_sid_ts', String(Date.now())); } catch(e) {}
     const payload = JSON.stringify({ events: queue.splice(0), sid });
 
     if (navigator.sendBeacon) {

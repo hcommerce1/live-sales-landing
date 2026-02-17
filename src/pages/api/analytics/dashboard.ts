@@ -18,6 +18,7 @@ import {
   getTopSearchQueries,
   getReturnVisitStats,
   getSubscriptionStats,
+  getFindInPageLog,
 } from '@lib/analytics/aggregation';
 
 export const prerender = false;
@@ -57,6 +58,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     searchQueries,
     returnVisits,
     subscriptions,
+    findInPage,
   ] = await Promise.all([
     getOverviewStats(days),
     getPageviewsByDay(days),
@@ -67,6 +69,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     getTopSearchQueries(days),
     getReturnVisitStats(days),
     getSubscriptionStats(days),
+    getFindInPageLog(days),
   ]);
 
   return new Response(
@@ -80,6 +83,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       searchQueries,
       returnVisits,
       subscriptions,
+      findInPage,
     }),
     {
       status: 200,

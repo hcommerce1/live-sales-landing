@@ -82,6 +82,11 @@ function sanitizeMetadata(meta: Record<string, unknown> | undefined): string | n
     meta.text = meta.text.replace(/<[^>]*>/g, '').slice(0, MAX_METADATA_TEXT);
   }
 
+  // Strip HTML from query fields (find-in-page tracking)
+  if (typeof meta.query === 'string') {
+    meta.query = meta.query.replace(/<[^>]*>/g, '').slice(0, 200);
+  }
+
   const json = JSON.stringify(meta);
   if (json.length > MAX_BODY_SIZE) return null;
   return json;

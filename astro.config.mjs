@@ -30,6 +30,9 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      external: ['@libsql/client'],
+    },
     resolve: {
       alias: {
         '@': path.resolve('./src'),

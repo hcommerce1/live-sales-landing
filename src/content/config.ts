@@ -12,6 +12,7 @@ const blogCollection = defineCollection({
     featured: z.boolean().default(false),
     draft: z.boolean().default(false),
     ogImage: z.string().optional(),
+    heroImage: z.string().optional(),
     tags: z.array(z.string()).default([]),
     // Dla przyszłych kalkulatorów embeddable w MDX
     calculators: z.array(z.enum(['roi', 'savings', 'integration', 'custom'])).optional(),

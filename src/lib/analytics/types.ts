@@ -13,12 +13,13 @@ export type EventType =
   | 'cta_click'
   | 'return_visit'
   | 'interaction'
-  | 'subscribe';
+  | 'subscribe'
+  | 'find_in_page';
 
 export const VALID_EVENT_TYPES: ReadonlySet<string> = new Set<EventType>([
   'pageview', 'copy', 'scroll_dwell', 'quit', 'search',
   'search_click', 'search_overlay', 'cta_click', 'return_visit',
-  'interaction', 'subscribe',
+  'interaction', 'subscribe', 'find_in_page',
 ]);
 
 export interface AnalyticsEvent {
@@ -82,4 +83,55 @@ export interface AudioCacheEntry {
   contentHash: string;
   durationSeconds: number;
   createdAt: string;
+}
+
+// --- Session tracking ---
+
+export interface SessionSummary {
+  sessionId: string;
+  sessionStart: string;
+  sessionEnd: string;
+  pageCount: number;
+  landingPage: string;
+  exitPage: string;
+  referrer: string;
+  totalTime: number;
+  avgDepth: number;
+  visitorHash: string;
+}
+
+export interface SessionPageVisit {
+  slug: string;
+  enteredAt: string;
+  timeSpent: number;
+  scrollDepth: number;
+  events: Array<{
+    eventType: string;
+    slug: string;
+    metadata: Record<string, unknown> | null;
+    createdAt: string;
+  }>;
+}
+
+export interface SessionDetail {
+  sessionId: string;
+  referrer: string;
+  landingPage: string;
+  sessionStart: string;
+  sessionEnd: string;
+  totalEvents: number;
+  pageVisits: SessionPageVisit[];
+}
+
+export interface SessionListResponse {
+  sessions: SessionSummary[];
+  total: number;
+}
+
+// --- Realtime traffic ---
+
+export interface RealtimeDataPoint {
+  timeBucket: string;
+  pageviews: number;
+  uniqueVisitors: number;
 }

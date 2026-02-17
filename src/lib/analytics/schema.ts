@@ -25,6 +25,8 @@ const TABLES = [
   `CREATE INDEX IF NOT EXISTS idx_events_slug_type ON analytics_events (slug, event_type)`,
   `CREATE INDEX IF NOT EXISTS idx_events_created ON analytics_events (created_at)`,
   `CREATE INDEX IF NOT EXISTS idx_events_visitor ON analytics_events (visitor_hash)`,
+  `CREATE INDEX IF NOT EXISTS idx_events_session ON analytics_events (session_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_events_session_created ON analytics_events (session_id, created_at)`,
 
   // Subscribers
   `CREATE TABLE IF NOT EXISTS subscribers (
