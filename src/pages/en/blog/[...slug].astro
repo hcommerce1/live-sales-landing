@@ -4,6 +4,8 @@ import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import Footer from '@components/Footer';
 
+export const prerender = true;
+
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => data.lang === 'en' && !data.draft);
   return posts.map((post) => ({
