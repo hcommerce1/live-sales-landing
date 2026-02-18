@@ -5,7 +5,10 @@ const blogCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    pubDate: z.date(),
+    pubDate: z.date().refine(
+      (d) => d <= new Date(new Date().toISOString().slice(0, 10) + 'T23:59:59Z'),
+      { message: 'pubDate nie może być w przyszłości — użyj dzisiejszej daty' }
+    ),
     updatedDate: z.date().optional(),
     lang: z.enum(['pl', 'en']),
     category: z.enum(['tutorial', 'case-study', 'guide', 'announcement']),

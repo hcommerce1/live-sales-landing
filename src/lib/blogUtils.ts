@@ -20,9 +20,10 @@ export function sortByDate(posts: CollectionEntry<'blog'>[]): CollectionEntry<'b
   return posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 }
 
-// Filtruj opublikowane (bez draft)
+// Filtruj opublikowane (bez draft i bez przyszłych dat)
 export function filterPublished(posts: CollectionEntry<'blog'>[]): CollectionEntry<'blog'>[] {
-  return posts.filter(post => !post.data.draft);
+  const now = new Date();
+  return posts.filter(post => !post.data.draft && post.data.pubDate <= now);
 }
 
 // Wygeneruj excerpt z contentu

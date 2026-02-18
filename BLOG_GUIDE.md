@@ -26,6 +26,17 @@ Hosting: Vercel
 
 ---
 
+## ⚠️ ZASADA DATY (pubDate)
+
+**pubDate ZAWSZE = data faktycznego dodania posta (dziś).**
+
+- NIE ustawiaj daty z przyszłości — build się nie powiedzie (walidacja Zod w `config.ts`)
+- NIE zgaduj daty — użyj dzisiejszej
+- Posty z przyszłą datą nie pokażą się na stronie (`filterPublished` w `blogUtils.ts` je odrzuci)
+- Format: `YYYY-MM-DD` (np. `2026-02-18`)
+
+---
+
 ## ✅ Checklist przed pisaniem
 
 - [ ] Sprawdź czy temat jest unikalny
@@ -60,26 +71,47 @@ Hosting: Vercel
 
 ---
 
-### 2. ✅ WAŻNE: Zwiększone odstępy między liniami
+### 2. ✅ WAŻNE: Odstępy i typografia (`.prose-blog`)
 
-**Dla lepszej czytelności używamy:**
-- `leading-loose` (line-height: 1.75) zamiast `leading-relaxed` (1.625)
-- Większe marginesy między paragrafami: `mb-6`
-- Więcej przestrzeni między sekcjami: headingi z większymi `mt-` i `mb-`
+**Klasa `.prose-blog` w `global.css` automatycznie daje dobre odstępy KAŻDEMU blogowi** — nie musisz dodawać `leading-*` ani `mb-*` do czystego tekstu. Style bazowe działają na paragrafach, headingach, listach, cytatach, code blockach.
 
-**Przykład paragrafów:**
-```jsx
-<p className="text-gray-700 leading-loose mb-6">
-  Polski tekst potrzebuje większych odstępów między liniami dla komfortu czytania.
-</p>
+**Wartości bazowe (z CSS):**
+| Element | line-height | margin-top | margin-bottom |
+|---------|-------------|------------|---------------|
+| `p`     | 1.8         | —          | 1.5rem (24px) |
+| `h2`    | 1.3         | 3.5rem (56px) | 1.25rem (20px) |
+| `h3`    | 1.35        | 2.5rem (40px) | 1rem (16px)    |
+| `h4`    | 1.4         | 2rem (32px)   | 0.75rem (12px) |
+| `li`    | 1.8         | —          | 0.5rem (8px)  |
+| `blockquote` | 1.8   | 2rem       | 2rem          |
+| `hr`    | —           | 3rem       | 3rem          |
+
+**Kiedy pisać czysty Markdown (bez klas Tailwind):**
+- Paragrafy, headingi, listy, cytaty — `.prose-blog` ogarnia
+- NIE musisz dodawać `leading-loose` ani `mb-6` — to jest w CSS
+
+**Kiedy dodawać klasy Tailwind:**
+- Custom boxy/karty: `bg-white p-6 rounded-xl` itp.
+- Grid/flex layouty: `gap-4`, `space-y-4`
+- Specjalny wyróżniony tekst: `leading-loose` jeśli chcesz jeszcze większy
+
+**Przykład — czysty Markdown z dobrymi odstępami (zero klas!):**
+```markdown
+## Sekcja główna
+
+Tekst paragrafu. Automatycznie dostaje line-height 1.8 i margin-bottom 24px.
+Nie musisz dodawać żadnych klas.
+
+### Podsekcja
+
+Kolejny paragraf z dobrymi odstępami.
+
+- Element listy 1
+- Element listy 2
+- Element listy 3
 ```
 
-**W layout blogów stosujemy:**
-- `prose-p:leading-loose prose-p:mb-6` - paragrafy
-- `prose-li:leading-loose prose-li:my-3` - listy
-- `prose-h2:mt-20 prose-h2:mb-8` - H2 headingi (80px + 32px = duża separacja!)
-- `prose-h3:mt-16 prose-h3:mb-6` - H3 headingi (64px + 24px)
-- `prose-h4:mt-10 prose-h4:mb-5` - H4 headingi (40px + 20px)
+**Zasada:** Prose-blog daje bazę. Klasy Tailwind dodawaj **tylko** do custom komponentów (boxy, karty, gradienty).
 
 ---
 
@@ -387,7 +419,7 @@ import { SimpleCalculator } from '@components/blog/SimpleCalculator';
 ---
 title: "Główny tytuł < 60 znaków (SEO)"
 description: "Meta description 150-160 znaków z keywords"
-pubDate: 2026-02-XX
+pubDate: YYYY-MM-DD  # ← DZISIEJSZA data! Nie przyszła!
 lang: pl
 category: guide
 featured: true
