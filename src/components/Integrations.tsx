@@ -105,7 +105,7 @@ export default function Integrations() {
             transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.1 }}
             className="text-section-subtitle mt-4"
           >
-            Wiele źródeł danych, jeden spójny widok
+            Wiele źródeł danych, jeden spójny widok i źródło decyzji
           </motion.p>
         </div>
 

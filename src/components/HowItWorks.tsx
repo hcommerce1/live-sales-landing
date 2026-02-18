@@ -84,7 +84,7 @@ export default function HowItWorks() {
             transition={{ delay: 0.2 }}
             className="text-section-subtitle mt-4"
           >
-            Od pierwszego kontaktu do działającego rozwiązania — bez zbędnych formalności
+            Od pierwszego kontaktu do działającego rozwiązania
           </motion.p>
         </div>
 

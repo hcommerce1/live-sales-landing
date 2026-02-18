@@ -124,22 +124,6 @@ export default function TrustedBy() {
           ))}
         </motion.div>
 
-        {/* More integrations coming */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ ...transition, delay: shouldReduceMotion ? 0 : 0.15 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-gray-500">
-            Więcej integracji w drodze —{' '}
-            <a href="#kontakt" className="text-primary-600 hover:text-primary-700 font-medium">
-              powiedz nam czego potrzebujesz
-            </a>
-          </p>
-        </motion.div>
       </div>
     </section>
   );
