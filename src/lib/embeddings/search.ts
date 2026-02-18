@@ -14,6 +14,18 @@
 import { generateEmbedding, generateSearchSummaries } from '../openai';
 import embeddingsData from '../../data/embeddings.json';
 
+/**
+ * Polish stop words — common words that match everything and add noise to keyword search.
+ */
+const PL_STOP_WORDS = new Set([
+  'i', 'w', 'na', 'z', 'do', 'o', 'się', 'nie', 'to', 'jak', 'co', 'jest',
+  'za', 'że', 'od', 'po', 'ale', 'czy', 'lub', 'tak', 'te', 'ten', 'ta',
+  'tym', 'tego', 'tej', 'tych', 'który', 'która', 'które', 'już', 'tylko',
+  'przez', 'przy', 'dla', 'ze', 'ich', 'go', 'być', 'ma', 'są', 'może',
+  'będzie', 'został', 'aby', 'też', 'więc', 'jako', 'przed', 'nad', 'pod',
+  'między', 'bardzo', 'bez', 'tu', 'tam', 'gdy', 'gdzie', 'kiedy', 'a',
+]);
+
 interface EmbeddingRecord {
   slug: string;
   lang: 'pl' | 'en';
@@ -82,7 +94,7 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     query,
     language = 'all',
     limit = 5,
-    minSimilarity = 0.65,
+    minSimilarity = 0.72,
   } = options;
 
   const allEmbeddings = getAllEmbeddings(language);
@@ -129,7 +141,14 @@ export async function keywordSearch(
 ): Promise<SearchResult[]> {
   const allEmbeddings = getAllEmbeddings(language);
   const queryLower = query.toLowerCase();
-  const keywords = queryLower.split(/\s+/);
+
+  // Filter out stop words and very short tokens — they match everything
+  const keywords = queryLower
+    .split(/\s+/)
+    .filter(k => k.length >= 3 && !PL_STOP_WORDS.has(k));
+
+  // If all keywords were stop words, skip keyword search entirely
+  if (keywords.length === 0) return [];
 
   const results = allEmbeddings.map((record) => {
     const searchText = `${record.postTitle} ${record.description} ${record.content}`.toLowerCase();
@@ -151,8 +170,11 @@ export async function keywordSearch(
     };
   });
 
+  // Require at least 40% of meaningful keywords to match
+  const MIN_KEYWORD_MATCH = 0.4;
+
   const sorted = results
-    .filter(r => r.similarity > 0)
+    .filter(r => r.similarity >= MIN_KEYWORD_MATCH)
     .sort((a, b) => b.similarity - a.similarity);
 
   // Deduplicate: keep only the best-matching chunk per post

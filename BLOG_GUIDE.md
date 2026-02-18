@@ -1,26 +1,27 @@
-# 📚 Blog Writing Guide - Production Best Practices 2026
+# 📚 Przewodnik pisania blogów
 
 ## 🎯 Ten przewodnik zawiera wszystko czego potrzebujesz do pisania profesjonalnych blogów
 
-**Ostatnia aktualizacja:** 2026-02-15
-**Status:** ✅ Production-ready
-**Stack:** Astro 5.17 + React 19 + Recharts + KaTeX + Lucide Icons
+**Status:** ✅ Gotowe do produkcji
+**Stack:** patrz `package.json` (Astro + React + Recharts + KaTeX + Lucide Icons)
 
 ---
 
-## 📋 Stack Technologiczny
+## 📋 Stack technologiczny
+
+> Aktualne wersje zawsze sprawdzaj w `package.json`. Poniżej główne technologie:
 
 ```yaml
-Framework: Astro 5.17
-Content: Astro Content Collections + Zod
+Framework: Astro (SSR na Vercel)
+Treści: Astro Content Collections + Zod
 MDX: @astrojs/mdx
-Plugins: remark-math + rehype-katex
-React: React 19 (client components)
-Charts: Recharts
-Math: KaTeX (LaTeX-quality)
-Icons: Lucide React ⭐
-Animations: Framer Motion
-Styling: Tailwind CSS 4.1
+Pluginy: remark-math + rehype-katex
+React: (komponenty klienckie)
+Wykresy: Recharts
+Matematyka: KaTeX (jakość LaTeX)
+Ikony: Lucide React ⭐
+Animacje: Framer Motion
+Style: Tailwind CSS
 Hosting: Vercel
 ```
 
@@ -33,34 +34,124 @@ Hosting: Vercel
 - NIE ustawiaj daty z przyszłości — build się nie powiedzie (walidacja Zod w `config.ts`)
 - NIE zgaduj daty — użyj dzisiejszej
 - Posty z przyszłą datą nie pokażą się na stronie (`filterPublished` w `blogUtils.ts` je odrzuci)
-- Format: `YYYY-MM-DD` (np. `2026-02-18`)
+- Format: `YYYY-MM-DD` (np. dzisiejsza data)
 
 ---
 
-## ✅ Checklist przed pisaniem
+## ⛔ ZAKAZ: Nie dodawaj CTA / sekcji promocyjnych do blogów!
 
-- [ ] Sprawdź czy temat jest unikalny
-- [ ] Zdefiniuj target audience
+**Blog NIE MOŻE zawierać:**
+- Sekcji "Gotowy na automatyzację?", "Skontaktuj się", "Umów konsultację" itp.
+- Bloków CTA (Call To Action) promujących LiveSales
+- Przycisków/linków typu "Wypróbuj za darmo", "Umów się na rozmowę"
+- Jakichkolwiek sekcji marketingowych/sprzedażowych
+
+**Dlaczego?**
+Szablon bloga (`src/pages/blog/[...slug].astro`) automatycznie dodaje ujednoliconą sekcję kontaktową i formularz subskrypcji po treści artykułu. Dodawanie CTA w treści MDX powoduje duplikację i brak kontroli nad wyglądem.
+
+**Jedyne dozwolone CTA** to te w szablonie strony — NIE w plikach `.mdx`.
+
+---
+
+## ZASADY PISANIA TREŚCI (OBOWIĄZKOWE)
+
+### 1 blog = 1 konkretny problem
+
+**Każdy blog odpowiada na JEDNO pytanie użytkownika.** Nie rób artykułów-worków, które próbują pokryć wszystko naraz.
+
+**NIE rób tak:**
+```
+Tytuł: "Co AI potrafi w e-commerce"
+Treść: faktury + scraping + zdjęcia + marketplace + analityka + BigQuery
+→ Zbyt szeroki. Pasuje do każdego zapytania = nie pasuje do żadnego.
+```
+
+**Rób tak:**
+```
+Tytuł: "Jak zmienić napis na 200 zdjęciach produktowych w 5 minut"
+Treść: konkretny problem → narzędzia → krok po kroku → gotowy skrypt
+→ Wąski temat. Kto szuka tego problemu, znajduje dokładną odpowiedź.
+```
+
+### Zasada "szukający znajdzie"
+
+Zanim napiszesz blog, zadaj sobie pytanie: **"Co ktoś wpisze w Google, żeby trafić na ten artykuł?"**
+
+Jeśli odpowiedź brzmi "cokolwiek związanego z e-commerce" — temat jest za szeroki. Zawęź.
+
+Przykłady dobrych tematów (wąskich, konkretnych):
+- "Jak zrobić hurtowy OCR faktur PDF w Pythonie"
+- "Jak scrapować ceny konkurencji z Allegro"
+- "Jak dodać napisy na zdjęcia produktów skryptem"
+- "Jak wygenerować 500 opisów SEO przez API OpenAI"
+- "Jak policzyć realną marżę po prowizjach Allegro"
+
+Przykłady złych tematów (za szerokich):
+- "Co AI potrafi w e-commerce"
+- "Wszystko co musisz wiedzieć o automatyzacji"
+- "Kompletny przewodnik po AI dla sprzedawców"
+
+### Bez lania wody
+
+- **Nie zaczynaj od filozofii.** Czytelnik ma problem — daj mu rozwiązanie.
+- **Nie pisz "dlaczego to ważne" przez 3 akapity.** Max 2 zdania kontekstu, potem mięso.
+- **Nie powtarzaj tego samego innymi słowami.** Napisz raz, dobrze. Idź dalej.
+- **Nie pisz ogólników.** "AI oszczędza czas" — to nic nie mówi. "Skrypt przetwarza 200 zdjęć w 5 minut zamiast 7 godzin w Photoshopie" — to mówi.
+- **Nie dawaj cytatów motywacyjnych.** To blog techniczny, nie LinkedIn.
+
+### Struktura treści (każdy blog)
+
+```
+1. Problem (2-3 zdania) — co boli, dlaczego szukasz
+2. Rozwiązanie (bulk) — co konkretnie zrobisz, jakie narzędzia
+3. Krok po kroku — instrukcja z kodem/promptami/screenshotami
+4. Wynik — co dostajesz na końcu (z przykładem)
+5. Pułapki — na co uważać, czego nie robi
+```
+
+### Weryfikacja treści
+
+- **Nie wymyślaj scenariuszy.** Opisuj to, co faktycznie przetestowałeś i działa.
+- **Podawaj realne ograniczenia.** AI nie jest idealne — pisz co NIE działa.
+- **Nie obiecuj cudów.** "300 zł zastępuje analityka za 10 000" to clickbait. Pisz uczciwie.
+- **Kod musi działać.** Każdy snippet, skrypt, prompt — przetestowany. Nie generuj kodu "na oko".
+
+### Jak ocenić czy blog jest gotowy
+
+Zadaj 3 pytania:
+1. **Czy ktoś po przeczytaniu może od razu coś zrobić?** (nie "wie więcej", ale ZROBI)
+2. **Czy tytuł dokładnie opisuje co jest w środku?** (nie clickbait)
+3. **Czy mogę usunąć jakąś sekcję i artykuł dalej ma sens?** (jeśli tak — usuń ją)
+
+---
+
+## Checklist przed pisaniem
+
+- [ ] Temat jest WĄSKI — odpowiada na jedno konkretne pytanie
+- [ ] Tytuł mówi dokładnie co czytelnik dostanie
+- [ ] Masz przetestowane rozwiązanie (nie piszesz z głowy)
+- [ ] Sprawdź czy temat jest unikalny (nie duplikuje istniejącego bloga)
+- [ ] Zdefiniuj grupę docelową
 - [ ] Wybierz 3-5 słów kluczowych (SEO)
 - [ ] Przygotuj dane/przykłady/statystyki
-- [ ] Zaplanuj interaktywne elementy (kalkulatory, wykresy)
-- [ ] Przygotuj obrazy/screenshots (jeśli potrzebne)
+- [ ] Zaplanuj interaktywne elementy (kalkulatory, wykresy) — TYLKO jeśli dodają wartość
+- [ ] Przygotuj obrazy/zrzuty ekranu (jeśli potrzebne)
 
 ---
 
-## 🎨 UI/UX Best Practices
+## 🎨 Dobre praktyki UI/UX
 
 ### 1. ✅ ZAWSZE używaj jasnych tła
 
-**✅ DO:**
+**✅ TAK:**
 ```jsx
 <div className="bg-white p-6 rounded-xl">
   <h3 className="text-gray-900">Łatwo czytać!</h3>
-  <p className="text-gray-700">Content</p>
+  <p className="text-gray-700">Treść</p>
 </div>
 ```
 
-**❌ DON'T:**
+**❌ NIE:**
 ```jsx
 <div className="bg-gray-800 p-6">
   <h3 className="text-gray-600">Trudno czytać!</h3>
@@ -73,33 +164,33 @@ Hosting: Vercel
 
 ### 2. ✅ WAŻNE: Odstępy i typografia (`.prose-blog`)
 
-**Klasa `.prose-blog` w `global.css` automatycznie daje dobre odstępy KAŻDEMU blogowi** — nie musisz dodawać `leading-*` ani `mb-*` do czystego tekstu. Style bazowe działają na paragrafach, headingach, listach, cytatach, code blockach.
+**Klasa `.prose-blog` w `global.css` automatycznie nadaje dobre odstępy KAŻDEMU blogowi** — nie musisz dodawać `leading-*` ani `mb-*` do zwykłego tekstu. Style bazowe działają na paragrafach, nagłówkach, listach, cytatach i blokach kodu.
 
 **Wartości bazowe (z CSS):**
-| Element | line-height | margin-top | margin-bottom |
-|---------|-------------|------------|---------------|
-| `p`     | 1.8         | —          | 1.5rem (24px) |
-| `h2`    | 1.3         | 3.5rem (56px) | 1.25rem (20px) |
-| `h3`    | 1.35        | 2.5rem (40px) | 1rem (16px)    |
-| `h4`    | 1.4         | 2rem (32px)   | 0.75rem (12px) |
-| `li`    | 1.8         | —          | 0.5rem (8px)  |
-| `blockquote` | 1.8   | 2rem       | 2rem          |
-| `hr`    | —           | 3rem       | 3rem          |
+| Element | Interlinia | Margines górny | Margines dolny |
+|---------|------------|----------------|----------------|
+| `p` (paragraf) | 1.8 | — | 1.5rem (24px) |
+| `h2` (nagłówek) | 1.3 | 3.5rem (56px) | 1.25rem (20px) |
+| `h3` (podtytuł) | 1.35 | 2.5rem (40px) | 1rem (16px) |
+| `h4` (mały tytuł) | 1.4 | 2rem (32px) | 0.75rem (12px) |
+| `li` (element listy) | 1.8 | — | 0.5rem (8px) |
+| `blockquote` (cytat) | 1.8 | 2rem | 2rem |
+| `hr` (separator) | — | 3rem | 3rem |
 
 **Kiedy pisać czysty Markdown (bez klas Tailwind):**
-- Paragrafy, headingi, listy, cytaty — `.prose-blog` ogarnia
-- NIE musisz dodawać `leading-loose` ani `mb-6` — to jest w CSS
+- Paragrafy, nagłówki, listy, cytaty — `.prose-blog` ogarnia automatycznie
+- NIE musisz dodawać `leading-loose` ani `mb-6` — to już jest w CSS
 
 **Kiedy dodawać klasy Tailwind:**
-- Custom boxy/karty: `bg-white p-6 rounded-xl` itp.
-- Grid/flex layouty: `gap-4`, `space-y-4`
-- Specjalny wyróżniony tekst: `leading-loose` jeśli chcesz jeszcze większy
+- Własne boxy/karty: `bg-white p-6 rounded-xl` itp.
+- Layouty grid/flex: `gap-4`, `space-y-4`
+- Specjalnie wyróżniony tekst: `leading-loose` jeśli chcesz jeszcze większą interlinię
 
 **Przykład — czysty Markdown z dobrymi odstępami (zero klas!):**
 ```markdown
 ## Sekcja główna
 
-Tekst paragrafu. Automatycznie dostaje line-height 1.8 i margin-bottom 24px.
+Tekst paragrafu. Automatycznie dostaje interlinię 1.8 i margines dolny 24px.
 Nie musisz dodawać żadnych klas.
 
 ### Podsekcja
@@ -111,18 +202,18 @@ Kolejny paragraf z dobrymi odstępami.
 - Element listy 3
 ```
 
-**Zasada:** Prose-blog daje bazę. Klasy Tailwind dodawaj **tylko** do custom komponentów (boxy, karty, gradienty).
+**Zasada:** `.prose-blog` daje bazę typograficzną. Klasy Tailwind dodawaj **tylko** do własnych komponentów (boxy, karty, gradienty).
 
 ---
 
 ### 3. ✅ Ikony Lucide zamiast emoji
 
-**❌ ŹLLE - Emoji:**
+**❌ ŹLE — emoji:**
 ```markdown
 ## 📊 Metryki sprzedażowe
 ```
 
-**✅ DOBRZE - Lucide Icons:**
+**✅ DOBRZE — Lucide Icons:**
 ```jsx
 import { ShoppingCart } from 'lucide-react';
 
@@ -130,15 +221,15 @@ import { ShoppingCart } from 'lucide-react';
 ```
 
 **Popularne ikony:**
-- `TrendingUp` - wzrost, metryki, success
-- `Calculator` - kalkulatory, obliczenia
-- `DollarSign` - pieniądze, przychód, pricing
-- `Users` - klienci, użytkownicy, audience
-- `Target` - cele, konwersje, KPIs
-- `ShoppingCart` - e-commerce, sprzedaż
-- `PieChart` - analityka, dashboardy, data
-- `Package` - produkty, zapasy, inventory
-- `Clock` - czas, performance, speed
+- `TrendingUp` — wzrost, metryki, sukces
+- `Calculator` — kalkulatory, obliczenia
+- `DollarSign` — pieniądze, przychód, cennik
+- `Users` — klienci, użytkownicy, odbiorcy
+- `Target` — cele, konwersje, KPI
+- `ShoppingCart` — e-commerce, sprzedaż
+- `PieChart` — analityka, dashboardy, dane
+- `Package` — produkty, zapasy, magazyn
+- `Clock` — czas, wydajność, szybkość
 
 **Instalacja:**
 ```bash
@@ -147,16 +238,16 @@ npm install lucide-react
 
 **Import:**
 ```jsx
-import { Icon1, Icon2, Icon3 } from 'lucide-react';
+import { Ikona1, Ikona2, Ikona3 } from 'lucide-react';
 ```
 
-**Browse wszystkie:** https://lucide.dev/icons
+**Przeglądaj wszystkie:** https://lucide.dev/icons
 
 ---
 
-### 4. ✅ Wizualne sekcje
+### 4. ✅ Sekcje wizualne
 
-#### Hero Section (na początku bloga)
+#### Sekcja powitalna (na początku bloga)
 ```jsx
 <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 mb-12 border border-blue-100">
   <h2 className="text-3xl font-bold mb-4 text-gray-900">
@@ -168,16 +259,16 @@ import { Icon1, Icon2, Icon3 } from 'lucide-react';
   </blockquote>
 
   <div className="grid md:grid-cols-2 gap-4">
-    <!-- Value proposition cards -->
+    <!-- Karty z korzyściami -->
   </div>
 </div>
 ```
 
-#### Info Cards
+#### Karty informacyjne
 ```jsx
 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
   <div className="flex items-start gap-3">
-    <Icon className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+    <Ikona className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
     <div>
       <h3 className="font-semibold text-gray-900 mb-1">Tytuł</h3>
       <p className="text-sm text-gray-600">Opis</p>
@@ -186,28 +277,28 @@ import { Icon1, Icon2, Icon3 } from 'lucide-react';
 </div>
 ```
 
-#### Alert Boxes (kolorowe)
+#### Boxy alertów (kolorowe)
 ```jsx
-// Info (niebieski)
+// Informacja (niebieski)
 <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
   <h4 className="font-semibold flex items-center gap-2">
     <InfoIcon className="w-5 h-5 text-blue-600" />
     Informacja
   </h4>
-  <p className="text-gray-700 mt-2">Content</p>
+  <p className="text-gray-700 mt-2">Treść</p>
 </div>
 
-// Success (zielony)
+// Sukces (zielony)
 <div className="bg-green-50 p-6 rounded-xl border border-green-200">
   ...
 </div>
 
-// Warning (żółty)
+// Ostrzeżenie (żółty)
 <div className="bg-yellow-50 p-6 rounded-xl border-2 border-yellow-300">
   ...
 </div>
 
-// Error (czerwony)
+// Błąd (czerwony)
 <div className="bg-red-50 p-6 rounded-xl border border-red-200">
   ...
 </div>
@@ -215,13 +306,13 @@ import { Icon1, Icon2, Icon3 } from 'lucide-react';
 
 ---
 
-### 5. ✅ Tabele - zawsze stylowane!
+### 5. ✅ Tabele — zawsze stylowane!
 
 **❌ Zwykły markdown:**
 ```markdown
-| Column 1 | Column 2 |
-|----------|----------|
-| Data     | Data     |
+| Kolumna 1 | Kolumna 2 |
+|-----------|-----------|
+| Dane      | Dane      |
 ```
 
 **✅ Stylowana tabela:**
@@ -231,37 +322,37 @@ import { Icon1, Icon2, Icon3 } from 'lucide-react';
     <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
       <tr>
         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-          Header 1
+          Nagłówek 1
         </th>
         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-          Header 2
+          Nagłówek 2
         </th>
       </tr>
     </thead>
     <tbody className="divide-y divide-gray-200">
       <tr className="hover:bg-gray-50">
-        <td className="px-6 py-4 font-medium text-gray-900">Data 1</td>
-        <td className="px-6 py-4 text-gray-700">Data 2</td>
+        <td className="px-6 py-4 font-medium text-gray-900">Dane 1</td>
+        <td className="px-6 py-4 text-gray-700">Dane 2</td>
       </tr>
     </tbody>
   </table>
 </div>
 ```
 
-**Tip:** Color-code results w kolumnach (zielony = dobry, czerwony = zły)
+**Wskazówka:** Koloruj wyniki w kolumnach (zielony = dobrze, czerwony = źle)
 
 ---
 
-## 🔢 Formuły Matematyczne (KaTeX)
+## 🔢 Formuły matematyczne (KaTeX)
 
 ### Podstawy
 
-**Inline (w tekście):**
+**W tekście (inline):**
 ```markdown
 Wzór: $CR = \frac{A}{B} \times 100\%$
 ```
 
-**Block (wycentrowany):**
+**Blok (wycentrowany):**
 ```markdown
 $$
 CR = \frac{\text{Liczba transakcji}}{\text{Liczba odwiedzin}} \times 100\%
@@ -275,7 +366,7 @@ $$
   <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór:</h4>
 
 $$
-\text{Formula here}
+\text{Formuła tutaj}
 $$
 
   <div className="mt-4 text-sm text-gray-700">
@@ -296,10 +387,10 @@ Indeks górny:    x^2
 Większe:         > lub \gt
 Mniejsze:        < lub \lt
 Większe-równe:   \geq
-Mniejsze-równe:   \leq
+Mniejsze-równe:  \leq
 ```
 
-**Docs:** https://katex.org/docs/supported.html
+**Dokumentacja:** https://katex.org/docs/supported.html
 
 ---
 
@@ -315,11 +406,11 @@ Mniejsze-równe:   \leq
 ```
 
 **Kiedy używać:**
-- `client:load` - ładuj natychmiast (above fold, ważne)
-- `client:visible` - ładuj gdy widoczne (below fold, wykresy)
-- `client:idle` - ładuj gdy browser idle (nice-to-have)
+- `client:load` — ładuj natychmiast (widoczne od razu, ważne)
+- `client:visible` — ładuj gdy widoczne (niżej na stronie, wykresy)
+- `client:idle` — ładuj gdy przeglądarka jest wolna (mniej ważne)
 
-### Bar Chart Template
+### Szablon wykresu słupkowego
 
 ```jsx
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -352,25 +443,25 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 ### Kolory spójne z designem
 
 ```javascript
-const COLORS = {
-  primary: '#3b82f6',    // blue-500
-  success: '#10b981',    // green-500
-  warning: '#f59e0b',    // yellow-500
-  danger: '#ef4444',     // red-500
-  purple: '#8b5cf6',     // purple-500
+const KOLORY = {
+  glowny: '#3b82f6',      // blue-500
+  sukces: '#10b981',       // green-500
+  ostrzezenie: '#f59e0b',  // yellow-500
+  blad: '#ef4444',         // red-500
+  fioletowy: '#8b5cf6',    // purple-500
 };
 ```
 
 ---
 
-## 🎮 Interaktywne Kalkulatory
+## 🎮 Interaktywne kalkulatory
 
-### Template prostego kalkulatora
+### Szablon prostego kalkulatora
 
 ```jsx
 import { useState } from 'react';
 
-export function SimpleCalculator() {
+export function ProstyKalkulator() {
   const [value, setValue] = useState(100);
 
   // Obliczenia
@@ -403,22 +494,22 @@ export function SimpleCalculator() {
 }
 ```
 
-### W MDX - pamiętaj o `client:load`!
+### W MDX — pamiętaj o `client:load`!
 
 ```jsx
-import { SimpleCalculator } from '@components/blog/SimpleCalculator';
+import { ProstyKalkulator } from '@components/blog/ProstyKalkulator';
 
-<SimpleCalculator client:load />
+<ProstyKalkulator client:load />
 ```
 
 ---
 
-## 📝 Template Bloga (copy-paste)
+## 📝 Szablon bloga (kopiuj-wklej)
 
 ```mdx
 ---
 title: "Główny tytuł < 60 znaków (SEO)"
-description: "Meta description 150-160 znaków z keywords"
+description: "Meta description 150-160 znaków ze słowami kluczowymi"
 pubDate: YYYY-MM-DD  # ← DZISIEJSZA data! Nie przyszła!
 lang: pl
 category: guide
@@ -428,10 +519,10 @@ calculators: ['roi', 'custom']
 ---
 
 import { Calculator, TrendingUp, Users, Target } from 'lucide-react';
-import { MyChart } from '@components/blog/charts/MyChart';
-import { MyCalculator } from '@components/blog/MyCalculator';
+import { MojWykres } from '@components/blog/charts/MojWykres';
+import { MojKalkulator } from '@components/blog/MojKalkulator';
 
-<!-- ========== HERO SECTION ========== -->
+<!-- ========== SEKCJA POWITALNA ========== -->
 <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 mb-12 border border-blue-100">
   <h2 className="text-3xl font-bold mb-4 text-gray-900">
     Dlaczego to ważne?
@@ -446,13 +537,13 @@ import { MyCalculator } from '@components/blog/MyCalculator';
       <div className="flex items-start gap-3">
         <Target className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">Benefit 1</h3>
-          <p className="text-sm text-gray-600">Description</p>
+          <h3 className="font-semibold text-gray-900 mb-1">Korzyść 1</h3>
+          <p className="text-sm text-gray-600">Opis</p>
         </div>
       </div>
     </div>
 
-    <!-- Repeat for other benefits -->
+    <!-- Powtórz dla innych korzyści -->
   </div>
 </div>
 
@@ -467,22 +558,22 @@ import { MyCalculator } from '@components/blog/MyCalculator';
   <h4 className="font-semibold text-lg mb-3 text-gray-900">Wzór:</h4>
 
 $$
-\text{Formula} = \frac{A}{B} \times 100\%
+\text{Formuła} = \frac{A}{B} \times 100\%
 $$
 </div>
 
 **Przykład obliczenia:**
-- Input A: 250
-- Input B: 10,000
+- Wartość A: 250
+- Wartość B: 10 000
 
 $$
-\text{Result} = \frac{250}{10{,}000} \times 100\% = 2.5\%
+\text{Wynik} = \frac{250}{10{,}000} \times 100\% = 2.5\%
 $$
 
 <!-- Wykres -->
-<MyChart client:visible data={[...]} />
+<MojWykres client:visible data={[...]} />
 
-<!-- Tips box -->
+<!-- Box ze wskazówkami -->
 <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 mt-6">
   <h4 className="font-semibold flex items-center gap-2">
     <Target className="w-5 h-5 text-blue-600" />
@@ -491,9 +582,9 @@ $$
   <ul className="space-y-2 text-gray-700 mt-3">
     <li className="flex items-start gap-2">
       <span className="text-green-600 font-bold">✓</span>
-      <span>Tip 1</span>
+      <span>Wskazówka 1</span>
     </li>
-    <!-- More tips -->
+    <!-- Więcej wskazówek -->
   </ul>
 </div>
 
@@ -502,7 +593,7 @@ $$
 <!-- ========== INTERAKTYWNY KALKULATOR ========== -->
 ## <Calculator className="inline w-8 h-8 mr-2 text-purple-600" /> Wypróbuj kalkulator!
 
-<MyCalculator client:load />
+<MojKalkulator client:load />
 
 ---
 
@@ -510,52 +601,33 @@ $$
 ## <Target className="inline w-8 h-8 mr-2 text-green-600" /> Podsumowanie
 
 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border-2 border-green-200">
-  <h3 className="text-2xl font-bold mb-6 text-gray-900">Action Plan:</h3>
+  <h3 className="text-2xl font-bold mb-6 text-gray-900">Plan działania:</h3>
 
   <!-- Konkretne kroki -->
   <div className="space-y-4">
     <div className="bg-white p-4 rounded-lg">
       <div className="font-semibold text-gray-900 mb-1">Krok 1:</div>
-      <div className="text-gray-700 text-sm">Description</div>
+      <div className="text-gray-700 text-sm">Opis</div>
     </div>
-    <!-- More steps -->
+    <!-- Więcej kroków -->
   </div>
 </div>
 
----
-
-<!-- ========== CTA ========== -->
-<div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
-  <h3 className="text-3xl font-bold mb-4">Następne kroki</h3>
-
-  <div className="grid md:grid-cols-2 gap-4 mb-6">
-    <div className="flex items-start gap-3">
-      <span className="text-2xl">✅</span>
-      <span>Feature 1</span>
-    </div>
-    <!-- More features -->
-  </div>
-
-  <a
-    href="#kontakt"
-    className="inline-block bg-white text-blue-600 font-bold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all shadow-lg"
-  >
-    Call to Action →
-  </a>
-</div>
+<!-- ⛔ NIE DODAWAJ CTA / sekcji promocyjnych! Szablon strony dodaje je automatycznie. -->
 ```
 
 ---
 
 ## ✅ Checklist przed publikacją
 
-### Content
+### Treść
+- [ ] `pubDate` = dzisiejsza data (NIE przyszła!)
 - [ ] Tytuł < 60 znaków (SEO)
-- [ ] Description 150-160 znaków z keywords
-- [ ] 3-5 relevantnych tagów
+- [ ] Opis 150-160 znaków ze słowami kluczowymi
+- [ ] 3-5 trafnych tagów
 - [ ] Minimum 1500 słów
 - [ ] Wszystkie linki działają
-- [ ] Spell check (brak literówek)
+- [ ] Sprawdzenie pisowni (brak literówek)
 - [ ] Fakty zweryfikowane (nie fake news!)
 
 ### Formuły (KaTeX)
@@ -566,60 +638,61 @@ $$
 
 ### Wykresy (Recharts)
 - [ ] `client:visible` lub `client:load` na WSZYSTKICH
-- [ ] Responsive (mobile-friendly)
+- [ ] Responsywne (dostosowane do mobile)
 - [ ] Kolory spójne z designem
 - [ ] Tooltips działają
-- [ ] Labels czytelne
+- [ ] Etykiety czytelne
 
 ### Kalkulatory
 - [ ] `client:load` (zawsze!)
-- [ ] Wszystkie inputs mają labels
-- [ ] Validation (min/max)
-- [ ] Real-time updates
-- [ ] Error handling
+- [ ] Wszystkie pola mają etykiety
+- [ ] Walidacja (min/max)
+- [ ] Aktualizacje w czasie rzeczywistym
+- [ ] Obsługa błędów
 
 ### UI/UX
-- [ ] ✅ Lucide icons (NIE emoji!)
+- [ ] ✅ Ikony Lucide (NIE emoji!)
 - [ ] ✅ Jasne tła (czytelność!)
 - [ ] ✅ Wystarczający kontrast (WCAG AA)
+- [ ] ⛔ BRAK sekcji CTA/promocyjnych w treści MDX (szablon dodaje je automatycznie!)
 - [ ] Sekcje wizualnie oddzielone
 - [ ] Spójne kolory
-- [ ] Responsive (mobile-first)
+- [ ] Responsywność (mobile-first)
 
-### Performance
+### Wydajność
 - [ ] Build bez błędów
-- [ ] Lighthouse score > 90
-- [ ] Images zoptymalizowane
-- [ ] Client components tylko gdy potrzebne
+- [ ] Wynik Lighthouse > 90
+- [ ] Obrazy zoptymalizowane
+- [ ] Komponenty klienckie tylko gdy potrzebne
 
-### Accessibility
-- [ ] Alt text dla obrazów
-- [ ] Heading hierarchy (H2 → H3 → H4)
-- [ ] ARIA labels
-- [ ] Keyboard navigation
-- [ ] Screen reader friendly
+### Dostępność
+- [ ] Tekst alternatywny dla obrazów
+- [ ] Hierarchia nagłówków (H2 → H3 → H4)
+- [ ] Etykiety ARIA
+- [ ] Nawigacja klawiaturą
+- [ ] Przyjazne dla czytników ekranu
 
 ---
 
-## 🚨 Częste błędy - UNIKAJ!
+## 🚨 Częste błędy — UNIKAJ!
 
-### 1. ❌ Znaki < > w markdown tables
+### 1. ❌ Znaki < > w tabelach markdown
 
 **Problem:**
 ```markdown
-| Time | Value |
-|------|-------|
-| <24h | 100   |  <!-- ERROR! -->
+| Czas  | Wartość |
+|-------|---------|
+| <24h  | 100     |  <!-- BŁĄD! -->
 ```
 
 **Rozwiązanie:**
 ```markdown
-| Time | Value |
-|------|-------|
-| &lt;24h | 100 |  <!-- Correct! -->
+| Czas     | Wartość |
+|----------|---------|
+| &lt;24h  | 100     |  <!-- Poprawnie! -->
 ```
 
-### 2. ❌ Brak client directive na React components
+### 2. ❌ Brak dyrektywy client na komponentach React
 
 **Problem:**
 ```jsx
@@ -647,134 +720,146 @@ $$
 </div>
 ```
 
-### 4. ❌ Za dużo emoji
+### 4. ❌ Sekcje CTA / promocyjne w treści bloga
+
+**Problem:**
+```jsx
+{/* ========== CTA ========== */}
+<div className="bg-gradient-to-r from-blue-600 to-purple-600 ...">
+  <h3>Gotowy na automatyzację?</h3>
+  <a href="#kontakt">Umów konsultację →</a>
+</div>
+```
+
+**Rozwiązanie:** NIE dodawaj tego! Szablon strony (`[...slug].astro`) automatycznie wstawia sekcję kontaktową i formularz subskrypcji. Treść MDX powinna zawierać TYLKO merytoryczną zawartość artykułu.
+
+### 5. ❌ Za dużo emoji
 
 **Problem:**
 ```markdown
-## 🎉🎊🎈 Success! 🚀✨💪🔥
+## 🎉🎊🎈 Sukces! 🚀✨💪🔥
 ```
 
 **Rozwiązanie:**
 ```jsx
 import { TrendingUp } from 'lucide-react';
 
-## <TrendingUp className="inline w-8 h-8 text-green-600" /> Success
+## <TrendingUp className="inline w-8 h-8 text-green-600" /> Sukces
 ```
 
 ---
 
-## 🎨 Paleta Kolorów (Tailwind)
+## 🎨 Paleta kolorów (Tailwind)
 
-### Backgrounds (sekcje)
+### Tła (sekcje)
 ```
-Hero:     bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50
-Success:  bg-gradient-to-br from-green-50 to-emerald-50
-Warning:  bg-yellow-50
-Info:     bg-blue-50
-Error:    bg-red-50
-White:    bg-white (najczęściej używany!)
-```
-
-### Text Colors
-```
-Heading:     text-gray-900  (ciemny)
-Body:        text-gray-700  (normalny)
-Subtle:      text-gray-600  (subtelny)
-Muted:       text-gray-500  (wyciszony)
-Placeholder: text-gray-400  (placeholder)
+Powitalna:    bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50
+Sukces:       bg-gradient-to-br from-green-50 to-emerald-50
+Ostrzeżenie:  bg-yellow-50
+Informacja:   bg-blue-50
+Błąd:         bg-red-50
+Białe:        bg-white (najczęściej używane!)
 ```
 
-### Border Colors
+### Kolory tekstu
 ```
-Default:  border-gray-200
-Primary:  border-blue-200
-Success:  border-green-200
-Warning:  border-yellow-300  (mocniejszy!)
-Error:    border-red-200
-```
-
-### Accent Colors (icons, highlights)
-```
-Blue:    text-blue-600
-Green:   text-green-600
-Purple:  text-purple-600
-Orange:  text-orange-600
-Pink:    text-pink-600
+Nagłówek:       text-gray-900  (ciemny)
+Treść:          text-gray-700  (normalny)
+Subtelny:       text-gray-600  (subtelny)
+Wyciszony:      text-gray-500  (wyciszony)
+Zastępczy:      text-gray-400  (placeholder)
 ```
 
----
-
-## 📐 Spacing (Tailwind)
-
-### Padding
+### Kolory obramowań
 ```
-Small:   p-4  (16px)
-Medium:  p-6  (24px)
-Large:   p-8  (32px)
-XLarge:  p-12 (48px)
+Domyślny:     border-gray-200
+Główny:       border-blue-200
+Sukces:       border-green-200
+Ostrzeżenie:  border-yellow-300  (mocniejszy!)
+Błąd:         border-red-200
 ```
 
-### Gaps
+### Kolory akcentów (ikony, wyróżnienia)
 ```
-Cards:    gap-4  (16px)
-Sections: gap-6  (24px)
-Large:    gap-8  (32px)
-```
-
-### Rounded Corners
-```
-Small:  rounded-lg  (8px)
-Medium: rounded-xl  (12px)
-Large:  rounded-2xl (16px)
+Niebieski:  text-blue-600
+Zielony:    text-green-600
+Fioletowy:  text-purple-600
+Pomarańcz:  text-orange-600
+Różowy:     text-pink-600
 ```
 
 ---
 
-## 🚀 Quick Start (nowy blog)
+## 📐 Odstępy (Tailwind)
 
-1. **Skopiuj template z tego przewodnika**
+### Padding (wewnętrzny)
+```
+Mały:     p-4  (16px)
+Średni:   p-6  (24px)
+Duży:     p-8  (32px)
+Bardzo:   p-12 (48px)
+```
+
+### Odstępy (gap)
+```
+Karty:    gap-4  (16px)
+Sekcje:   gap-6  (24px)
+Duże:     gap-8  (32px)
+```
+
+### Zaokrąglenia narożników
+```
+Małe:     rounded-lg  (8px)
+Średnie:  rounded-xl  (12px)
+Duże:     rounded-2xl (16px)
+```
+
+---
+
+## 🚀 Szybki start (nowy blog)
+
+1. **Skopiuj szablon z tego przewodnika**
 2. **Zaktualizuj frontmatter**
-3. **Dodaj swój content:**
+3. **Dodaj swoją treść:**
    - Używaj jasnych tła
-   - Lucide icons zamiast emoji
+   - Ikony Lucide zamiast emoji
    - Formuły w boxach
    - `client:*` na komponentach
-4. **Test lokalnie:**
+4. **Testuj lokalnie:**
    ```bash
    npm run dev
    # http://localhost:4321/pl/blog/pl/twoj-blog
    ```
 5. **Przejdź przez checklist**
-6. **Publish!**
+6. **Publikuj!**
 
 ---
 
 ## 📚 Zasoby
 
-**Lucide Icons:** https://lucide.dev/icons
+**Ikony Lucide:** https://lucide.dev/icons
 **Recharts:** https://recharts.org/en-US/examples
 **KaTeX:** https://katex.org/docs/supported.html
 **Tailwind:** https://tailwindcss.com/docs
 
 ---
 
-## ✨ Reference Implementation
+## ✨ Wzorcowa implementacja
 
 Zobacz: `src/content/blog/pl/kluczowe-metryki-ecommerce-v2.mdx`
 
 **Co robi dobrze:**
-- ✅ Lucide icons
+- ✅ Ikony Lucide
 - ✅ Jasne tła
 - ✅ Formuły w boxach
-- ✅ Client directives
-- ✅ Responsive design
+- ✅ Dyrektywy client
+- ✅ Responsywny design
 - ✅ Spójne kolory
 - ✅ Wyraźne sekcje
 
-**Użyj jako template!**
+**Użyj jako szablon!**
 
 ---
 
-**Wersja:** 2.0 Production
-**Data:** 2026-02-15
 **Status:** ✅ Gotowe do użycia
+**Historię zmian** sprawdzaj w `git log -- BLOG_GUIDE.md`

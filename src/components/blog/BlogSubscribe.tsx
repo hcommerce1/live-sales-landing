@@ -88,10 +88,10 @@ export default function BlogSubscribe({ slug, lang = 'pl' }: BlogSubscribeProps)
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 1, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.3 }}
         className="my-12 mx-auto max-w-3xl px-4"
       >
         <div className="relative p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">

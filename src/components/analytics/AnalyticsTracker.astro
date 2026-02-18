@@ -28,6 +28,14 @@ const { slug, lang = 'pl' } = Astro.props;
 (function() {
   'use strict';
 
+  // --- Owner opt-out: visit any page with ?analytics=off to disable tracking ---
+  try {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('analytics') === 'off') { localStorage.setItem('ls_no_track', '1'); }
+    if (params.get('analytics') === 'on')  { localStorage.removeItem('ls_no_track'); }
+    if (localStorage.getItem('ls_no_track') === '1') return;
+  } catch(e) {}
+
   const API = '/api/analytics';
 
   // Persistent session ID via sessionStorage (survives page navigations, 30min timeout)

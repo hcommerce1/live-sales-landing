@@ -69,8 +69,28 @@ const readingTime = getReadingTime(post.body);
         <Content />
       </div>
 
+      <!-- Simple CTA -->
+      <div class="max-w-3xl mx-auto px-4 py-10">
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 text-center">
+          <h3 class="text-xl font-bold text-gray-900 mb-3">
+            {post.data.lang === 'en' ? 'Interested in data automation?' : 'Zainteresowany automatyzacją danych?'}
+          </h3>
+          <p class="text-gray-600 mb-6 max-w-xl mx-auto">
+            {post.data.lang === 'en'
+              ? 'LiveSales will help you save time and make better business decisions with automatic reports and dashboards.'
+              : 'LiveSales pomoże Ci zaoszczędzić czas i podejmować lepsze decyzje biznesowe dzięki automatycznym raportom i dashboardom.'}
+          </p>
+          <a
+            href="/#contact"
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors"
+          >
+            {post.data.lang === 'en' ? 'Contact us' : 'Skontaktuj się z nami'}
+          </a>
+        </div>
+      </div>
+
       <!-- Email Subscription -->
-      <BlogSubscribe client:visible slug={post.slug} lang={post.data.lang} />
+      <BlogSubscribe client:load slug={post.slug} lang={post.data.lang} />
 
       <!-- Back to Blog Link -->
       <div class="max-w-3xl mx-auto px-4 pt-8 pb-12 border-t border-gray-200">
