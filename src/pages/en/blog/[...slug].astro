@@ -3,6 +3,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/Navbar';
 import Footer from '@components/Footer';
+import BlogSubscribe from '@components/blog/BlogSubscribe';
 
 export const prerender = true;
 
@@ -181,6 +182,9 @@ if (post.data.ogImage) {
             </div>
           </div>
         </section>
+
+        <!-- Email Subscription -->
+        <BlogSubscribe client:load slug={post.slug} lang={post.data.lang} />
       </div>
     </article>
   </main>
