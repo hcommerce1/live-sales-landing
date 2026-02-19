@@ -1,0 +1,560 @@
+---
+title: "Kulisy rentowności marketplace – czego nie widać w raportach sprzedaży"
+description: "Głęboka analiza ukrytych kosztów marketplace i atrybucja kosztów w e-commerce. Praktyczny przewodnik dla sprzedawców online."
+pubDate: 2024-02-12
+lang: pl
+category: guide
+featured: true
+tags: ["e-commerce", "marketplace", "rentowność", "analiza-danych", "allegro", "atrybucja kosztów"]
+---
+
+import { TrendingDown, Eye, EyeOff, RotateCcw, AlertTriangle, Target, Building2, Store, FolderTree, Package, ArrowDown, CheckCircle, XCircle, BarChart3, Zap, DollarSign, Calculator, Search, TrendingUp } from 'lucide-react';
+
+{/* ========== HERO ========== */}
+<div className="bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 rounded-2xl p-8 mb-12 border border-red-100">
+  <h2 className="text-3xl font-bold mb-4 text-gray-900">
+    Twój raport mówi: +30% sprzedaży. Twoje konto bankowe mówi: gdzie te pieniądze?
+  </h2>
+
+  <p className="text-lg text-gray-700 mb-6 leading-loose">
+    Nawet duże, rozpoznawalne marki technologiczne osiągają na Allegro relatywnie niskie marże. Niektóre segmenty operują na granicy rentowności. Nie dlatego, że źle sprzedają — ale dlatego, że <strong>nie widzą pełnego obrazu kosztów</strong>.
+  </p>
+
+  <div className="grid md:grid-cols-3 gap-4">
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Eye className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Co widzisz</h3>
+          <p className="text-sm text-gray-600">Prowizje, reklamy, logistyka</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <EyeOff className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Czego nie widzisz</h3>
+          <p className="text-sm text-gray-600">Zwroty, rekompensaty, korekty, utrata wartości</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <TrendingDown className="w-6 h-6 text-orange-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Efekt</h3>
+          <p className="text-sm text-gray-600">Sprzedaż rośnie, zysk stoi lub maleje</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+Marketplace'y są dziś przede wszystkim kanałem generującym wolumen sprzedaży, widoczność marki i udział w rynku. Natomiast realny zysk często powstaje w innych miejscach — w sprzedaży własnej, usługach dodatkowych, bundlach produktowych lub w sprzedaży B2B.
+
+---
+
+## Obrót =/= zysk — największa pułapka marketplace'ów
+
+Wysoki wolumen sprzedaży potrafi tworzyć **złudne poczucie rentowności**. Problem polega na tym, że marketplace'y generują bardzo rozbudowaną strukturę kosztów, które są rozproszone i trudne do uchwycenia w jednym raporcie.
+
+{/* ========== KOSZTY WIDOCZNE VS UKRYTE ========== */}
+<div className="grid md:grid-cols-2 gap-6 my-10">
+  <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+    <div className="flex items-center gap-2 mb-4">
+      <Eye className="w-5 h-5 text-green-600" />
+      <h3 className="text-lg font-bold text-green-800">Koszty widoczne</h3>
+    </div>
+    <p className="text-sm text-green-700 mb-3">Te koszty uwzględnia większość firm:</p>
+    <ul className="space-y-2">
+      <li className="flex items-center gap-2 text-green-800">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span className="text-sm">Prowizje sprzedażowe</span>
+      </li>
+      <li className="flex items-center gap-2 text-green-800">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span className="text-sm">Koszty reklamy (Allegro Ads, etc.)</span>
+      </li>
+      <li className="flex items-center gap-2 text-green-800">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span className="text-sm">Koszty logistyki i wysyłki</span>
+      </li>
+    </ul>
+  </div>
+
+  <div className="bg-red-50 p-6 rounded-xl border border-red-200">
+    <div className="flex items-center gap-2 mb-4">
+      <EyeOff className="w-5 h-5 text-red-600" />
+      <h3 className="text-lg font-bold text-red-800">Koszty ukryte</h3>
+    </div>
+    <p className="text-sm text-red-700 mb-3">Te koszty potrafią zjadać resztę marży:</p>
+    <ul className="space-y-2">
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Koszty logistyczne zwrotów</span>
+      </li>
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Uszkodzenia i utrata wartości po zwrocie</span>
+      </li>
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Rekompensaty jakościowe</span>
+      </li>
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Dopłaty transportowe</span>
+      </li>
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Korekty cenowe i rabaty posprzedażowe</span>
+      </li>
+      <li className="flex items-center gap-2 text-red-800">
+        <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+        <span className="text-sm">Koszty obsługi klienta po zwrocie</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+Największy problem: **te koszty zazwyczaj nie są przypisywane do konkretnej oferty lub kategorii**. Trafiają do kosztów ogólnych firmy, przez co sztucznie zawyżają rentowność sprzedaży.
+
+---
+
+## Zwroty — ukryty zabójca marży
+
+Jednym z najbardziej niedoszacowanych elementów w analizie rentowności są **zwroty** oraz różnego rodzaju rekompensaty i korekty sprzedaży. To właśnie one bardzo często decydują o tym, czy oferta finalnie zarabia, czy generuje stratę.
+
+{/* ========== WATERFALL: Jak 100 zł przychodu staje się 8 zł zysku ========== */}
+<div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200">
+  <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">Jak 100 zł przychodu staje się 8 zł zysku</h3>
+  <p className="text-sm text-gray-500 mb-6 text-center">Typowy waterfall kosztów na marketplace</p>
+
+  <div className="space-y-3 max-w-lg mx-auto">
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm font-medium text-gray-700">Przychód</div>
+      <div className="flex-1 bg-blue-500 rounded-lg h-9 flex items-center justify-end pr-3">
+        <span className="text-white text-sm font-bold">100 zł</span>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm text-gray-500">- Koszt towaru</div>
+      <div className="flex-1 bg-gray-300 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '55%'}}>
+        <span className="text-gray-700 text-sm font-semibold">-45 zł</span>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm text-gray-500">- Prowizja</div>
+      <div className="flex-1 bg-orange-300 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '40%'}}>
+        <span className="text-gray-700 text-sm font-semibold">-12 zł</span>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm text-gray-500">- Reklama</div>
+      <div className="flex-1 bg-yellow-300 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '30%'}}>
+        <span className="text-gray-700 text-sm font-semibold">-8 zł</span>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm text-gray-500">- Logistyka</div>
+      <div className="flex-1 bg-amber-300 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '28%'}}>
+        <span className="text-gray-700 text-sm font-semibold">-12 zł</span>
+      </div>
+    </div>
+    <div className="flex items-center gap-3">
+      <div className="w-28 text-right text-sm text-red-600 font-medium">- Zwroty/korekty</div>
+      <div className="flex-1 bg-red-400 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '25%'}}>
+        <span className="text-white text-sm font-semibold">-15 zł</span>
+      </div>
+    </div>
+    <div className="border-t-2 border-gray-300 pt-3">
+      <div className="flex items-center gap-3">
+        <div className="w-28 text-right text-sm font-bold text-gray-900">Realny zysk</div>
+        <div className="flex-1 bg-green-500 rounded-lg h-9 flex items-center justify-end pr-3" style={{width: '15%'}}>
+          <span className="text-white text-sm font-bold">8 zł</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p className="text-xs text-gray-400 text-center mt-4">Czerwony pasek to koszty, które większość firm pomija w analizie per-SKU</p>
+</div>
+
+### Dlaczego brak atrybucji zwrotów fałszuje wyniki
+
+Jeżeli firma nie przypisuje kosztów zwrotów do konkretnych produktów, powstaje poważne przekłamanie danych:
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800">Produkty o wysokiej stopie zwrotów <strong>wyglądają na rentowne</strong></p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800">Marketing <strong>promuje oferty generujące stratę</strong></p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800">Firma <strong>rozwija kategorie obniżające zysk</strong></p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800">Decyzje zakupowe <strong>na błędnych danych</strong></p>
+  </div>
+</div>
+
+W dłuższej perspektywie prowadzi to do sytuacji, w której **rośnie sprzedaż, ale zysk nie rośnie proporcjonalnie** — lub wręcz maleje.
+
+---
+
+## Marketplace to narzędzie strategiczne, nie źródło zysku
+
+Coraz więcej dojrzałych firm traktuje marketplace jako element strategii — nie jako główne źródło dochodu.
+
+<div className="grid md:grid-cols-4 gap-4 my-10">
+  <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 text-center">
+    <Target className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900">Generator ruchu</h4>
+    <p className="text-xs text-gray-500 mt-1">Ludzie poznają Twoją markę</p>
+  </div>
+  <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 text-center">
+    <Eye className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900">Rozpoznawalność</h4>
+    <p className="text-xs text-gray-500 mt-1">Budujesz obecność w sieci</p>
+  </div>
+  <div className="bg-green-50 p-5 rounded-xl border border-green-100 text-center">
+    <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900">Pozyskiwanie klientów</h4>
+    <p className="text-xs text-gray-500 mt-1">Nowi kupujący trafiają do Ciebie</p>
+  </div>
+  <div className="bg-amber-50 p-5 rounded-xl border border-amber-100 text-center">
+    <Search className="w-8 h-8 text-amber-600 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900">Testowanie produktów</h4>
+    <p className="text-xs text-gray-500 mt-1">Sprawdzasz popyt przed skalowaniem</p>
+  </div>
+</div>
+
+Kluczowa rentowność przenoszona jest do **innych kanałów** — sprzedaż własna, B2B, bundl'e produktowe, usługi dodatkowe.
+
+---
+
+## Nowoczesna analiza marży — pełny model kosztowy
+
+W 2026 roku standardem staje się liczenie marży z uwzględnieniem **wszystkich** kosztów. Nie tylko tych oczywistych.
+
+<div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 md:p-8 my-10 border border-blue-200">
+  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">7 warstw pełnego modelu kosztowego</h3>
+
+  <div className="space-y-3 max-w-xl mx-auto">
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">1</div>
+      <span className="text-sm font-medium text-gray-800">Koszt zakupu produktu</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">2</div>
+      <span className="text-sm font-medium text-gray-800">Prowizje marketplace</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">3</div>
+      <span className="text-sm font-medium text-gray-800">Koszty marketingowe</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">4</div>
+      <span className="text-sm font-medium text-gray-800">Koszty logistyki i pakowania</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-red-200">
+      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">5</div>
+      <span className="text-sm font-medium text-red-800">Koszty zwrotów i rekompensat</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-red-200">
+      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">6</div>
+      <span className="text-sm font-medium text-red-800">Koszty magazynowania</span>
+    </div>
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-red-200">
+      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">7</div>
+      <span className="text-sm font-medium text-red-800">Koszty operacyjne przypisane do sprzedaży</span>
+    </div>
+  </div>
+
+  <p className="text-sm text-gray-500 mt-6 text-center">Czerwone pozycje to koszty najczęściej pomijane — a to one decydują o rzeczywistej rentowności.</p>
+</div>
+
+Dopiero taka analiza pokazuje **rzeczywistą** rentowność sprzedaży i pozwala świadomie zarządzać ofertą.
+
+---
+
+## Przewaga konkurencyjna: precyzyjna kontrola kosztów
+
+Firmy, które potrafią dokładnie mierzyć i przypisywać wszystkie koszty do konkretnych produktów, zyskują ogromną przewagę:
+
+<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 my-10">
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Eliminacja <strong>nierentownych ofert</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800"><strong>Optymalizacja cen</strong> na podstawie danych</span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Kontrola <strong>budżetów marketingowych</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Zakupy w oparciu o <strong>realną marżę</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Stabilizacja <strong>cashflow</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800"><strong>Skalowanie</strong> bez utraty marży</span>
+  </div>
+</div>
+
+W coraz bardziej konkurencyjnym e-commerce to właśnie **precyzyjna analiza rentowności** staje się jednym z najważniejszych narzędzi skalowania biznesu.
+
+---
+
+## Atrybucja kosztów — od firmy do pojedynczego SKU
+
+Jeszcze kilka lat temu większość firm patrzyła na wynik finansowy prosto: sprzedaż rośnie, firma zarabia. W 2026 roku ten model jest niewystarczający. Marże są coraz bardziej ściśnięte, a koszt pozyskania klienta stale rośnie.
+
+**Wygrywają firmy, które potrafią policzyć, gdzie faktycznie zarabiają.**
+
+### Dlaczego globalny wynik firmy już nie wystarczy
+
+Firma może wykazywać zysk, a jednocześnie:
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Tracić pieniądze na wybranych <strong>kanałach sprzedaży</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Dopłacać do konkretnych <strong>kategorii produktów</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Utrzymywać oferty generujące <strong>obrót, ale nie marżę</strong></span>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <span className="text-sm text-gray-800">Inwestować w marketing <strong>bez realnego zwrotu</strong></span>
+  </div>
+</div>
+
+Bez rozbicia wyników na mniejsze elementy zarządzanie rentownością przypomina prowadzenie firmy „na wyczucie".
+
+---
+
+## 4 poziomy analizy rentowności
+
+Nowoczesne podejście do kontroli rentowności zakłada analizę wielopoziomową — od ogółu do szczegółu:
+
+{/* ========== PIRAMIDA POZIOMÓW ANALIZY ========== */}
+<div className="my-10 max-w-2xl mx-auto">
+  {/* Poziom 1 - Firma (najszerszy) */}
+  <div className="mb-3">
+    <div className="bg-gray-100 rounded-xl p-5 border border-gray-200">
+      <div className="flex items-center gap-3 mb-2">
+        <Building2 className="w-6 h-6 text-gray-500" />
+        <h4 className="font-bold text-gray-900">Poziom 1: Firma</h4>
+      </div>
+      <p className="text-sm text-gray-600">Ogólna kondycja biznesu. Nie odpowiada na pytanie <strong>co generuje zysk</strong>.</p>
+    </div>
+  </div>
+
+  {/* Strzałka */}
+  <div className="flex justify-center mb-3">
+    <ArrowDown className="w-5 h-5 text-gray-400" />
+  </div>
+
+  {/* Poziom 2 - Kanał */}
+  <div className="mb-3">
+    <div className="bg-blue-50 rounded-xl p-5 border border-blue-200">
+      <div className="flex items-center gap-3 mb-2">
+        <Store className="w-6 h-6 text-blue-600" />
+        <h4 className="font-bold text-gray-900">Poziom 2: Kanał sprzedaży</h4>
+      </div>
+      <p className="text-sm text-gray-600 mb-3">Allegro vs sklep własny vs B2B — każdy kanał ma inną prowizję, koszt marketingu, obsługi i zwrotów.</p>
+      <div className="bg-blue-100 rounded-lg p-3">
+        <p className="text-xs text-blue-800 font-medium">Często kanał z największym obrotem nie jest najbardziej rentowny.</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Strzałka */}
+  <div className="flex justify-center mb-3">
+    <ArrowDown className="w-5 h-5 text-gray-400" />
+  </div>
+
+  {/* Poziom 3 - Kategoria */}
+  <div className="mb-3">
+    <div className="bg-purple-50 rounded-xl p-5 border border-purple-200">
+      <div className="flex items-center gap-3 mb-2">
+        <FolderTree className="w-6 h-6 text-purple-600" />
+        <h4 className="font-bold text-gray-900">Poziom 3: Kategoria produktów</h4>
+      </div>
+      <p className="text-sm text-gray-600 mb-3">Kategorie to jak mikro-biznesy wewnątrz firmy. Każda ma inną marżę, dynamikę i rotację zapasów.</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-purple-100 rounded-lg p-2 text-xs text-purple-800">Które segmenty budują marżę?</div>
+        <div className="bg-purple-100 rounded-lg p-2 text-xs text-purple-800">Gdzie zamrożony jest kapitał?</div>
+      </div>
+    </div>
+  </div>
+
+  {/* Strzałka */}
+  <div className="flex justify-center mb-3">
+    <ArrowDown className="w-5 h-5 text-gray-400" />
+  </div>
+
+  {/* Poziom 4 - SKU */}
+  <div>
+    <div className="bg-green-50 rounded-xl p-5 border border-green-200">
+      <div className="flex items-center gap-3 mb-2">
+        <Package className="w-6 h-6 text-green-600" />
+        <h4 className="font-bold text-green-900">Poziom 4: Oferta / SKU</h4>
+      </div>
+      <p className="text-sm text-gray-600 mb-3">Najbardziej szczegółowy. Tutaj ujawniają się:</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-green-100 rounded-lg p-2 text-xs text-green-800">Błędy cenowe</div>
+        <div className="bg-green-100 rounded-lg p-2 text-xs text-green-800">Niedoszacowana logistyka</div>
+        <div className="bg-green-100 rounded-lg p-2 text-xs text-green-800">Sprzedaż poniżej progu</div>
+        <div className="bg-green-100 rounded-lg p-2 text-xs text-green-800">Oferty bez zysku</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Czym właściwie jest atrybucja kosztów?
+
+Atrybucja kosztów polega na **przypisaniu wszystkich kosztów do konkretnego produktu, kategorii lub kanału sprzedaży**. Nie tylko koszt zakupu towaru — ale pełna struktura:
+
+<div className="bg-gray-50 rounded-2xl p-6 md:p-8 my-10 border border-gray-200">
+  <div className="grid md:grid-cols-2 gap-x-8 gap-y-3">
+    <div className="flex items-center gap-3">
+      <DollarSign className="w-5 h-5 text-blue-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Prowizje marketplace</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <BarChart3 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Koszty reklam</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <Package className="w-5 h-5 text-blue-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Koszty logistyki i pakowania</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <Building2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Koszty magazynowania</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <RotateCcw className="w-5 h-5 text-red-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Koszty obsługi zwrotów</span>
+    </div>
+    <div className="flex items-center gap-3">
+      <Calculator className="w-5 h-5 text-red-500 flex-shrink-0" />
+      <span className="text-sm text-gray-800">Koszty operacyjne per sprzedaż</span>
+    </div>
+  </div>
+</div>
+
+Dopiero po zebraniu tych danych można mówić o **realnej marży**.
+
+---
+
+## Automatyzacja — jedyny sposób w skali
+
+Manualne liczenie marży przy setkach lub tysiącach ofert jest **praktycznie niemożliwe**. Dlatego nowoczesne systemy analityczne integrujące dane sprzedażowe, magazynowe i marketingowe stają się fundamentem e-commerce.
+
+<div className="grid md:grid-cols-2 gap-6 my-10">
+  <div className="bg-gray-100 rounded-xl p-6 border border-gray-200">
+    <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <XCircle className="w-5 h-5 text-red-500" />
+      Ręczna analiza
+    </h4>
+    <ul className="space-y-3 text-sm text-gray-600">
+      <li className="flex items-start gap-2">
+        <span className="text-red-400 mt-0.5">-</span>
+        <span>Raporty raz w tygodniu/miesiącu</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <span className="text-red-400 mt-0.5">-</span>
+        <span>Excel z tysiącami wierszy</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <span className="text-red-400 mt-0.5">-</span>
+        <span>Koszty ukryte w "ogólnych"</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <span className="text-red-400 mt-0.5">-</span>
+        <span>Decyzje na danych sprzed tygodni</span>
+      </li>
+    </ul>
+  </div>
+
+  <div className="bg-green-50 rounded-xl p-6 border border-green-200">
+    <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <Zap className="w-5 h-5 text-green-600" />
+      Automatyczna atrybucja
+    </h4>
+    <ul className="space-y-3 text-sm text-gray-600">
+      <li className="flex items-start gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+        <span>Bieżące monitorowanie rentowności</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+        <span>Szybkie wykrywanie problemów marżowych</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+        <span>Analiza trendów w czasie rzeczywistym</span>
+      </li>
+      <li className="flex items-start gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+        <span>Decyzje oparte na aktualnych danych</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+---
+
+{/* ========== PODSUMOWANIE ========== */}
+<div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 my-12 text-white">
+  <h2 className="text-2xl font-bold mb-4">Podsumowanie</h2>
+  <p className="text-gray-300 mb-6 leading-relaxed">
+    W 2026 roku przewagę konkurencyjną budują firmy, które potrafią zejść z analizą finansową na poziom <strong className="text-white">pojedynczego produktu</strong>. Globalny wynik finansowy to tylko wierzchołek góry lodowej.
+  </p>
+
+  <p className="text-gray-300 mb-6">Realne zarządzanie zyskiem zaczyna się tam, gdzie firma rozumie rentowność:</p>
+
+  <div className="grid md:grid-cols-3 gap-4">
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <Store className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">Kanałów sprzedaży</p>
+    </div>
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <FolderTree className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">Kategorii produktów</p>
+    </div>
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <Package className="w-6 h-6 text-green-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">Pojedynczych ofert</p>
+    </div>
+  </div>
+
+  <p className="text-gray-400 text-sm mt-6">
+    Dopiero taka perspektywa pozwala świadomie rozwijać biznes i skalować sprzedaż bez utraty marży.
+  </p>
+</div>
