@@ -1,0 +1,564 @@
+---
+title: "Mini toole z AI: jak napisałem wtyczkę Chrome do Canvy w 10 minut"
+description: "240 grafik produktowych w Canvie — skopiowanych i podmienionych automatycznie. Wtyczka Chrome napisana przez AI, rozesłana znajomym. Praktyczny poradnik tworzenia mini narzędzi z Claude Code + VS Code."
+pubDate: 2026-02-19
+lang: pl
+category: guide
+featured: true
+tags: ['claude code', 'AI', 'VS Code', 'automatyzacja', 'canva', 'e-commerce', 'chrome extension']
+---
+
+import { MousePointerClick, Clock, Wrench, Lightbulb, Zap, CheckCircle, AlertTriangle, Terminal, Sparkles, Package, Repeat, FileText, Chrome, Share2 } from 'lucide-react';
+
+{/* ========== HERO SECTION ========== */}
+<div className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl p-8 mb-12 border border-orange-100">
+  <h2 className="text-3xl font-bold mb-4 text-gray-900">
+    240 grafik produktowych. Skopiowanych i podmienionych. W kilka minut. Wtyczką Chrome.
+  </h2>
+
+  <blockquote className="border-l-4 border-orange-600 pl-6 my-6 text-lg italic text-gray-700">
+    "Miałem do zrobienia 240 miniaturek produktów w Canvie. Każda z inną nazwą. Ręcznie to 2-3 godziny klikania jak robot. Więc powiedziałem AI: napisz mi wtyczkę do Chrome. Napisał. Rozesłałem ją znajomym — i oni też przestali klikać."
+  </blockquote>
+
+  <p className="text-lg text-gray-700 mb-6 leading-loose">
+    Nie musisz być programistą, żeby tworzyć <strong>mini narzędzia</strong>, które oszczędzają godziny pracy. Wystarczy VS Code, Claude Code i jedno zdanie po polsku. Ten artykuł pokazuje, jak w praktyce wygląda budowanie takich narzędzi — na przykładzie <strong>wtyczki Chrome do Canvy</strong>, która sama kopiuje strony i zmienia napisy na grafikach. A potem możesz ją <strong>rozesłać znajomym</strong> — i oni też z niej korzystają.
+  </p>
+
+  <div className="grid md:grid-cols-3 gap-4">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Clock className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Ręcznie: ~3 godziny</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Klik, kopiuj, zmień tekst, powtórz 240 razy</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Zap className="w-6 h-6 text-orange-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Z AI: ~10 minut</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Rozmowa + uruchomienie skryptu</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Share2 className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Bonus: rozesłane dalej</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">Wtyczka Chrome — wysłał znajomym, działała u nich od razu</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+{/* ========== SEKCJA 1: CZYM SĄ MINI TOOLE ========== */}
+## <Wrench className="inline w-8 h-8 mr-2 text-orange-600" /> Czym są "mini toole" i dlaczego zmieniają zasady gry?
+
+Mini tool to **mały skrypt**, który robi jedną konkretną rzecz. Nie jest to aplikacja, nie ma interfejsu, nie wymaga instalacji. To plik, który odpalisz i on zrobi za Ciebie robotę.
+
+Przykłady mini tooli, które możesz stworzyć w kilka minut:
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-3">
+      <MousePointerClick className="w-5 h-5 text-orange-500 flex-shrink-0 mt-1" />
+      <p className="text-gray-800 text-sm"><strong>Autoclicker</strong> — kopiuje strony w Canvie i zmienia tekst</p>
+    </div>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-3">
+      <FileText className="w-5 h-5 text-blue-500 flex-shrink-0 mt-1" />
+      <p className="text-gray-800 text-sm"><strong>Renamer</strong> — zmienia nazwy 500 plików wg wzorca z CSV</p>
+    </div>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-3">
+      <Package className="w-5 h-5 text-green-500 flex-shrink-0 mt-1" />
+      <p className="text-gray-800 text-sm"><strong>CSV transformer</strong> — konwertuje eksport z jednego formatu na drugi</p>
+    </div>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-3">
+      <Repeat className="w-5 h-5 text-violet-500 flex-shrink-0 mt-1" />
+      <p className="text-gray-800 text-sm"><strong>Batch editor</strong> — podmienia tekst w 200 plikach HTML naraz</p>
+    </div>
+  </div>
+</div>
+
+Kluczowa różnica między mini toolem a "programowaniem": **nie musisz nic umieć**. Mówisz AI co ma zrobić, on pisze kod, Ty klikasz "uruchom". Jeśli nie działa — mówisz co jest źle, on poprawia.
+
+To jest **crowd computing z AI** — zamiast uczyć się programowania, rozmawiasz z kimś, kto umie programować. Tyle że ten "ktoś" jest dostępny 24/7 i nie bierze 150 zł/h.
+
+---
+
+{/* ========== SEKCJA 2: CASE STUDY - AUTOCLICKER CANVA ========== */}
+## <MousePointerClick className="inline w-8 h-8 mr-2 text-orange-600" /> Case study: wtyczka Chrome do Canvy — 240 grafik w kilka minut
+
+### Problem
+
+Masz **szablon grafiki produktowej** w Canvie. Jedną stronę. Musisz zrobić 240 wariantów — każdy z **inną nazwą produktu**. Ręcznie to wygląda tak:
+
+1. Kliknij "Duplikuj stronę"
+2. Znajdź pole tekstowe
+3. Zaznacz tekst
+4. Wpisz nową nazwę
+5. Powtórz 239 razy
+
+**Czas? Minimum 2-3 godziny** monotonnego klikania. Oczywiste miejsce na błędy — literówki, pominięcia, złe nazwy na złych grafikach.
+
+### Rozwiązanie: 1 zdanie do AI
+
+Otwierasz VS Code, uruchamiasz Claude Code i mówisz:
+
+```text
+Napisz mi wtyczkę Chrome, która działa na stronie Canvy i:
+1. Duplikuje aktualną stronę 240 razy
+2. Na każdej nowej stronie znajduje pole tekstowe z nazwą produktu
+3. Zmienia tekst na kolejną nazwę z listy, którą wklejam do wtyczki
+Dodaj prosty popup z textarea na listę nazw i przycisk "Start".
+```
+
+### Co AI napisał
+
+AI stworzył kompletną wtyczkę Chrome — z plikami `manifest.json`, `popup.html`, `popup.js` i `content.js`.
+
+{/* ========== MOCKUP POPUP WTYCZKI ========== */}
+<div className="my-10 flex justify-center">
+  <div className="w-full max-w-sm">
+    <div className="text-xs text-gray-400 mb-2 text-center">Podgląd popupu wtyczki Chrome</div>
+    <div className="bg-white rounded-xl border-2 border-gray-300 shadow-xl overflow-hidden">
+      {/* Chrome extension header */}
+      <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+        <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-red-500 rounded flex items-center justify-center">
+          <span className="text-white text-xs font-bold">C</span>
+        </div>
+        <span className="text-sm font-semibold text-gray-700">Canva Batch Editor</span>
+      </div>
+      {/* Body */}
+      <div className="p-4 space-y-3">
+        <div>
+          <label className="text-xs font-medium text-gray-600 block mb-1">Nazwy produktów (jedna na linię):</label>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-700 leading-relaxed h-32 overflow-hidden">
+            Lampa wisząca NOVA 60cm<br/>
+            Kinkiet LED OSLO biały<br/>
+            Plafon BERGEN 40cm<br/>
+            Lampa stołowa MALMO<br/>
+            Żyrandol STOCKHOLM 5-ramienny<br/>
+            <span className="text-gray-400">... (jeszcze 235 nazw)</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-500">Załadowano: <strong>240 nazw</strong></span>
+          <div className="bg-orange-500 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-sm">
+            Start
+          </div>
+        </div>
+        {/* Progress bar mockup */}
+        <div className="bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-400 to-green-500 h-full rounded-full" style={{width: '67%'}}></div>
+        </div>
+        <div className="text-xs text-gray-500 text-center">Przetworzono 161 / 240 stron...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* ========== FLOW DIAGRAM ========== */}
+### Jak to działa — krok po kroku
+
+<div className="my-8 space-y-0">
+  {/* Step 1 */}
+  <div className="flex items-start gap-4">
+    <div className="flex flex-col items-center">
+      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">1</div>
+      <div className="w-0.5 h-8 bg-orange-200"></div>
+    </div>
+    <div className="pb-4">
+      <h4 className="font-semibold text-gray-900">Otwierasz Canvę z szablonem</h4>
+      <p className="text-sm text-gray-600 mt-1">Masz jedną stronę z szablonem grafiki produktowej — nazwa, zdjęcie, cena. Resztę zrobi wtyczka.</p>
+    </div>
+  </div>
+  {/* Step 2 */}
+  <div className="flex items-start gap-4">
+    <div className="flex flex-col items-center">
+      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">2</div>
+      <div className="w-0.5 h-8 bg-orange-200"></div>
+    </div>
+    <div className="pb-4">
+      <h4 className="font-semibold text-gray-900">Klikasz ikonkę wtyczki w Chrome</h4>
+      <p className="text-sm text-gray-600 mt-1">Otwiera się popup — wklejasz listę 240 nazw produktów (jedna na linię). Możesz ją skopiować z Excela.</p>
+    </div>
+  </div>
+  {/* Step 3 */}
+  <div className="flex items-start gap-4">
+    <div className="flex flex-col items-center">
+      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">3</div>
+      <div className="w-0.5 h-8 bg-orange-200"></div>
+    </div>
+    <div className="pb-4">
+      <h4 className="font-semibold text-gray-900">Klikasz "Start" i patrzysz</h4>
+      <p className="text-sm text-gray-600 mt-1">Wtyczka sama duplikuje stronę, znajduje pole tekstowe, wpisuje nową nazwę. Powtarza 240 razy. Ty pijesz kawę.</p>
+    </div>
+  </div>
+  {/* Step 4 */}
+  <div className="flex items-start gap-4">
+    <div className="flex flex-col items-center">
+      <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">4</div>
+      <div className="w-0.5 h-0 bg-transparent"></div>
+    </div>
+    <div className="pb-4">
+      <h4 className="font-semibold text-gray-900">Gotowe — eksportujesz z Canvy</h4>
+      <p className="text-sm text-gray-600 mt-1">240 stron z unikalnymi nazwami. Eksportujesz jako PDF lub PNG — każda strona = osobny plik. Gotowe do druku lub uploadu.</p>
+    </div>
+  </div>
+</div>
+
+Pod spodem `content.js` robi całą robotę bezpośrednio w Canvie:
+
+```javascript
+// content.js — uproszczony fragment
+async function processNames(names) {
+  for (let i = 0; i < names.length; i++) {
+    console.log(`[${i + 1}/${names.length}] ${names[i]}`);
+
+    // 1. Duplikuj stronę — symulacja kliknięcia w Canvie
+    await duplicatePage();
+    await sleep(1500);
+
+    // 2. Znajdź pole tekstowe i kliknij
+    await clickTextElement();
+    await sleep(500);
+
+    // 3. Zaznacz tekst i wpisz nową nazwę
+    document.execCommand('selectAll');
+    document.execCommand('insertText', false, names[i]);
+    await sleep(500);
+  }
+}
+```
+
+<div className="bg-green-50 p-6 rounded-xl border border-green-200 my-6">
+  <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+    <Chrome className="w-5 h-5" /> Dlaczego wtyczka Chrome, a nie skrypt Python?
+  </h4>
+  <div className="grid md:grid-cols-2 gap-4 mt-3">
+    <div className="bg-white p-4 rounded-lg border border-gray-200">
+      <h5 className="font-semibold text-gray-700 mb-2 text-sm">Skrypt Python (pyautogui)</h5>
+      <ul className="text-sm text-gray-600 space-y-1">
+        <li>Klika w koordynaty ekranu — kruchy</li>
+        <li>Zależy od rozdzielczości i pozycji okna</li>
+        <li>Nie możesz go łatwo wysłać znajomym</li>
+        <li>Wymaga zainstalowanego Pythona</li>
+      </ul>
+    </div>
+    <div className="bg-white p-4 rounded-lg border border-green-200">
+      <h5 className="font-semibold text-green-700 mb-2 text-sm">Wtyczka Chrome</h5>
+      <ul className="text-sm text-gray-600 space-y-1">
+        <li>Operuje na DOM Canvy — stabilne</li>
+        <li>Działa na dowolnym ekranie i rozdzielczości</li>
+        <li>Wysyłasz folder — znajomy instaluje w 30 sekund</li>
+        <li>Zero dodatkowych zależności</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 my-6">
+  <h4 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+    <AlertTriangle className="w-5 h-5" /> Uwaga: to uproszczony przykład
+  </h4>
+  <p className="text-gray-700">
+    W praktyce wtyczka wymagała kilku iteracji — dopasowanie selektorów DOM w Canvie, odpowiednie opóźnienia między operacjami, obsługa edge case'ów kiedy Canva się przeładowuje. Ale to właśnie jest <strong>rozmowa z AI</strong> — mówisz "nie znajduje pola tekstowego", on sprawdza selektory i poprawia. 3-4 rundy rozmowy i działa.
+  </p>
+</div>
+
+### Efekt
+
+<div className="grid md:grid-cols-3 gap-4 my-8">
+  <div className="bg-red-50 p-5 rounded-xl border border-red-200">
+    <h5 className="font-semibold text-red-700 mb-2">Ręcznie</h5>
+    <p className="text-sm text-gray-700">240 × kliknij, kopiuj, wpisz = <strong>~3 godziny</strong></p>
+    <p className="text-sm text-gray-700">+ ryzyko literówek</p>
+    <p className="text-sm text-gray-700">+ zmęczenie po 50. grafice</p>
+  </div>
+  <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+    <h5 className="font-semibold text-green-700 mb-2">Z wtyczką od AI</h5>
+    <p className="text-sm text-gray-700">Rozmowa z AI: <strong>~10 minut</strong></p>
+    <p className="text-sm text-gray-700">Wtyczka robi 240 grafik: <strong>kilka minut</strong></p>
+    <p className="text-sm text-gray-700">Zero błędów — dane z listy</p>
+  </div>
+  <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
+    <h5 className="font-semibold text-blue-700 mb-2">Bonus: udostępnianie</h5>
+    <p className="text-sm text-gray-700">Spakuj folder i wyślij</p>
+    <p className="text-sm text-gray-700">Znajomy instaluje: <strong>30 sekund</strong></p>
+    <p className="text-sm text-gray-700">Działa u niego tak samo</p>
+  </div>
+</div>
+
+A najlepsze? **Wtyczka zostaje na zawsze.** Następnym razem, kiedy dostaniesz 300 nowych produktów — klikasz ikonkę w Chrome, wklejasz listę nazw, start. Zero pracy. A skoro to wtyczka — **rozesłałeś ją znajomym** i oni też przestali klikać ręcznie.
+
+---
+
+{/* ========== SEKCJA 3: JAK TO DZIAŁA ========== */}
+## <Terminal className="inline w-8 h-8 mr-2 text-blue-600" /> Jak w praktyce wygląda "pisanie" mini toola z AI?
+
+Nie wygląda jak programowanie. Wygląda jak **rozmowa**. Oto typowy flow:
+
+### Krok 1: Mówisz co chcesz
+
+```text
+Potrzebuję skrypt, który weźmie plik CSV z nazwami produktów
+i dla każdego zmieni nazwę pliku zdjęcia w folderze "zdjecia/"
+z losowej na format: EAN_nazwa-produktu.jpg
+```
+
+### Krok 2: AI pisze kod
+
+Claude Code od razu napisze skrypt w Pythonie. Ty **nie musisz go rozumieć** — musisz tylko wiedzieć, czy zrobił to, co chciałeś.
+
+### Krok 3: Testujesz
+
+Uruchamiasz skrypt. Albo działa, albo dostajesz błąd. Jeśli błąd — kopiujesz go do chatu i mówisz "nie działa, napraw". AI poprawia.
+
+### Krok 4: Dopracowujesz
+
+```text
+Działa, ale chcę żeby:
+- pomijał pliki, które już mają prawidłową nazwę
+- logował co zmienił do pliku log.txt
+- na końcu wyświetlił podsumowanie: ile zmienił, ile pominął
+```
+
+AI dopisze te funkcje w kilka sekund.
+
+<div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-8">
+  <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+    <Lightbulb className="w-5 h-5" /> Kluczowa zasada: idź krokami
+  </h4>
+  <p className="text-gray-700">
+    Nie opisuj od razu skomplikowanego procesu 10-krokowego. <strong>Zacznij od najprostszej wersji</strong> — "skopiuj stronę 5 razy i zmień tekst". Jak zadziała — rozszerzaj. AI najlepiej działa krok po kroku, tak jak rozmowa z człowiekiem.
+  </p>
+</div>
+
+---
+
+{/* ========== SEKCJA 4: WIĘCEJ POMYSŁÓW ========== */}
+## <Sparkles className="inline w-8 h-8 mr-2 text-violet-600" /> 10 mini tooli, które napiszesz w kwadrans
+
+Autoclicker do Canvy to dopiero początek. Oto **realne narzędzia**, które możesz stworzyć z AI w kilkanaście minut:
+
+<div className="space-y-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-orange-500">1</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Masowy resizer zdjęć</h4>
+        <p className="text-sm text-gray-600 mt-1">"Zmniejsz wszystkie zdjęcia w folderze do 1200px szerokości i skompresuj do max 200KB"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-orange-500">2</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Generator nazw plików z CSV</h4>
+        <p className="text-sm text-gray-600 mt-1">"Zmień nazwy 500 zdjęć z IMG_1234.jpg na EAN_nazwa-produktu.jpg wg pliku mapping.csv"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-blue-500">3</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Konwerter CSV między platformami</h4>
+        <p className="text-sm text-gray-600 mt-1">"Zamień eksport z BaseLinker na format importu Allegro — zmapuj kolumny, uzupełnij brakujące pola"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-blue-500">4</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Watermark na zdjęciach</h4>
+        <p className="text-sm text-gray-600 mt-1">"Dodaj logo firmy w prawym dolnym rogu do wszystkich 300 zdjęć w folderze — 30% przeźroczystości"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-green-500">5</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Porównywarka cen z CSV</h4>
+        <p className="text-sm text-gray-600 mt-1">"Porównaj moje ceny z pliku ceny.csv z cenami konkurencji z pliku konkurencja.csv — pokaż różnice"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-green-500">6</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Generator opisów produktów</h4>
+        <p className="text-sm text-gray-600 mt-1">"Weź plik z parametrami produktów i wygeneruj opisy SEO po 200 słów na każdy — zapisz do CSV"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-violet-500">7</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Duplikator ofert między marketplace</h4>
+        <p className="text-sm text-gray-600 mt-1">"Weź moje oferty z Allegro (CSV) i przygotuj pliki importu na Erli i Empik — dostosuj format"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-violet-500">8</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Automatyczny mail z raportem</h4>
+        <p className="text-sm text-gray-600 mt-1">"Co poniedziałek wyślij mi maila z podsumowaniem sprzedaży z ostatniego tygodnia z pliku CSV"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-pink-500">9</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Sprawdzacz stanów magazynowych</h4>
+        <p className="text-sm text-gray-600 mt-1">"Porównaj eksport stanów z BaseLinker ze stanami dostawcy z pliku dostawca.xlsx — pokaż braki"</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <span className="mt-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-pink-500">10</span>
+      <div>
+        <h4 className="font-semibold text-gray-900">Wtyczka Chrome do dowolnej strony</h4>
+        <p className="text-sm text-gray-600 mt-1">"Zautomatyzuj powtarzalną czynność na dowolnej stronie — wypełniaj formularze, kopiuj dane, klikaj przyciski. Wyślij znajomym."</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+Każdy z tych tooli to **jeden prompt + kilka minut rozmowy z AI**. Nie miesiąc nauki programowania. Nie zlecenie za 2000 zł. Jedno zdanie i "uruchom".
+
+---
+
+{/* ========== SEKCJA 5: PUŁAPKI ========== */}
+## <AlertTriangle className="inline w-8 h-8 mr-2 text-yellow-600" /> Na co uważać — 5 typowych pułapek
+
+<div className="space-y-4 my-8">
+  <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+    <h4 className="font-semibold text-yellow-800 mb-2">1. Zbyt skomplikowany prompt na start</h4>
+    <p className="text-sm text-gray-700">Nie opisuj 15-krokowego procesu w jednym zdaniu. Zacznij od: "skopiuj stronę 3 razy". Jak działa — rozszerzaj.</p>
+  </div>
+
+  <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+    <h4 className="font-semibold text-yellow-800 mb-2">2. Selektory DOM się zmieniają</h4>
+    <p className="text-sm text-gray-700">Canva może zmienić strukturę HTML przy aktualizacji. Jeśli wtyczka nagle przestanie działać — powiedz AI "selektory się zmieniły, zaktualizuj". On sam znajdzie nowe.</p>
+  </div>
+
+  <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+    <h4 className="font-semibold text-yellow-800 mb-2">3. Za małe opóźnienia</h4>
+    <p className="text-sm text-gray-700">Canva, Allegro i inne aplikacje webowe potrzebują czasu na przeładowanie. Jeśli skrypt klika za szybko — zgubi się. Dodawaj <code>await sleep(1000-2000)</code> między akcjami.</p>
+  </div>
+
+  <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+    <h4 className="font-semibold text-yellow-800 mb-2">4. Testuj na małej próbie</h4>
+    <p className="text-sm text-gray-700">Zanim puścisz wtyczkę na 240 stronach — przetestuj na 3-5. Upewnij się, że duplikuje, trafia w pole tekstowe i podmienia tekst. Potem skaluj.</p>
+  </div>
+
+  <div className="bg-yellow-50 p-5 rounded-xl border border-yellow-200">
+    <h4 className="font-semibold text-yellow-800 mb-2">5. Brak zapisu postępu</h4>
+    <p className="text-sm text-gray-700">Jeśli skrypt przetworzy 180 z 240 grafik i się zawiesi — chcesz wiedzieć od której zacząć ponownie. Proś AI o logowanie postępu do pliku.</p>
+  </div>
+</div>
+
+---
+
+{/* ========== SEKCJA 6: CO POTRZEBUJESZ ========== */}
+## <Zap className="inline w-8 h-8 mr-2 text-blue-600" /> Co potrzebujesz na start
+
+<div className="bg-blue-50 p-6 rounded-xl border border-blue-200 my-8">
+  <ol className="text-gray-700 space-y-3">
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 bg-blue-600">1</span>
+      <span><strong>VS Code</strong> — darmowy edytor od Microsoftu (<a href="https://code.visualstudio.com" className="text-blue-600 underline">code.visualstudio.com</a>)</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 bg-blue-600">2</span>
+      <span><strong>Python</strong> — AI sam go zainstaluje, ale możesz też pobrać z <a href="https://python.org" className="text-blue-600 underline">python.org</a></span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 bg-blue-600">3</span>
+      <span><strong>Claude Code</strong> — rozszerzenie do VS Code (~300 PLN/mies w planie Max)</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 bg-blue-600">4</span>
+      <span><strong>Plik z danymi</strong> — lista nazw, cen, EAN-ów — cokolwiek chcesz zautomatyzować</span>
+    </li>
+  </ol>
+</div>
+
+Pierwszy tool napiszesz **w 10 minut**. Drugi szybciej. Za tydzień będziesz robił rzeczy, które wcześniej zlecałeś komuś za pieniądze.
+
+---
+
+{/* ========== PODSUMOWANIE ========== */}
+## <CheckCircle className="inline w-8 h-8 mr-2 text-green-600" /> Podsumowanie
+
+<div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200 my-8">
+  <h3 className="text-xl font-bold text-green-800 mb-4">Co musisz zapamiętać:</h3>
+  <ul className="space-y-3 text-gray-700">
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Mini tool to nie "programowanie".</strong> To rozmowa z AI po polsku, z której wychodzi działający skrypt.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Zacznij od małego.</strong> "Skopiuj 5 stron w Canvie." Jak zadziała — skaluj do 240.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Skrypt zostaje na zawsze.</strong> Raz napisany, używasz go miesiącami. Zero powtarzalnej pracy.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Godziny → minuty.</strong> 240 grafik w Canvie ręcznie = 3 godziny. Z wtyczką Chrome = 10 minut rozmowy + kilka minut wykonania.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Wtyczka Chrome = dystrybuowalne narzędzie.</strong> Raz napisane, wysyłasz znajomym — działa u nich od razu. Bez instalowania Pythona, bez konfiguracji.</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <span><strong>Nie potrzebujesz programisty.</strong> Potrzebujesz VS Code, Claude Code i 300 zł miesięcznie. Resztę zrobi AI.</span>
+    </li>
+  </ul>
+</div>
+
+<div className="bg-orange-50 p-6 rounded-xl border border-orange-200 my-8 text-center">
+  <p className="text-lg font-semibold text-orange-800 mb-2">
+    Masz zadanie, które robisz ręcznie więcej niż 3 razy?
+  </p>
+  <p className="text-gray-700">
+    To jest kandydat na mini tool. Opisz je po polsku AI — a on napisze Ci narzędzie w kilka minut.
+  </p>
+</div>
