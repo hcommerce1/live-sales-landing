@@ -5,6 +5,7 @@ import mdx from '@astrojs/mdx';
 import tailwindcss from '@tailwindcss/vite';
 import astroI18next from 'astro-i18next';
 import vercel from '@astrojs/vercel';
+import sitemap from '@astrojs/sitemap';
 import path from 'path';
 
 // KaTeX plugins for math formulas
@@ -13,6 +14,7 @@ import rehypeKatex from 'rehype-katex';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://live-sales.pl',
   output: 'server',
   adapter: vercel(),
   integrations: [
@@ -27,6 +29,12 @@ export default defineConfig({
       }
     }),
     astroI18next(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'pl',
+        locales: { pl: 'pl', en: 'en' },
+      },
+    }),
   ],
   vite: {
     plugins: [tailwindcss()],

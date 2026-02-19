@@ -1,0 +1,23 @@
+# LiveSales
+
+> Jedno miejsce do analizy, porównywania i automatyzacji danych e-commerce — z gotowymi dashboardami, eksportami i alertami.
+
+LiveSales to platforma do automatyzacji danych dla e-commerce. Łączymy się z BaseLinker, Allegro, Amazon i innymi źródłami, aby dostarczać raporty, dashboardy i alerty w czasie rzeczywistym.
+
+## Kluczowe funkcje
+- Automatyczne raporty sprzedażowe
+- Dashboardy w czasie rzeczywistym
+- Analiza marż i rentowności
+- Porównywanie danych z wielu platform
+- Eksporty danych i alerty
+- Integracje: BaseLinker, Allegro, Amazon, Apilo, SellAssist
+
+## Blog
+Piszemy o automatyzacji danych, e-commerce, narzędziach AI i case studies.
+
+- Blog PL: https://live-sales.pl/pl/blog
+- Blog EN: https://live-sales.pl/en/blog
+
+## Kontakt
+- Strona: https://live-sales.pl
+- Email: kontakt@live-sales.pl
