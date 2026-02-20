@@ -1,11 +1,11 @@
 ---
-title: "Asystent księgowy AI — jak zbudowałem lokalny dashboard finansowy z chatem GPT"
+title: "Asystent księgowy AI — dashboard finansowy z GPT"
 description: "Python, OpenAI i VS Code z Claude. Wrzuciłem maile z fakturami, a AI zbudował mi serwer z zakładkami, wykresami i chatbotem, który odpowiada na pytania o finanse firmy."
 pubDate: 2026-02-20
 lang: pl
 category: guide
 featured: true
-tags: ['claude code', 'AI', 'VS Code', 'automatyzacja', 'openai', 'e-commerce', 'księgowość', 'python']
+tags: ['AI', 'automatyzacja', 'księgowość', 'python', 'openai']
 ---
 
 import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap, Clock, Terminal, CheckCircle, AlertTriangle, Layers, DollarSign, Building2, ArrowDown, Package, FolderTree, Bot, Shield, Code, Sparkles } from 'lucide-react';
@@ -481,9 +481,11 @@ Filtr na górze pozwala wyświetlić np. **tylko nieopłacone** lub **tylko niez
 
 ---
 
-## 12 kategorii kosztów — automatyczna klasyfikacja
+## Kategorie kosztów — dynamiczna klasyfikacja
 
-Każda faktura jest automatycznie przypisywana do kategorii:
+Kategorie nie są wpisane na sztywno w kodzie. **Tworzą się dynamicznie na podstawie danych z faktur** — serwer analizuje wczytane dokumenty i automatycznie buduje listę kategorii. Jak dodasz fakturę z nową kategorią, pojawi się na dashboardzie bez zmiany kodu.
+
+W praktyce wygląda to tak — oto przykładowe kategorie, które system wyciągnął z naszych dokumentów:
 
 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 my-8">
   {[
@@ -504,6 +506,16 @@ Każda faktura jest automatycznie przypisywana do kategorii:
       {cat.name}
     </div>
   ))}
+</div>
+
+<div className="bg-blue-50 rounded-xl p-5 border border-blue-200 my-6">
+  <div className="flex items-start gap-3">
+    <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="font-semibold text-gray-900 mb-1">Dynamiczne kategorie = zero konfiguracji</h4>
+      <p className="text-sm text-gray-600">Nie musisz definiować kategorii z góry. Serwer czyta plik <code className="bg-blue-100 px-1.5 py-0.5 rounded text-blue-800 text-xs">kategorie.csv</code> i buduje strukturę automatycznie. Dodajesz nową kategorię do CSV — dashboard ją podchwytuje przy następnym odświeżeniu.</p>
+    </div>
+  </div>
 </div>
 
 Dashboard pokazuje **wykres kołowy** z rozkładem kosztów i **wykresy miesięczne** z trendem wydatków w każdej kategorii. Od razu widać, na co idą pieniądze.
@@ -693,31 +705,31 @@ Dla porównania: typowy SaaS do zarządzania fakturami to **100-300 zł miesięc
 ---
 
 {/* ========== PODSUMOWANIE ========== */}
-<div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 my-12 text-white">
-  <h2 className="text-2xl font-bold mb-4">Wnioski</h2>
-  <p className="text-gray-300 mb-6 leading-relaxed">
-    Nie musisz czekać na idealny SaaS. Nie musisz płacić za coś, co nie pasuje do Twojego workflow. Możesz wziąć <strong className="text-white">VS Code + Claude Code</strong>, opisać problem po polsku, i mieć działające narzędzie tego samego dnia.
+<div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 my-12 border border-blue-200">
+  <h2 className="text-2xl font-bold mb-4 text-gray-900">Wnioski</h2>
+  <p className="text-gray-700 mb-6 leading-relaxed">
+    Nie musisz czekać na idealny SaaS. Nie musisz płacić za coś, co nie pasuje do Twojego workflow. Możesz wziąć <strong className="text-gray-900">VS Code + Claude Code</strong>, opisać problem po polsku, i mieć działające narzędzie tego samego dnia.
   </p>
 
   <div className="grid md:grid-cols-3 gap-4 mb-6">
-    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-      <Terminal className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-      <p className="text-sm font-medium">1 plik Python</p>
-      <p className="text-xs text-gray-400">~1100 linii kodu</p>
+    <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+      <Terminal className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+      <p className="text-sm font-medium text-gray-900">1 plik Python</p>
+      <p className="text-xs text-gray-500">~1100 linii kodu</p>
     </div>
-    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-      <Clock className="w-6 h-6 text-green-400 mx-auto mb-2" />
-      <p className="text-sm font-medium">Kilka godzin pracy</p>
-      <p className="text-xs text-gray-400">Zamiast tygodni bez AI</p>
+    <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+      <Clock className="w-6 h-6 text-green-600 mx-auto mb-2" />
+      <p className="text-sm font-medium text-gray-900">Kilka godzin pracy</p>
+      <p className="text-xs text-gray-500">Zamiast tygodni bez AI</p>
     </div>
-    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-      <Bot className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-      <p className="text-sm font-medium">AI chat z RAG</p>
-      <p className="text-xs text-gray-400">Pytaj o swoje finanse</p>
+    <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+      <Bot className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+      <p className="text-sm font-medium text-gray-900">AI chat z RAG</p>
+      <p className="text-xs text-gray-500">Pytaj o swoje finanse</p>
     </div>
   </div>
 
-  <p className="text-gray-400 text-sm">
+  <p className="text-gray-500 text-sm">
     Najlepsze narzędzia to te, które budujesz pod siebie. AI nie zastąpi księgowej — ale da Ci dashboard, którego żaden gotowy program nie oferuje.
   </p>
 </div>
