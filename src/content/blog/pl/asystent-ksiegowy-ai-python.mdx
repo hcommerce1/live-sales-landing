@@ -1,0 +1,723 @@
+---
+title: "Asystent księgowy AI — jak zbudowałem lokalny dashboard finansowy z chatem GPT"
+description: "Python, OpenAI i VS Code z Claude. Wrzuciłem maile z fakturami, a AI zbudował mi serwer z zakładkami, wykresami i chatbotem, który odpowiada na pytania o finanse firmy."
+pubDate: 2026-02-20
+lang: pl
+category: guide
+featured: true
+tags: ['claude code', 'AI', 'VS Code', 'automatyzacja', 'openai', 'e-commerce', 'księgowość', 'python']
+---
+
+import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap, Clock, Terminal, CheckCircle, AlertTriangle, Layers, DollarSign, Building2, ArrowDown, Package, FolderTree, Bot, Shield, Code, Sparkles } from 'lucide-react';
+
+{/* ========== HERO ========== */}
+<div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 mb-12 border border-blue-100">
+  <h2 className="text-3xl font-bold mb-4 text-gray-900">
+    Maile z fakturami wrzucone do AI. Na wyjściu: dashboard finansowy z chatbotem.
+  </h2>
+
+  <blockquote className="border-l-4 border-blue-600 pl-6 my-6 text-lg italic text-gray-700">
+    "Miałem folder maili z fakturami, wyciągi z Santandera i zero kontroli nad kosztami. Powiedziałem Claude'owi: zbuduj mi serwer, który to wszystko poukłada. Po kilku godzinach miałem localhost z zakładkami, filtrami, wykresami i AI chatem, który odpowiada na pytania o moje finanse."
+  </blockquote>
+
+  <div className="grid md:grid-cols-3 gap-4">
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Mail className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Wejście: surowe dane</h3>
+          <p className="text-sm text-gray-600">Maile z fakturami, CSV z banku, pliki księgowe</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <Brain className="w-6 h-6 text-purple-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Przetwarzanie: AI</h3>
+          <p className="text-sm text-gray-600">OpenAI embeddingi + GPT-4o + Claude Code</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        <BarChart3 className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-1">Wyjście: dashboard</h3>
+          <p className="text-sm text-gray-600">Zakładki, filtry, wykresy, AI chat — na localhost</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Problem: faktury w mailach, wydatki w banku, kontrola w głowie
+
+Każdy, kto prowadzi firmę e-commerce, zna ten ból. Faktury przychodzą mailem — dziesiątki miesięcznie. Wyciągi bankowe osobno. Kategorie kosztów? Gdzieś w Excelu albo w głowie.
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800"><strong>Faktury</strong> — rozproszone po mailach, bez jednego widoku</p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800"><strong>Wydatki bankowe</strong> — wyciąg CSV, zero kontekstu</p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800"><strong>Matchowanie</strong> — który przelew to która faktura?</p>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
+    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+    <p className="text-sm text-gray-800"><strong>Pytania</strong> — "ile wydałem na logistykę w styczniu?" Brak szybkiej odpowiedzi</p>
+  </div>
+</div>
+
+Postanowiłem to rozwiązać jednym narzędziem. Nie SaaS-em za 200 zł/msc. Własnym skryptem, zbudowanym z AI w kilka godzin.
+
+---
+
+## Rozwiązanie: jeden plik Python, localhost, AI chat
+
+Całe narzędzie to **jeden plik Python** (~1100 linii), który uruchamiasz komendą:
+
+```bash
+python serwer_ksiegowosc.py
+```
+
+I otwierasz `http://localhost:8080`. To wszystko.
+
+{/* ========== ARCHITEKTURA ========== */}
+<div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200">
+  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Jak to działa — od danych do dashboardu</h3>
+
+  <div className="space-y-4 max-w-2xl mx-auto">
+    {/* Krok 1 */}
+    <div className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">1</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Maile z fakturami → OpenAI → CSV</h4>
+        <p className="text-sm text-gray-600 mt-1">AI wyciąga z maili dane: numer faktury, NIP, kwoty, daty, pozycje. Zapisuje do ustrukturyzowanych CSV.</p>
+      </div>
+    </div>
+
+    <div className="flex justify-center">
+      <ArrowDown className="w-5 h-5 text-gray-400" />
+    </div>
+
+    {/* Krok 2 */}
+    <div className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm flex-shrink-0">2</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Serwer Python wczytuje wszystko</h4>
+        <p className="text-sm text-gray-600 mt-1">Faktury, wydatki bankowe (Santander CSV), przychody, kategorie kosztów — ładowane na żywo przy każdym odświeżeniu.</p>
+      </div>
+    </div>
+
+    <div className="flex justify-center">
+      <ArrowDown className="w-5 h-5 text-gray-400" />
+    </div>
+
+    {/* Krok 3 */}
+    <div className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">3</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Automatyczne matchowanie kontrahentów</h4>
+        <p className="text-sm text-gray-600 mt-1">Łączy faktury z przelewami po NIP-ie i numerze konta bankowego. Wie, kto to jest nawet jeśli dane niespójne.</p>
+      </div>
+    </div>
+
+    <div className="flex justify-center">
+      <ArrowDown className="w-5 h-5 text-gray-400" />
+    </div>
+
+    {/* Krok 4 */}
+    <div className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm flex-shrink-0">4</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Embeddingi → indeks wektorowy → AI chat</h4>
+        <p className="text-sm text-gray-600 mt-1">Każda faktura, wydatek i kontrahent to dokument w indeksie. Pytasz — AI wyszukuje kontekst i odpowiada z danymi.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Co widać na dashboardzie
+
+Serwer generuje pełny frontend HTML z zakładkami. Bez frameworków, bez npm install — czysty HTML + JavaScript + Chart.js.
+
+{/* ========== ZAKŁADKI ========== */}
+<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 my-10">
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <Building2 className="w-5 h-5 text-blue-600" />
+      <h4 className="font-bold text-gray-900">Kontrahenci</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Lista dostawców z NIP-em i kontem</li>
+      <li>Ile faktur, ile przelewów, sumy</li>
+      <li>Rozwijane szczegóły po kliknięciu</li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <FileText className="w-5 h-5 text-green-600" />
+      <h4 className="font-bold text-gray-900">Faktury</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Tabela z sortowaniem i filtrami</li>
+      <li>Status: opłacona / nieopłacona</li>
+      <li>Status: zaksięgowana / nie</li>
+      <li>Kategoria kosztu przypisana</li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <DollarSign className="w-5 h-5 text-red-600" />
+      <h4 className="font-bold text-gray-900">Wydatki bankowe</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Wszystkie przelewy wychodzące</li>
+      <li>Automatycznie powiązane z fakturami</li>
+      <li>Kategorie: logistyka, towar, reklama...</li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <BarChart3 className="w-5 h-5 text-purple-600" />
+      <h4 className="font-bold text-gray-900">Przychody</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Historia wpływów z Santandera</li>
+      <li>Nadawca i pochodzenie wpłaty</li>
+      <li>Sortowanie po dacie i kwocie</li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <Layers className="w-5 h-5 text-amber-600" />
+      <h4 className="font-bold text-gray-900">Statystyki</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Wykresy kosztów miesięcznych</li>
+      <li>Rozbicie na kategorie (pie chart)</li>
+      <li>Saldo: przychody vs wydatki</li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+    <div className="flex items-center gap-2 mb-3">
+      <Bot className="w-5 h-5 text-indigo-600" />
+      <h4 className="font-bold text-gray-900">AI Chat</h4>
+    </div>
+    <ul className="space-y-1 text-sm text-gray-600">
+      <li>Chatbot GPT-4o z kontekstem danych</li>
+      <li>RAG: wyszukuje pasujące dokumenty</li>
+      <li>"Ile wydałem na logistykę w Q4?"</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## AI Chat — najciekawsza część
+
+To nie jest zwykły ChatGPT wklejony na stronę. To **RAG** (Retrieval-Augmented Generation) — system, który:
+
+<div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 my-10 border border-indigo-200">
+  <div className="space-y-4 max-w-2xl mx-auto">
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center flex-shrink-0">
+        <Database className="w-4 h-4 text-indigo-700" />
+      </div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Buduje indeks z Twoich danych</h4>
+        <p className="text-sm text-gray-600 mt-1">Każda faktura, wydatek, kontrahent i podsumowanie miesięczne to osobny dokument. Serwer tworzy z nich embeddingi przez OpenAI.</p>
+      </div>
+    </div>
+
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center flex-shrink-0">
+        <Search className="w-4 h-4 text-indigo-700" />
+      </div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Wyszukuje kontekst do pytania</h4>
+        <p className="text-sm text-gray-600 mt-1">Pytasz "ile wydałem na towar w styczniu?" — system szuka 25 najbardziej pasujących dokumentów przez cosine similarity.</p>
+      </div>
+    </div>
+
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center flex-shrink-0">
+        <MessageSquare className="w-4 h-4 text-indigo-700" />
+      </div>
+      <div>
+        <h4 className="font-semibold text-gray-900">GPT-4o odpowiada z danymi</h4>
+        <p className="text-sm text-gray-600 mt-1">Model dostaje system prompt z kontekstem firmy + znalezione dokumenty. Odpowiada konkretnymi kwotami, nie wymyśla.</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-6 bg-white rounded-xl p-5 border border-gray-200">
+    <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Przykład rozmowy</p>
+    <div className="space-y-3">
+      <div className="flex gap-3">
+        <span className="text-xs font-bold text-blue-600 w-6 flex-shrink-0 mt-0.5">Ty:</span>
+        <p className="text-sm text-gray-800">Ile wydaliśmy na logistykę w ostatnim kwartale?</p>
+      </div>
+      <div className="flex gap-3">
+        <span className="text-xs font-bold text-purple-600 w-6 flex-shrink-0 mt-0.5">AI:</span>
+        <p className="text-sm text-gray-800">W Q4 2025 koszty logistyki wyniosły łącznie 12 847,32 PLN. Główni dostawcy: InPost (8 faktur, 7 234,50 PLN), DPD (5 faktur, 3 890,00 PLN), Poczta Polska (3 faktury, 1 722,82 PLN).</p>
+      </div>
+      <div className="flex gap-3">
+        <span className="text-xs font-bold text-blue-600 w-6 flex-shrink-0 mt-0.5">Ty:</span>
+        <p className="text-sm text-gray-800">Które faktury nie są jeszcze opłacone?</p>
+      </div>
+      <div className="flex gap-3">
+        <span className="text-xs font-bold text-purple-600 w-6 flex-shrink-0 mt-0.5">AI:</span>
+        <p className="text-sm text-gray-800">Masz 4 nieopłacone faktury na łączną kwotę 3 215,80 PLN. Najstarsza: FV/2025/11/034 od Hurtownia ABC, termin płatności: 15.12.2025 (po terminie).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Matchowanie kontrahentów — inteligentne łączenie danych
+
+Jeden z najtrudniejszych problemów: **ta sama firma** może pojawiać się pod inną nazwą na fakturze i na wyciągu bankowym.
+
+Serwer rozwiązuje to wielopoziomowo:
+
+<div className="space-y-3 my-8 max-w-2xl">
+  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-sm flex-shrink-0">1</div>
+    <p className="text-sm text-gray-800"><strong>Po NIP-ie</strong> — najlepsza jakość, jednoznaczna identyfikacja</p>
+  </div>
+  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-sm flex-shrink-0">2</div>
+    <p className="text-sm text-gray-800"><strong>Po koncie bankowym</strong> — łączy przelew z fakturą nawet gdy nazwa jest inna</p>
+  </div>
+  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-sm flex-shrink-0">3</div>
+    <p className="text-sm text-gray-800"><strong>Po nazwie</strong> — fallback, gdy NIP i konto nieznane</p>
+  </div>
+</div>
+
+Efekt: klikasz na kontrahenta i widzisz **wszystkie** jego faktury i przelewy w jednym miejscu. Nie musisz niczego ręcznie łączyć.
+
+---
+
+## Jak powiązanie faktura ↔ przelew działa w praktyce
+
+To jest serce całego narzędzia. Wyobraź sobie sytuację:
+
+<div className="bg-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200 shadow-sm">
+  <h3 className="text-lg font-bold text-gray-900 mb-6">Przykład: faktura od InPost</h3>
+
+  <div className="grid md:grid-cols-2 gap-6">
+    <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+      <div className="flex items-center gap-2 mb-3">
+        <FileText className="w-5 h-5 text-blue-600" />
+        <h4 className="font-semibold text-gray-900 text-sm">Faktura (z maila)</h4>
+      </div>
+      <div className="space-y-2 text-sm text-gray-700">
+        <p><strong>Nr:</strong> FV/2025/12/0847</p>
+        <p><strong>Sprzedawca:</strong> InPost Sp. z o.o.</p>
+        <p><strong>NIP:</strong> 6793087624</p>
+        <p><strong>Konto:</strong> 12 3456 7890 ...</p>
+        <p><strong>Brutto:</strong> 1 234,56 PLN</p>
+        <p><strong>Termin:</strong> 15.01.2026</p>
+      </div>
+    </div>
+
+    <div className="bg-green-50 rounded-xl p-5 border border-green-100">
+      <div className="flex items-center gap-2 mb-3">
+        <DollarSign className="w-5 h-5 text-green-600" />
+        <h4 className="font-semibold text-gray-900 text-sm">Przelew (z banku)</h4>
+      </div>
+      <div className="space-y-2 text-sm text-gray-700">
+        <p><strong>Data:</strong> 12.01.2026</p>
+        <p><strong>Kwota:</strong> -1 234,56 PLN</p>
+        <p><strong>Odbiorca:</strong> INPOST SP Z O O</p>
+        <p><strong>Konto:</strong> PL12 3456 7890 ...</p>
+        <p><strong>Tytuł:</strong> FV/2025/12/0847</p>
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+    <div className="flex items-start gap-3">
+      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+      <div>
+        <p className="text-sm text-gray-800 font-medium">Serwer automatycznie łączy te dwa dokumenty</p>
+        <p className="text-xs text-gray-500 mt-1">Matchowanie po koncie bankowym (normalizacja: usunięcie spacji, "PL", apostrofów). Nawet jeśli nazwa na fakturze to "InPost Sp. z o.o." a na wyciągu "INPOST SP Z O O" — system wie, że to ten sam kontrahent.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+Ale to nie koniec. System buduje **pełny obraz** każdego kontrahenta:
+
+<div className="space-y-3 my-8">
+  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Ile faktur wystawił</strong> i na jaką łączną kwotę</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Ile przelewów</strong> poszło na jego konto i na jaką sumę</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Które faktury są opłacone</strong> (przelew powiązany), a które nie</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
+    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Które faktury są zaksięgowane</strong> (z pliku od księgowej), a które czekają</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Rozbieżności</strong> — jeśli suma faktur ≠ suma przelewów, od razu to widać</p>
+    </div>
+  </div>
+</div>
+
+Klikasz na kontrahenta w tabeli — rozwija się panel z historią wszystkich faktur i przelewów posortowanych chronologicznie. Widzisz całą relację z dostawcą w jednym miejscu.
+
+---
+
+## Dostęp dla księgowej — kolumna "zaksięgowane"
+
+Jedno z najciekawszych rozwiązań: **współpraca z księgową bez dawania jej dostępu do całego systemu**.
+
+<div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 md:p-8 my-10 border border-emerald-200">
+  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+    <FolderTree className="w-6 h-6 text-emerald-600" />
+    Jak to działa
+  </h3>
+
+  <div className="space-y-4">
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-sm flex-shrink-0">1</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Eksportujesz listę faktur do CSV</h4>
+        <p className="text-sm text-gray-600 mt-1">Dashboard generuje plik z numerami faktur, datami, kwotami i kontrahentami.</p>
+      </div>
+    </div>
+
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-sm flex-shrink-0">2</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Wysyłasz ksiegowej</h4>
+        <p className="text-sm text-gray-600 mt-1">Księgowa otwiera CSV, zaznacza które faktury zaksięgowała, zapisuje plik.</p>
+      </div>
+    </div>
+
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-sm flex-shrink-0">3</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Wrzucasz plik z powrotem do folderu dane/</h4>
+        <p className="text-sm text-gray-600 mt-1">Serwer automatycznie wczytuje plik <code className="bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800 text-xs">zaksiegowane.csv</code> i aktualizuje statusy.</p>
+      </div>
+    </div>
+
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-sm flex-shrink-0">4</div>
+      <div>
+        <h4 className="font-semibold text-gray-900">Dashboard pokazuje co jest zaksięgowane, a co nie</h4>
+        <p className="text-sm text-gray-600 mt-1">Przy każdej fakturze pojawia się badge: <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">zaksięgowana</span> lub <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">niezaksięgowana</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-6 bg-white rounded-xl p-4 border border-emerald-200">
+    <p className="text-sm text-gray-700">
+      <strong>Dlaczego to ważne:</strong> Nie musisz logować się do systemu księgowej, żeby wiedzieć co jest zaksięgowane. Nie musisz jej dawać dostępu do Twojego narzędzia. Wymieniacie się jednym plikiem CSV — prosta, bezpieczna współpraca.
+    </p>
+  </div>
+</div>
+
+Dzięki temu **na jednym ekranie widzisz trzy statusy każdej faktury**:
+
+<div className="grid md:grid-cols-3 gap-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <FileText className="w-8 h-8 text-blue-500 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900 mb-2">Czy jest w systemie?</h4>
+    <p className="text-xs text-gray-500">Faktura wczytana z maila / CSV</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900 mb-2">Czy jest opłacona?</h4>
+    <p className="text-xs text-gray-500">Powiązanie z przelewem bankowym</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <CheckCircle className="w-8 h-8 text-purple-500 mx-auto mb-3" />
+    <h4 className="font-semibold text-sm text-gray-900 mb-2">Czy jest zaksięgowana?</h4>
+    <p className="text-xs text-gray-500">Status z pliku księgowej</p>
+  </div>
+</div>
+
+Filtr na górze pozwala wyświetlić np. **tylko nieopłacone** lub **tylko niezaksięgowane** — od razu wiesz, co wymaga uwagi.
+
+---
+
+## 12 kategorii kosztów — automatyczna klasyfikacja
+
+Każda faktura jest automatycznie przypisywana do kategorii:
+
+<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 my-8">
+  {[
+    { name: "Towar handlowy", color: "bg-blue-100 text-blue-800" },
+    { name: "Logistyka", color: "bg-green-100 text-green-800" },
+    { name: "Prowizje marketplace", color: "bg-purple-100 text-purple-800" },
+    { name: "Reklama", color: "bg-pink-100 text-pink-800" },
+    { name: "Oprogramowanie", color: "bg-indigo-100 text-indigo-800" },
+    { name: "Materiały do pakowania", color: "bg-amber-100 text-amber-800" },
+    { name: "Leasing", color: "bg-orange-100 text-orange-800" },
+    { name: "Wyposażenie", color: "bg-teal-100 text-teal-800" },
+    { name: "Usługi pracownicze", color: "bg-cyan-100 text-cyan-800" },
+    { name: "Lokal / najem", color: "bg-rose-100 text-rose-800" },
+    { name: "Usługi inne", color: "bg-gray-100 text-gray-800" },
+    { name: "Inne", color: "bg-slate-100 text-slate-800" },
+  ].map((cat) => (
+    <div key={cat.name} className={`${cat.color} px-3 py-2 rounded-lg text-xs font-semibold text-center`}>
+      {cat.name}
+    </div>
+  ))}
+</div>
+
+Dashboard pokazuje **wykres kołowy** z rozkładem kosztów i **wykresy miesięczne** z trendem wydatków w każdej kategorii. Od razu widać, na co idą pieniądze.
+
+---
+
+## Jak to zbudowałem — VS Code + Claude Code
+
+Nie pisałem tego kodu ręcznie. Otworzyłem **VS Code z Claude Code** i zacząłem rozmawiać:
+
+<div className="bg-gray-900 rounded-2xl p-6 my-10 text-white font-mono text-sm">
+  <div className="flex items-center gap-2 mb-4">
+    <Terminal className="w-4 h-4 text-gray-400" />
+    <span className="text-gray-400 text-xs">VS Code — Claude Code</span>
+  </div>
+  <div className="space-y-3">
+    <div>
+      <span className="text-blue-400">Ja:</span>
+      <span className="text-gray-300 ml-2">Mam folder z CSV — faktury, wydatki bankowe z Santandera, kategorie. Zbuduj mi serwer na localhost który to wszystko wyświetla w ładnym dashboardzie z zakładkami.</span>
+    </div>
+    <div>
+      <span className="text-green-400">Claude:</span>
+      <span className="text-gray-300 ml-2">Buduję serwer HTTP w Pythonie z wczytywaniem CSV, matchowaniem kontrahentów po NIP i koncie, tabelami z sortowaniem i filtrami...</span>
+    </div>
+    <div>
+      <span className="text-blue-400">Ja:</span>
+      <span className="text-gray-300 ml-2">Dodaj AI chat — chcę móc pytać o dane. Użyj embeddingów OpenAI i GPT-4o.</span>
+    </div>
+    <div>
+      <span className="text-green-400">Claude:</span>
+      <span className="text-gray-300 ml-2">Dodaję RAG: buduję dokumenty z faktur i wydatków, tworzę indeks embeddingowy z cache'em, cosine similarity search, i chat z kontekstem...</span>
+    </div>
+    <div>
+      <span className="text-blue-400">Ja:</span>
+      <span className="text-gray-300 ml-2">Dodaj wykresy — koszty miesięczne, rozkład kategorii, saldo przychody vs wydatki.</span>
+    </div>
+    <div>
+      <span className="text-green-400">Claude:</span>
+      <span className="text-gray-300 ml-2">Dodaję Chart.js — bar chart, pie chart, stacked chart...</span>
+    </div>
+  </div>
+</div>
+
+Iterowałem kilka razy, doprecyzowywałem, dodawałem features. Claude widział moje pliki CSV, rozumiał strukturę danych i pisał kod, który od razu działał.
+
+---
+
+## Stos technologiczny
+
+<div className="grid md:grid-cols-2 gap-6 my-10">
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+    <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <Code className="w-5 h-5 text-blue-500" />
+      Backend
+    </h4>
+    <ul className="space-y-2 text-sm text-gray-600">
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>Python</strong> — http.server, zero frameworków</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>OpenAI API</strong> — embeddingi + GPT-4o chat</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>NumPy</strong> — cosine similarity na wektorach</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>CSV</strong> — dane ładowane na żywo</span>
+      </li>
+    </ul>
+  </div>
+
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+    <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <Code className="w-5 h-5 text-green-500" />
+      Frontend
+    </h4>
+    <ul className="space-y-2 text-sm text-gray-600">
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>HTML + JS</strong> — inline, zero build step</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>Chart.js</strong> — wykresy z CDN</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>Inter font</strong> — czysty, profesjonalny wygląd</span>
+      </li>
+      <li className="flex items-center gap-2">
+        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+        <span><strong>CSS variables</strong> — spójny design system</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div className="bg-amber-50 rounded-xl p-5 border border-amber-200 my-8">
+  <div className="flex items-start gap-3">
+    <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="font-semibold text-gray-900 mb-1">Zero zależności frontendowych</h4>
+      <p className="text-sm text-gray-600">Nie ma node_modules, nie ma npm install, nie ma webpacka. Serwer serwuje jeden duży HTML z wbudowanym CSS i JS. Uruchamiasz Pythona i działa.</p>
+    </div>
+  </div>
+</div>
+
+---
+
+## Sprytne detale
+
+Kilka rzeczy, które Claude dodał, a których sam bym nie wymyślił od razu:
+
+<div className="space-y-4 my-8">
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Cache embeddingów</strong> — indeks zapisywany do JSON z hashami plików CSV. Jeśli dane się nie zmieniły, nie generuje embeddingów od nowa (oszczędność API).</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Deduplikacja faktur</strong> — normalizuje numery faktur, usuwa prefiksy typu (s), (k), żeby ta sama faktura nie pojawiła się dwa razy.</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Sesje czatu</strong> — chat pamięta kontekst rozmowy (do 40 wiadomości). Możesz dopytywać o szczegóły.</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Podsumowania miesięczne</strong> — serwer automatycznie generuje dokumenty z podsumowaniami per miesiąc (faktury, wydatki, przychody, saldo), żeby AI miał kontekst czasowy.</p>
+    </div>
+  </div>
+  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-800"><strong>Normalizacja kont bankowych</strong> — usuwa spacje, prefiksy PL, apostrofy. Dzięki temu matchuje konto z faktury z kontem z wyciągu bankowego.</p>
+    </div>
+  </div>
+</div>
+
+---
+
+## Dane są bezpieczne — wszystko lokalne
+
+<div className="bg-green-50 rounded-xl p-6 border border-green-200 my-8">
+  <div className="flex items-start gap-3">
+    <Shield className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <h4 className="font-semibold text-gray-900 mb-2">Localhost = Twoje dane zostają u Ciebie</h4>
+      <p className="text-sm text-gray-600 mb-3">Serwer działa na Twoim komputerze. Dane nie idą do żadnego chmurowego SaaS-a. Jedyne połączenie zewnętrzne to OpenAI API — i to tylko po to, żeby stworzyć embeddingi i odpowiedzieć na pytania w chacie.</p>
+      <p className="text-sm text-gray-600">Możesz wyłączyć chat AI (nie podając klucza API) — dashboard i tak działa w 100%.</p>
+    </div>
+  </div>
+</div>
+
+---
+
+## Ile to kosztuje
+
+<div className="grid md:grid-cols-3 gap-4 my-8">
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <p className="text-2xl font-bold text-gray-900">0 zł</p>
+    <p className="text-sm text-gray-500 mt-1">Serwer Python</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <p className="text-2xl font-bold text-gray-900">~2 zł/msc</p>
+    <p className="text-sm text-gray-500 mt-1">Embeddingi OpenAI</p>
+  </div>
+  <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
+    <p className="text-2xl font-bold text-gray-900">~5 zł/msc</p>
+    <p className="text-sm text-gray-500 mt-1">Chat GPT-4o (zależnie od użycia)</p>
+  </div>
+</div>
+
+Dla porównania: typowy SaaS do zarządzania fakturami to **100-300 zł miesięcznie**. Tu masz pełną kontrolę, pełny dostęp do danych i AI chat w cenie kawy.
+
+---
+
+{/* ========== PODSUMOWANIE ========== */}
+<div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 my-12 text-white">
+  <h2 className="text-2xl font-bold mb-4">Wnioski</h2>
+  <p className="text-gray-300 mb-6 leading-relaxed">
+    Nie musisz czekać na idealny SaaS. Nie musisz płacić za coś, co nie pasuje do Twojego workflow. Możesz wziąć <strong className="text-white">VS Code + Claude Code</strong>, opisać problem po polsku, i mieć działające narzędzie tego samego dnia.
+  </p>
+
+  <div className="grid md:grid-cols-3 gap-4 mb-6">
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <Terminal className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">1 plik Python</p>
+      <p className="text-xs text-gray-400">~1100 linii kodu</p>
+    </div>
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <Clock className="w-6 h-6 text-green-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">Kilka godzin pracy</p>
+      <p className="text-xs text-gray-400">Zamiast tygodni bez AI</p>
+    </div>
+    <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+      <Bot className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+      <p className="text-sm font-medium">AI chat z RAG</p>
+      <p className="text-xs text-gray-400">Pytaj o swoje finanse</p>
+    </div>
+  </div>
+
+  <p className="text-gray-400 text-sm">
+    Najlepsze narzędzia to te, które budujesz pod siebie. AI nie zastąpi księgowej — ale da Ci dashboard, którego żaden gotowy program nie oferuje.
+  </p>
+</div>
