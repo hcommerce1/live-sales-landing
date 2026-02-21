@@ -17,7 +17,7 @@ import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap,
   </h2>
 
   <blockquote className="border-l-4 border-blue-600 pl-6 my-6 text-lg italic text-gray-700">
-    "Miałem folder maili z fakturami, wyciągi z Santandera i zero kontroli nad kosztami. Powiedziałem Claude'owi: zbuduj mi serwer, który to wszystko poukłada. Po kilku godzinach miałem localhost z zakładkami, filtrami, wykresami i AI chatem, który odpowiada na pytania o moje finanse."
+    "Miałem ~3000 maili z fakturami, wyciągi z Santandera i zero kontroli nad kosztami. Przepuściłem maile przez OpenAI ($80), dostałem czyste CSV-ki. Potem Claude Code w VS Code postawił mi z tego dashboard na localhost — 2 dni i mam zakładki, filtry, wykresy i AI chat."
   </blockquote>
 
   <div className="grid md:grid-cols-3 gap-4">
@@ -25,8 +25,8 @@ import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap,
       <div className="flex items-start gap-3">
         <Mail className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">Wejście: surowe dane</h3>
-          <p className="text-sm text-gray-600">Maile z fakturami, CSV z banku, pliki księgowe</p>
+          <h3 className="font-semibold text-gray-900 mb-1">Etap 1: surowe maile</h3>
+          <p className="text-sm text-gray-600">~3000 maili z fakturami ściągniętych ze skrzynki</p>
         </div>
       </div>
     </div>
@@ -35,8 +35,8 @@ import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap,
       <div className="flex items-start gap-3">
         <Brain className="w-6 h-6 text-purple-500 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">Przetwarzanie: AI</h3>
-          <p className="text-sm text-gray-600">OpenAI embeddingi + GPT-4o + Claude Code</p>
+          <h3 className="font-semibold text-gray-900 mb-1">Etap 2: OpenAI ekstrakcja</h3>
+          <p className="text-sm text-gray-600">AI wyciąga dane z maili do CSV (~$80)</p>
         </div>
       </div>
     </div>
@@ -45,8 +45,8 @@ import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap,
       <div className="flex items-start gap-3">
         <BarChart3 className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="font-semibold text-gray-900 mb-1">Wyjście: dashboard</h3>
-          <p className="text-sm text-gray-600">Zakładki, filtry, wykresy, AI chat — na localhost</p>
+          <h3 className="font-semibold text-gray-900 mb-1">Etap 3: Claude Code</h3>
+          <p className="text-sm text-gray-600">Dashboard z zakładkami, wykresami i AI chat</p>
         </div>
       </div>
     </div>
@@ -522,11 +522,67 @@ Dashboard pokazuje **wykres kołowy** z rozkładem kosztów i **wykresy miesięc
 
 ---
 
-## Jak to zbudowałem — VS Code + Claude Code
+## Jak to zbudowałem — cały proces od zera
 
-Nie pisałem tego kodu ręcznie. Otworzyłem **VS Code z Claude Code** i zacząłem rozmawiać:
+To nie była jedna rozmowa z AI. Proces trwał **2 dni** i miał 3 wyraźne etapy.
 
-<div className="bg-gray-900 rounded-2xl p-6 my-10 text-white font-mono text-sm">
+{/* ========== ETAPY BUDOWY ========== */}
+<div className="space-y-6 my-10">
+
+  {/* ETAP 1 */}
+  <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg flex-shrink-0">1</div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Ściągnięcie ~3000 maili z fakturami</h3>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          Pierwszy problem: wszystkie dokumenty finansowe siedziały w poczcie email. Faktury od dostawców, potwierdzenia przelewów, rozliczenia — setki maili miesięcznie, lata wstecz. Trzeba było uzyskać dostęp do skrzynki i ściągnąć wszystko w jednym miejscu.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {/* ETAP 2 */}
+  <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-lg flex-shrink-0">2</div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Analiza przez OpenAI — $80 za 3000 dokumentów</h3>
+        <p className="text-sm text-gray-700 leading-relaxed mb-3">
+          Ręczna analiza 3000 maili to tygodnie pracy. Przepuściłem wszystko przez OpenAI — AI wyciągało z każdego maila dane strukturalne: numer faktury, NIP sprzedawcy, kwoty netto/brutto, daty, pozycje, numery kont bankowych. Na wyjściu: czyste pliki CSV gotowe do przetworzenia.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
+            <p className="text-xs text-purple-800 font-semibold">Koszt</p>
+            <p className="text-lg font-bold text-purple-900">~$80</p>
+          </div>
+          <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
+            <p className="text-xs text-purple-800 font-semibold">Dokumentów</p>
+            <p className="text-lg font-bold text-purple-900">~3000</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* ETAP 3 */}
+  <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+    <div className="flex items-start gap-4">
+      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-lg flex-shrink-0">3</div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Claude Code buduje dashboard z CSV-ek</h3>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          Dopiero z gotowymi danymi w CSV otworzyłem <strong>VS Code z Claude Code</strong>. Pokazałem mu pliki, opisałem czego potrzebuję, i zaczęliśmy iterować. Claude widział strukturę danych i pisał kod, który pasował do mojego formatu.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+### Rozmowa z Claude Code wyglądała tak:
+
+<div className="bg-gray-900 rounded-2xl p-6 my-8 text-white font-mono text-sm">
   <div className="flex items-center gap-2 mb-4">
     <Terminal className="w-4 h-4 text-gray-400" />
     <span className="text-gray-400 text-xs">VS Code — Claude Code</span>
@@ -560,6 +616,19 @@ Nie pisałem tego kodu ręcznie. Otworzyłem **VS Code z Claude Code** i zaczą�
 </div>
 
 Iterowałem kilka razy, doprecyzowywałem, dodawałem features. Claude widział moje pliki CSV, rozumiał strukturę danych i pisał kod, który od razu działał.
+
+### Nie obyło się bez błędów
+
+<div className="bg-amber-50 rounded-xl p-5 border border-amber-200 my-6">
+  <div className="flex items-start gap-3">
+    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+    <div>
+      <p className="text-sm text-gray-700 leading-relaxed">
+        3-4 faktury miały błędy po analizie OpenAI — źle wyciągnięty NIP, pomylona kwota netto z brutto, brakujący numer konta. To były proste bugi, ale wyłapanie ich i poprawienie zajęło czas. Ważne: <strong>AI nie jest bezbłędne</strong>. Przy 3000 dokumentów kilka pomyłek to norma — ale i tak zajmuje to godziny zamiast tygodni ręcznej pracy.
+      </p>
+    </div>
+  </div>
+</div>
 
 ---
 

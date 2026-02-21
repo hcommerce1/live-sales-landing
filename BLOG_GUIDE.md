@@ -116,6 +116,16 @@ Przykłady złych tematów (za szerokich):
 - **Nie obiecuj cudów.** "300 zł zastępuje analityka za 10 000" to clickbait. Pisz uczciwie.
 - **Kod musi działać.** Każdy snippet, skrypt, prompt — przetestowany. Nie generuj kodu "na oko".
 
+### Spójność hero/intro z treścią (OBOWIĄZKOWE)
+
+**Hero section, blockquote i karty podsumowujące MUSZĄ odzwierciedlać faktyczny proces opisany w artykule.**
+
+- Jeśli artykuł opisuje 3-etapowy proces (np. maile → OpenAI → Claude Code), hero też musi pokazywać 3 etapy — nie upraszczaj do jednego
+- Cytaty/blockquote muszą być zgodne z prawdą — jeśli użytkownik nie "powiedział Claude'owi" jako jedyny krok, nie pisz tego tak
+- Karty podsumowujące (grid w hero) muszą odpowiadać faktycznym krokom, nie ogólnikom
+- **Po każdej zmianie w sekcji "jak to zbudowałem" / procesie — sprawdź czy hero nadal pasuje**
+- Podawaj realne koszty i liczby (np. "$80 za 3000 dokumentów"), nie zaokrąglaj do "AI przetworzyło dane"
+
 ### Jak ocenić czy blog jest gotowy
 
 Zadaj 3 pytania:
