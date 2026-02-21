@@ -88,8 +88,8 @@ export default function SessionList({ onSelectSession }: Props) {
             <tr className="border-b text-left text-gray-500">
               <th className="pb-2 font-medium">Visitor</th>
               <th className="pb-2 font-medium">Kiedy</th>
-              <th className="pb-2 font-medium text-right">Strony</th>
-              <th className="pb-2 font-medium">Landing</th>
+              <th className="pb-2 font-medium text-right pr-4">Strony</th>
+              <th className="pb-2 font-medium pl-2">Landing</th>
               <th className="pb-2 font-medium">Źródło</th>
               <th className="pb-2 font-medium text-right">Czas</th>
               <th className="pb-2 font-medium text-right">Scroll</th>
@@ -108,12 +108,12 @@ export default function SessionList({ onSelectSession }: Props) {
                   </span>
                 </td>
                 <td className="py-2 text-gray-500 whitespace-nowrap">{timeAgo(s.sessionStart)}</td>
-                <td className="py-2 text-right">
+                <td className="py-2 text-right pr-4">
                   <span className={`font-medium ${s.pageCount > 1 ? 'text-blue-600' : 'text-gray-400'}`}>
                     {s.pageCount}
                   </span>
                 </td>
-                <td className="py-2 text-gray-700 max-w-[200px] truncate">{s.landingPage}</td>
+                <td className="py-2 pl-2 text-gray-700 max-w-[200px] truncate">{s.landingPage}</td>
                 <td className="py-2 text-gray-500 max-w-[150px] truncate">{formatReferrer(s.referrer)}</td>
                 <td className="py-2 text-right text-gray-700 whitespace-nowrap">{formatDuration(s.totalTime)}</td>
                 <td className="py-2 text-right">

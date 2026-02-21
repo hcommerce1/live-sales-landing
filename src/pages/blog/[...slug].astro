@@ -31,6 +31,7 @@ const readingTime = getReadingTime(post.body);
   title={`${post.data.title} - Blog LiveSales`}
   description={post.data.description}
   lang={post.data.lang}
+  slug={post.slug}
 >
   <!-- OpenGraph Meta Tags -->
   <meta property="og:type" content="article" slot="head" />

@@ -16,7 +16,9 @@ import rehypeKatex from 'rehype-katex';
 export default defineConfig({
   site: 'https://live-sales.pl',
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: { enabled: true },
+  }),
   integrations: [
     react(),
     mdx({

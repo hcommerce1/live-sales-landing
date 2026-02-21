@@ -57,6 +57,7 @@ if (post.data.ogImage) {
   title={post.data.title}
   description={post.data.description}
   lang={post.data.lang}
+  slug={post.slug}
 >
   <!-- Schema.org JSON-LD -->
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
