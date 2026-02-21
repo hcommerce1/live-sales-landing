@@ -1,0 +1,17 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/Navbar';
+import Footer from '@components/Footer';
+import CareersPage from '@components/CareersPage';
+
+const title = 'Kariera - LiveSales';
+const description = 'Dołącz do zespołu LiveSales. Budujemy narzędzia do analizy danych e-commerce w Pythonie. Sprawdź otwarte stanowiska.';
+---
+
+<Layout title={title} description={description} lang="pl">
+  <Navbar client:load />
+  <main>
+    <CareersPage client:visible />
+  </main>
+  <Footer />
+</Layout>
