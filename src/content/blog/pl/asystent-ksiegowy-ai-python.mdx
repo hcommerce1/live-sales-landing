@@ -11,7 +11,7 @@ tags: ['AI', 'automatyzacja', 'księgowość', 'python', 'openai']
 import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap, Clock, Terminal, CheckCircle, AlertTriangle, Layers, DollarSign, Building2, ArrowDown, Package, FolderTree, Bot, Shield, Code, Sparkles } from 'lucide-react';
 
 {/* ========== HERO ========== */}
-<div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 mb-12 border border-blue-100">
+<div className="not-prose bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 mb-12 border border-blue-100">
   <h2 className="text-3xl font-bold mb-4 text-gray-900">
     Maile z fakturami wrzucone do AI. Na wyjściu: dashboard finansowy z chatbotem.
   </h2>
@@ -59,7 +59,7 @@ import { Mail, Brain, Database, MessageSquare, BarChart3, Search, FileText, Zap,
 
 Każdy, kto prowadzi firmę e-commerce, zna ten ból. Faktury przychodzą mailem — dziesiątki miesięcznie. Wyciągi bankowe osobno. Kategorie kosztów? Gdzieś w Excelu albo w głowie.
 
-<div className="grid md:grid-cols-2 gap-4 my-8">
+<div className="not-prose grid md:grid-cols-2 gap-4 my-8">
   <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-100">
     <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
     <p className="text-sm text-gray-800"><strong>Faktury</strong> — rozproszone po mailach, bez jednego widoku</p>
@@ -93,7 +93,7 @@ python serwer_ksiegowosc.py
 I otwierasz `http://localhost:8080`. To wszystko.
 
 {/* ========== ARCHITEKTURA ========== */}
-<div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200">
+<div className="not-prose bg-gradient-to-b from-gray-50 to-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200">
   <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Jak to działa — od danych do dashboardu</h3>
 
   <div className="space-y-4 max-w-2xl mx-auto">
@@ -154,7 +154,7 @@ I otwierasz `http://localhost:8080`. To wszystko.
 Serwer generuje pełny frontend HTML z zakładkami. Bez frameworków, bez npm install — czysty HTML + JavaScript + Chart.js.
 
 {/* ========== ZAKŁADKI ========== */}
-<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 my-10">
+<div className="not-prose grid md:grid-cols-2 lg:grid-cols-3 gap-4 my-10">
   <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
     <div className="flex items-center gap-2 mb-3">
       <Building2 className="w-5 h-5 text-blue-600" />
@@ -235,7 +235,7 @@ Serwer generuje pełny frontend HTML z zakładkami. Bez frameworków, bez npm in
 
 To nie jest zwykły ChatGPT wklejony na stronę. To **RAG** (Retrieval-Augmented Generation) — system, który:
 
-<div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 my-10 border border-indigo-200">
+<div className="not-prose bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 my-10 border border-indigo-200">
   <div className="space-y-4 max-w-2xl mx-auto">
     <div className="flex items-start gap-4">
       <div className="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center flex-shrink-0">
@@ -299,7 +299,7 @@ Jeden z najtrudniejszych problemów: **ta sama firma** może pojawiać się pod 
 
 Serwer rozwiązuje to wielopoziomowo:
 
-<div className="space-y-3 my-8 max-w-2xl">
+<div className="not-prose space-y-3 my-8 max-w-2xl">
   <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
     <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-bold text-sm flex-shrink-0">1</div>
     <p className="text-sm text-gray-800"><strong>Po NIP-ie</strong> — najlepsza jakość, jednoznaczna identyfikacja</p>
@@ -322,7 +322,7 @@ Efekt: klikasz na kontrahenta i widzisz **wszystkie** jego faktury i przelewy w 
 
 To jest serce całego narzędzia. Wyobraź sobie sytuację:
 
-<div className="bg-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200 shadow-sm">
+<div className="not-prose bg-white rounded-2xl p-6 md:p-8 my-10 border border-gray-200 shadow-sm">
   <h3 className="text-lg font-bold text-gray-900 mb-6">Przykład: faktura od InPost</h3>
 
   <div className="grid md:grid-cols-2 gap-6">
@@ -369,7 +369,7 @@ To jest serce całego narzędzia. Wyobraź sobie sytuację:
 
 Ale to nie koniec. System buduje **pełny obraz** każdego kontrahenta:
 
-<div className="space-y-3 my-8">
+<div className="not-prose space-y-3 my-8">
   <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
     <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
     <div>
@@ -410,7 +410,7 @@ Klikasz na kontrahenta w tabeli — rozwija się panel z historią wszystkich fa
 
 Jedno z najciekawszych rozwiązań: **współpraca z księgową bez dawania jej dostępu do całego systemu**.
 
-<div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 md:p-8 my-10 border border-emerald-200">
+<div className="not-prose bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 md:p-8 my-10 border border-emerald-200">
   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
     <FolderTree className="w-6 h-6 text-emerald-600" />
     Jak to działa
@@ -459,7 +459,7 @@ Jedno z najciekawszych rozwiązań: **współpraca z księgową bez dawania jej 
 
 Dzięki temu **na jednym ekranie widzisz trzy statusy każdej faktury**:
 
-<div className="grid md:grid-cols-3 gap-4 my-8">
+<div className="not-prose grid md:grid-cols-3 gap-4 my-8">
   <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
     <FileText className="w-8 h-8 text-blue-500 mx-auto mb-3" />
     <h4 className="font-semibold text-sm text-gray-900 mb-2">Czy jest w systemie?</h4>
@@ -527,7 +527,7 @@ Dashboard pokazuje **wykres kołowy** z rozkładem kosztów i **wykresy miesięc
 To nie była jedna rozmowa z AI. Proces trwał **2 dni** i miał 3 wyraźne etapy.
 
 {/* ========== ETAPY BUDOWY ========== */}
-<div className="space-y-6 my-10">
+<div className="not-prose space-y-6 my-10">
 
   {/* ETAP 1 */}
   <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
@@ -634,7 +634,7 @@ Iterowałem kilka razy, doprecyzowywałem, dodawałem features. Claude widział 
 
 ## Stos technologiczny
 
-<div className="grid md:grid-cols-2 gap-6 my-10">
+<div className="not-prose grid md:grid-cols-2 gap-6 my-10">
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
     <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
       <Code className="w-5 h-5 text-blue-500" />
@@ -702,7 +702,7 @@ Iterowałem kilka razy, doprecyzowywałem, dodawałem features. Claude widział 
 
 Kilka rzeczy, które Claude dodał, a których sam bym nie wymyślił od razu:
 
-<div className="space-y-4 my-8">
+<div className="not-prose space-y-4 my-8">
   <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
     <div>
@@ -754,7 +754,7 @@ Kilka rzeczy, które Claude dodał, a których sam bym nie wymyślił od razu:
 
 ## Ile to kosztuje
 
-<div className="grid md:grid-cols-3 gap-4 my-8">
+<div className="not-prose grid md:grid-cols-3 gap-4 my-8">
   <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
     <p className="text-2xl font-bold text-gray-900">0 zł</p>
     <p className="text-sm text-gray-500 mt-1">Serwer Python</p>
@@ -793,7 +793,7 @@ Dla porównania: typowy SaaS do zarządzania fakturami to **100-300 zł miesięc
 ---
 
 {/* ========== PODSUMOWANIE ========== */}
-<div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 my-12 border border-blue-200">
+<div className="not-prose bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 my-12 border border-blue-200">
   <h2 className="text-2xl font-bold mb-4 text-gray-900">Wnioski</h2>
   <p className="text-gray-700 mb-6 leading-relaxed">
     Nie musisz czekać na idealny SaaS. Nie musisz płacić za coś, co nie pasuje do Twojego workflow. Możesz wziąć <strong className="text-gray-900">VS Code + Claude Code</strong>, opisać problem po polsku, i mieć działające narzędzie tego samego dnia.

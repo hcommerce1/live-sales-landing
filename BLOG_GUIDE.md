@@ -214,6 +214,40 @@ Kolejny paragraf z dobrymi odstępami.
 
 **Zasada:** `.prose-blog` daje bazę typograficzną. Klasy Tailwind dodawaj **tylko** do własnych komponentów (boxy, karty, gradienty).
 
+### ⚠️ OBOWIĄZKOWE: `not-prose` na kontenerach z kartami
+
+**Każdy `<div>` z kartami, gridami, boxami które zawierają `h3`/`h4`/`p` MUSI mieć klasę `not-prose`!**
+
+Bez tego `.prose-blog` nadpisuje style (font-size, marginy) i karty wyglądają źle — nagłówki za duże, ogromne odstępy.
+
+```jsx
+// ❌ ŹLE — prose-blog nadpisze h3 w karcie (font-size: 1.5rem, margin-top: 2.5rem)
+<div className="grid md:grid-cols-3 gap-4">
+  <div className="bg-white p-5 rounded-xl">
+    <h3 className="font-semibold">Tytuł karty</h3>
+  </div>
+</div>
+
+// ✅ DOBRZE — not-prose blokuje nadpisywanie
+<div className="not-prose grid md:grid-cols-3 gap-4">
+  <div className="bg-white p-5 rounded-xl">
+    <h3 className="font-semibold">Tytuł karty</h3>
+  </div>
+</div>
+```
+
+**Gdzie dodawać `not-prose`:**
+- Hero section (cały kontener)
+- Gridy z kartami (`grid md:grid-cols-*`)
+- Sekcje z listami kart (`space-y-*` z boxami)
+- Kontenery z wykresami/statystykami
+- Podsumowanie (footer sekcja)
+
+**Gdzie NIE dodawać:**
+- Zwykły tekst markdown (paragrafy, nagłówki artykułu, listy)
+- Bloki kodu (prose-blog je obsługuje)
+- Cytaty blockquote w tekście artykułu
+
 ---
 
 ### 3. ✅ Ikony Lucide zamiast emoji
