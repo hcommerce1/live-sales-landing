@@ -95,6 +95,11 @@ function sanitizeMetadata(meta: Record<string, unknown> | undefined): string | n
     meta.query = meta.query.replace(/<[^>]*>/g, '').slice(0, 200);
   }
 
+  // Clamp click position values to valid range (0-100)
+  if (typeof meta.x === 'number') meta.x = Math.max(0, Math.min(100, meta.x));
+  if (typeof meta.y === 'number') meta.y = Math.max(0, Math.min(100, meta.y));
+  if (typeof meta.yPage === 'number') meta.yPage = Math.max(0, Math.min(100, meta.yPage));
+
   const json = JSON.stringify(meta);
   if (json.length > MAX_BODY_SIZE) return null;
   return json;

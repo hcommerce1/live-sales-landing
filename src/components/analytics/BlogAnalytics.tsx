@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import BlogDetailView from './BlogDetailView';
 
-type SortKey = 'pageviews' | 'uniqueVisitors' | 'avgDepth' | 'avgTime' | 'copies' | 'interactions' | 'returnVisits';
+type SortKey = 'pageviews' | 'uniqueVisitors' | 'avgDepth' | 'avgTime' | 'copies' | 'interactions' | 'returnVisits' | 'readRate' | 'subscriptions';
 
 interface PostRow {
   slug: string;
@@ -16,6 +16,8 @@ interface PostRow {
   copies: number;
   interactions: number;
   returnVisits: number;
+  readRate: number;
+  subscriptions: number;
 }
 
 interface FindInPageRow {
@@ -38,10 +40,12 @@ const COLUMNS: { key: SortKey; label: string; title?: string }[] = [
   { key: 'pageviews', label: 'Odsłony' },
   { key: 'uniqueVisitors', label: 'Unikalni' },
   { key: 'avgDepth', label: 'Scroll%', title: 'Średnia głębokość scrollowania' },
+  { key: 'readRate', label: 'Czyt.%', title: '% odwiedzających ze scroll depth ≥ 80%' },
   { key: 'avgTime', label: 'Czas', title: 'Średni czas na stronie' },
   { key: 'copies', label: 'Ctrl+C', title: 'Liczba kopiowań tekstu' },
   { key: 'interactions', label: 'Interakcje' },
   { key: 'returnVisits', label: 'Powroty' },
+  { key: 'subscriptions', label: 'Subskr.', title: 'Subskrypcje z tego artykułu' },
 ];
 
 export default function BlogAnalytics({ postRankings, findInPage, days }: Props) {
@@ -153,11 +157,21 @@ export default function BlogAnalytics({ postRankings, findInPage, days }: Props)
                     <td className="px-3 py-3 text-right tabular-nums">{p.uniqueVisitors}</td>
                     <td className="px-3 py-3 text-right tabular-nums">{p.avgDepth}%</td>
                     <td className="px-3 py-3 text-right tabular-nums">
+                      <span className={p.readRate >= 50 ? 'text-green-600 font-medium' : ''}>{p.readRate}%</span>
+                    </td>
+                    <td className="px-3 py-3 text-right tabular-nums">
                       {p.avgTime < 60 ? `${p.avgTime}s` : `${Math.floor(p.avgTime / 60)}m`}
                     </td>
                     <td className="px-3 py-3 text-right tabular-nums">{p.copies}</td>
                     <td className="px-3 py-3 text-right tabular-nums">{p.interactions}</td>
                     <td className="px-3 py-3 text-right tabular-nums">{p.returnVisits}</td>
+                    <td className="px-3 py-3 text-right tabular-nums">
+                      {p.subscriptions > 0 ? (
+                        <span className="text-emerald-600 font-medium">{p.subscriptions}</span>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
                     <td className="px-3 py-3 text-right tabular-nums">
                       {ctrlF > 0 ? (
                         <span className="text-indigo-600 font-medium">{ctrlF}</span>

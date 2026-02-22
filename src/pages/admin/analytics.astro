@@ -17,7 +17,13 @@ export const prerender = false;
   <main class="pt-24 pb-16 max-w-7xl mx-auto px-4">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Blog Analytics</h1>
-      <p class="text-gray-500 mt-1">Zaangażowanie użytkowników na blogu LiveSales</p>
+      <p class="text-gray-500 mt-1">
+        Zaangażowanie użytkowników na blogu LiveSales
+        &nbsp;·&nbsp;
+        <a href="/admin" class="text-blue-600 hover:underline">Dashboard</a>
+        &nbsp;·&nbsp;
+        <a href="/admin/fb-posts" class="text-blue-600 hover:underline">Posty FB</a>
+      </p>
     </div>
     <Dashboard client:load />
   </main>

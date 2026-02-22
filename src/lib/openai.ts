@@ -264,6 +264,124 @@ Zaproponuj 6-8 tematów posortowanych od najbardziej obiecujących. Tematy musz�
   return parsed.suggestions || [];
 }
 
+// --- Blog Improvement Suggestions (per-blog AI analysis) ---
+
+export interface BlogImprovementSuggestion {
+  area: 'content_gap' | 'engagement' | 'structure' | 'seo' | 'depth';
+  title: string;
+  description: string;
+  reasoning: string;
+  priority: 'high' | 'medium' | 'low';
+  dataSignals: string[];
+}
+
+interface BlogAnalyticsForAI {
+  slug: string;
+  overview: {
+    pageviews: number;
+    uniqueVisitors: number;
+    avgDepth: number;
+    avgTime: number;
+  };
+  copyLog: Array<{ text: string; count: number }>;
+  findInPage: Array<{ query: string; count: number; avgMatches?: number }>;
+  searchesLeadingHere: Array<{ query: string; count: number }>;
+  quitDepth: Array<{ depthBucket: string; count: number }>;
+}
+
+export async function generateBlogImprovementSuggestions(
+  data: BlogAnalyticsForAI,
+): Promise<BlogImprovementSuggestion[]> {
+  const dataSection = [
+    `## Artykuł: ${data.slug}`,
+    `Odsłony: ${data.overview.pageviews}, Unikalni: ${data.overview.uniqueVisitors}`,
+    `Średnia głębokość scrollowania: ${data.overview.avgDepth}%, Średni czas: ${data.overview.avgTime}s`,
+    '',
+    '## Co ludzie kopiują z tego artykułu:',
+    data.copyLog.length > 0
+      ? data.copyLog.map(c => `- "${c.text}" (x${c.count})`).join('\n')
+      : '(brak danych)',
+    '',
+    '## Czego szukają Ctrl+F w tym artykule:',
+    data.findInPage.length > 0
+      ? data.findInPage.map(f => `- "${f.query}" (x${f.count}, trafienia: ${f.avgMatches ?? '?'})`).join('\n')
+      : '(brak danych)',
+    '',
+    '## Zapytania wyszukiwania prowadzące do tego artykułu:',
+    data.searchesLeadingHere.length > 0
+      ? data.searchesLeadingHere.map(s => `- "${s.query}" (x${s.count})`).join('\n')
+      : '(brak danych)',
+    '',
+    '## Rozkład głębokości wyjścia (gdzie ludzie porzucają czytanie):',
+    data.quitDepth.length > 0
+      ? data.quitDepth.map(q => `- ${q.depthBucket}: ${q.count} użytkowników`).join('\n')
+      : '(brak danych)',
+  ].join('\n');
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0.7,
+    max_tokens: 2000,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `Jesteś ekspertem content marketingu analizującym dane behawioralne czytelników konkretnego artykułu blogowego.
+
+Na podstawie danych analitycznych zaproponuj konkretne ulepszenia tego artykułu.
+
+ZASADY ANALIZY:
+1. Ctrl+F z 0 trafień = treść, której czytelnik szuka ale nie znajduje → LUKA W TREŚCI (priorytet wysoki)
+2. Często kopiowany tekst = wartościowa treść, rozważ jej rozszerzenie
+3. Wysoki quit rate na danej głębokości = słaba sekcja, rozważ poprawę
+4. Zapytania wyszukiwania = czego oczekują czytelnicy z tego artykułu
+
+PRIORYTET:
+- high: luki w treści, wysokie bounce rate
+- medium: rozszerzenie istniejącej treści, poprawa struktury
+- low: drobne ulepszenia SEO, kosmetyka
+
+AREA (kategorie):
+- content_gap: brakująca treść
+- engagement: poprawa zaangażowania
+- structure: zmiana struktury/kolejności
+- seo: optymalizacja SEO
+- depth: pogłębienie istniejącej treści
+
+Odpowiadaj TYLKO w formacie JSON:
+{
+  "suggestions": [
+    {
+      "area": "content_gap",
+      "title": "Dodaj sekcję o...",
+      "description": "Szczegółowy opis co dodać i dlaczego",
+      "reasoning": "Na podstawie jakich danych sugerujesz tę zmianę",
+      "priority": "high",
+      "dataSignals": ["Ctrl+F: 'xyz' (0 trafień)", "45% quit na 60% głębokości"]
+    }
+  ]
+}
+
+Podaj 3-6 propozycji, posortowanych od najwyższego priorytetu.`,
+      },
+      {
+        role: 'user',
+        content: dataSection,
+      },
+    ],
+  });
+
+  const text = response.choices[0]?.message?.content || '{}';
+  let parsed: { suggestions?: BlogImprovementSuggestion[] };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error('Nieprawidłowa odpowiedź z OpenAI');
+  }
+
+  return parsed.suggestions || [];
+}
+
 /**
  * Get estimated token count for text
  * Rough approximation: 1 token ≈ 4 characters

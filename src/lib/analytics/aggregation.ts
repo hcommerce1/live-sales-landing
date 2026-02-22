@@ -11,6 +11,8 @@ function sinceDate(days: number): string {
   return new Date(Date.now() - days * 86400000).toISOString();
 }
 
+const BLOG_SLUG_FILTER = `AND (slug LIKE 'blog/%' OR slug LIKE 'pl/blog/%' OR slug LIKE 'en/blog/%')`;
+
 // --- Overview Stats ---
 
 export async function getOverviewStats(days: number) {
@@ -86,24 +88,50 @@ export async function getPostRankings(days: number) {
             AVG(json_extract(metadata, '$.timeSpent')) FILTER (WHERE event_type = 'quit') as avg_time,
             COUNT(*) FILTER (WHERE event_type = 'copy') as copies,
             COUNT(*) FILTER (WHERE event_type = 'interaction') as interactions,
-            COUNT(*) FILTER (WHERE event_type = 'return_visit') as return_visits
+            COUNT(*) FILTER (WHERE event_type = 'return_visit') as return_visits,
+            COUNT(*) FILTER (WHERE event_type = 'quit' AND json_extract(metadata, '$.depth') >= 80) as deep_readers,
+            COUNT(*) FILTER (WHERE event_type = 'quit') as total_quits
           FROM analytics_events
           WHERE created_at >= ?
+          ${BLOG_SLUG_FILTER}
           GROUP BY slug
           ORDER BY pageviews DESC`,
     args: [since],
   });
 
-  return result.rows.map(r => ({
-    slug: r.slug as string,
-    pageviews: r.pageviews as number || 0,
-    uniqueVisitors: r.unique_visitors as number || 0,
-    avgDepth: Math.round(r.avg_depth as number || 0),
-    avgTime: Math.round(r.avg_time as number || 0),
-    copies: r.copies as number || 0,
-    interactions: r.interactions as number || 0,
-    returnVisits: r.return_visits as number || 0,
-  }));
+  // Fetch subscriptions per blog slug
+  let subscriptionsBySlug: Record<string, number> = {};
+  try {
+    const subResult = await db.execute({
+      sql: `SELECT source_slug, COUNT(*) as count
+            FROM subscribers
+            WHERE confirmed = 1 AND created_at >= ?
+            GROUP BY source_slug`,
+      args: [since],
+    });
+    for (const row of subResult.rows) {
+      subscriptionsBySlug[row.source_slug as string] = row.count as number;
+    }
+  } catch { /* subscribers table may not exist */ }
+
+  return result.rows.map(r => {
+    const deepReaders = (r.deep_readers as number) || 0;
+    const totalQuits = (r.total_quits as number) || 0;
+    const slug = r.slug as string;
+
+    return {
+      slug,
+      pageviews: r.pageviews as number || 0,
+      uniqueVisitors: r.unique_visitors as number || 0,
+      avgDepth: Math.round(r.avg_depth as number || 0),
+      avgTime: Math.round(r.avg_time as number || 0),
+      copies: r.copies as number || 0,
+      interactions: r.interactions as number || 0,
+      returnVisits: r.return_visits as number || 0,
+      readRate: totalQuits > 0 ? Math.round((deepReaders / totalQuits) * 100) : 0,
+      subscriptions: subscriptionsBySlug[slug] || 0,
+    };
+  });
 }
 
 // --- Scroll Heatmap ---
@@ -509,7 +537,7 @@ export async function getPostOverviewStats(days: number, slug: string) {
 
   const since = sinceDate(days);
 
-  const [pageviews, uniqueVisitors, avgQuitDepth, avgTime, copies, interactions, findInPageCount] =
+  const [pageviews, uniqueVisitors, avgQuitDepth, avgTime, copies, interactions, findInPageCount, readRateResult, subscriptionsResult] =
     await Promise.all([
       db.execute({
         sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'pageview' AND slug = ? AND created_at >= ?`,
@@ -539,7 +567,21 @@ export async function getPostOverviewStats(days: number, slug: string) {
         sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'find_in_page' AND slug = ? AND created_at >= ?`,
         args: [slug, since],
       }),
+      db.execute({
+        sql: `SELECT
+                COUNT(*) FILTER (WHERE json_extract(metadata, '$.depth') >= 80) as deep_readers,
+                COUNT(*) as total_quits
+              FROM analytics_events WHERE event_type = 'quit' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM subscribers WHERE source_slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
     ]);
+
+  const deepReaders = (readRateResult.rows[0]?.deep_readers as number) || 0;
+  const totalQuits = (readRateResult.rows[0]?.total_quits as number) || 0;
 
   return {
     pageviews: pageviews.rows[0]?.count as number || 0,
@@ -549,6 +591,8 @@ export async function getPostOverviewStats(days: number, slug: string) {
     copies: copies.rows[0]?.count as number || 0,
     interactions: interactions.rows[0]?.count as number || 0,
     findInPageSearches: findInPageCount.rows[0]?.count as number || 0,
+    readRate: totalQuits > 0 ? Math.round((deepReaders / totalQuits) * 100) : 0,
+    subscriptions: (subscriptionsResult.rows[0]?.count as number) || 0,
   };
 }
 
@@ -698,4 +742,191 @@ async function getVisitorHistory(visitorHash: string, currentSessionId: string):
       landingPage: r.landing_page as string,
     })),
   };
+}
+
+// --- Click Heatmap ---
+
+export async function getClickHeatmapPages(days: number) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT slug, COUNT(*) as total_clicks
+          FROM analytics_events
+          WHERE event_type = 'click' AND created_at >= ?
+          GROUP BY slug
+          ORDER BY total_clicks DESC
+          LIMIT 30`,
+    args: [since],
+  });
+
+  return result.rows.map(r => ({
+    slug: r.slug as string,
+    totalClicks: r.total_clicks as number,
+  }));
+}
+
+export async function getClickHeatmapData(days: number, slug: string) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT
+            ROUND(json_extract(metadata, '$.x'), 0) as x,
+            ROUND(json_extract(metadata, '$.yPage'), 0) as y_page,
+            json_extract(metadata, '$.tag') as tag,
+            SUBSTR(json_extract(metadata, '$.text'), 1, 50) as text,
+            COUNT(*) as count
+          FROM analytics_events
+          WHERE event_type = 'click' AND created_at >= ? AND slug = ?
+          GROUP BY
+            ROUND(json_extract(metadata, '$.x'), 0),
+            ROUND(json_extract(metadata, '$.yPage'), 0)
+          ORDER BY count DESC
+          LIMIT 500`,
+    args: [since, slug],
+  });
+
+  return result.rows.map(r => ({
+    x: r.x as number,
+    yPage: r.y_page as number,
+    tag: r.tag as string,
+    text: (r.text as string || '').slice(0, 50),
+    count: r.count as number,
+  }));
+}
+
+// --- Blog Analytics for AI (per-blog improvement suggestions) ---
+
+export async function getBlogAnalyticsForAI(days: number, slug: string) {
+  if (!db) return null;
+
+  const since = sinceDate(days);
+
+  const [overview, copyLog, findInPage, quitDepth] = await Promise.all([
+    // Overview stats for this post
+    (async () => {
+      const r = await db!.execute({
+        sql: `SELECT
+                COUNT(*) FILTER (WHERE event_type = 'pageview') as pageviews,
+                COUNT(DISTINCT visitor_hash) FILTER (WHERE event_type = 'pageview') as unique_visitors,
+                AVG(json_extract(metadata, '$.depth')) FILTER (WHERE event_type = 'quit') as avg_depth,
+                AVG(json_extract(metadata, '$.timeSpent')) FILTER (WHERE event_type = 'quit') as avg_time
+              FROM analytics_events
+              WHERE slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      });
+      const row = r.rows[0];
+      return {
+        pageviews: (row?.pageviews as number) || 0,
+        uniqueVisitors: (row?.unique_visitors as number) || 0,
+        avgDepth: Math.round((row?.avg_depth as number) || 0),
+        avgTime: Math.round((row?.avg_time as number) || 0),
+      };
+    })(),
+
+    // Copy log for this post
+    getCopyLog(days, 30).then(log => log.filter(c => c.slug === slug)),
+
+    // Find-in-page for this post
+    getFindInPageLog(days).then(log => log.filter(f => f.slug === slug)),
+
+    // Quit depth distribution for this post
+    getQuitDepthDistribution(days, slug),
+  ]);
+
+  // Search queries leading to this blog
+  let searchesLeadingHere: Array<{ query: string; count: number }> = [];
+  try {
+    const searchResult = await db.execute({
+      sql: `SELECT query, COUNT(*) as count
+            FROM search_queries
+            WHERE clicked_slug LIKE ? AND created_at >= ?
+            GROUP BY query ORDER BY count DESC LIMIT 20`,
+      args: [`%${slug}%`, since],
+    });
+    searchesLeadingHere = searchResult.rows.map(r => ({
+      query: r.query as string,
+      count: r.count as number,
+    }));
+  } catch { /* search_queries table may not exist */ }
+
+  return {
+    slug,
+    overview,
+    copyLog,
+    findInPage,
+    searchesLeadingHere,
+    quitDepth,
+  };
+}
+
+// --- Subscriber Reading Patterns ---
+
+export async function getSubscriberReadingPatterns(days: number) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  try {
+    const result = await db.execute({
+      sql: `SELECT
+              ae.slug,
+              COUNT(DISTINCT sv.subscriber_id) as subscriber_readers,
+              COUNT(*) as total_pageviews,
+              AVG(json_extract(ae.metadata, '$.depth')) FILTER (WHERE ae.event_type = 'quit') as avg_depth,
+              AVG(json_extract(ae.metadata, '$.timeSpent')) FILTER (WHERE ae.event_type = 'quit') as avg_time
+            FROM analytics_events ae
+            INNER JOIN subscriber_visitors sv ON ae.visitor_hash = sv.visitor_hash
+            WHERE ae.created_at >= ?
+              ${BLOG_SLUG_FILTER.replace('slug', 'ae.slug')}
+            GROUP BY ae.slug
+            ORDER BY subscriber_readers DESC
+            LIMIT 30`,
+      args: [since],
+    });
+
+    return result.rows.map(r => ({
+      slug: r.slug as string,
+      subscriberReaders: r.subscriber_readers as number,
+      totalPageviews: r.total_pageviews as number,
+      avgDepth: Math.round((r.avg_depth as number) || 0),
+      avgTime: Math.round((r.avg_time as number) || 0),
+    }));
+  } catch {
+    return []; // subscriber_visitors table may not exist yet
+  }
+}
+
+export async function getSubscriberJourneyPatterns(days: number) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  try {
+    const result = await db.execute({
+      sql: `SELECT
+              ae.slug,
+              COUNT(DISTINCT sv.subscriber_id) as subscriber_count
+            FROM analytics_events ae
+            INNER JOIN subscriber_visitors sv ON ae.visitor_hash = sv.visitor_hash
+            INNER JOIN subscribers s ON sv.subscriber_id = s.id
+            WHERE ae.event_type = 'pageview'
+              AND ae.created_at < s.created_at
+              AND ae.created_at >= ?
+            GROUP BY ae.slug
+            ORDER BY subscriber_count DESC
+            LIMIT 20`,
+      args: [since],
+    });
+
+    return result.rows.map(r => ({
+      slug: r.slug as string,
+      subscriberCount: r.subscriber_count as number,
+    }));
+  } catch {
+    return []; // subscriber_visitors table may not exist yet
+  }
 }

@@ -1,0 +1,51 @@
+---
+/**
+ * Admin Dashboard — landing page
+ *
+ * SSR page at /admin.
+ * Card-based navigation to all admin tools.
+ */
+
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = false;
+---
+
+<Layout title="Panel Admina" lang="pl">
+  <main class="pt-24 pb-16 max-w-4xl mx-auto px-4">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Panel Admina</h1>
+      <p class="text-gray-500 mt-1">Narzędzia do zarządzania treścią LiveSales</p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2">
+      <a
+        href="/admin/fb-posts"
+        class="group block bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all"
+      >
+        <div class="text-3xl mb-3">📱</div>
+        <h2 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+          Posty na Facebooka
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+          Generuj i zarządzaj postami FB na podstawie artykułów blogowych.
+          Podgląd, kopiowanie i regeneracja.
+        </p>
+      </a>
+
+      <a
+        href="/admin/analytics"
+        class="group block bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all"
+      >
+        <div class="text-3xl mb-3">📊</div>
+        <h2 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+          Analityka bloga
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+          Statystyki odwiedzin, scroll depth, sesje, kopiowania
+          i sugestie tematów AI.
+        </p>
+      </a>
+    </div>
+  </main>
+</Layout>

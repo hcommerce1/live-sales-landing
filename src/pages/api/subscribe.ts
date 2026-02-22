@@ -13,7 +13,7 @@
 
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
-import { createSubscriber, confirmSubscriber, findByEmail } from '@lib/analytics/subscribers';
+import { createSubscriber, confirmSubscriber, findByEmail, linkSubscriberToVisitor } from '@lib/analytics/subscribers';
 import { initSchema } from '@lib/analytics/schema';
 import { db } from '@lib/analytics/db';
 
@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse({ error: 'Zbyt wiele prób. Spróbuj za chwilę.' }, 429);
   }
 
-  let body: { email?: string; lang?: string; slug?: string };
+  let body: { email?: string; lang?: string; slug?: string; sid?: string };
   try {
     body = await request.json();
   } catch {
@@ -131,6 +131,13 @@ export const POST: APIRoute = async ({ request }) => {
   const token = crypto.randomUUID();
 
   await createSubscriber(email, lang, sourceSlug, token);
+
+  // Link subscriber to visitor hash (non-blocking)
+  if (body.sid) {
+    linkSubscriberToVisitor(email, body.sid).catch(err => {
+      console.error('[Subscribe] Visitor linking error:', err);
+    });
+  }
 
   // Send confirmation email
   const siteUrl = typeof import.meta !== 'undefined' && import.meta.env?.SITE_URL

@@ -5,7 +5,7 @@ import { Dialog, DialogPanel } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 const navigation = [
-  { name: 'Blog', href: '/pl/blog' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Jak to działa', href: '/#jak-to-dziala' },
   { name: 'Integracje', href: '/#integracje' },
   { name: 'Połączenia', href: '/#polaczenia' },

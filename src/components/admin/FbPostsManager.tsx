@@ -2,21 +2,142 @@
  * FB Posts Manager
  *
  * React island for /admin/fb-posts.
- * Handles: copy to clipboard, regenerate per post, preview display.
+ * Two sections:
+ *   1. Blog Post Selector — pick posts to generate FB content for
+ *   2. Generated Posts — existing FbPostCards with copy/regenerate
  */
 
 import { useState, useCallback } from 'react';
 import type { FbPostRecord } from '@lib/fbPostGenerator';
 
-interface Props {
-  initialPosts: FbPostRecord[];
+// ============================================================
+// Types
+// ============================================================
+
+interface BlogPostMeta {
+  slug: string;
+  lang: 'pl' | 'en';
+  title: string;
+  description: string;
+  pubDate: string;
+  category: string;
+  tags: string[];
 }
 
-export default function FbPostsManager({ initialPosts }: Props) {
+type GenerationStatus = 'idle' | 'generating' | 'done' | 'error';
+
+interface GenerationProgress {
+  slug: string;
+  status: GenerationStatus;
+  error?: string;
+}
+
+interface Props {
+  initialPosts: FbPostRecord[];
+  availableBlogPosts: BlogPostMeta[];
+}
+
+// ============================================================
+// Main Component
+// ============================================================
+
+export default function FbPostsManager({ initialPosts, availableBlogPosts }: Props) {
   const [posts, setPosts] = useState<FbPostRecord[]>(initialPosts);
   const [regenerating, setRegenerating] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Generation state
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState<GenerationProgress[]>([]);
+
+  const generatedSlugs = new Set(posts.map(p => p.slug));
+
+  // ---- Selection handlers ----
+
+  const toggleSelect = (slug: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelected(new Set(availableBlogPosts.map(p => p.slug)));
+  };
+
+  const selectUngenerated = () => {
+    setSelected(
+      new Set(availableBlogPosts.filter(p => !generatedSlugs.has(p.slug)).map(p => p.slug))
+    );
+  };
+
+  const clearSelection = () => setSelected(new Set());
+
+  // ---- Batch generation ----
+
+  const handleBatchGenerate = async () => {
+    if (selected.size === 0) return;
+
+    setIsGenerating(true);
+    setError(null);
+
+    const selectedPosts = availableBlogPosts.filter(p => selected.has(p.slug));
+    setProgress(selectedPosts.map(p => ({ slug: p.slug, status: 'idle' as const })));
+
+    for (let i = 0; i < selectedPosts.length; i++) {
+      const post = selectedPosts[i];
+
+      setProgress(prev =>
+        prev.map(p => (p.slug === post.slug ? { ...p, status: 'generating' as const } : p))
+      );
+
+      try {
+        const res = await fetch('/api/generate-fb-post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: post.slug, lang: post.lang }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({ error: res.statusText }));
+          throw new Error(body.error ?? res.statusText);
+        }
+
+        const record: FbPostRecord = await res.json();
+
+        setPosts(prev => {
+          const exists = prev.some(p => p.slug === record.slug);
+          if (exists) return prev.map(p => (p.slug === record.slug ? record : p));
+          return [record, ...prev];
+        });
+
+        setProgress(prev =>
+          prev.map(p => (p.slug === post.slug ? { ...p, status: 'done' as const } : p))
+        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setProgress(prev =>
+          prev.map(p =>
+            p.slug === post.slug ? { ...p, status: 'error' as const, error: msg } : p
+          )
+        );
+      }
+
+      // Rate-limit delay between requests
+      if (i < selectedPosts.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    setIsGenerating(false);
+    setSelected(new Set());
+  };
+
+  // ---- Copy & Regenerate (existing) ----
 
   const handleCopy = useCallback(async (post: FbPostRecord) => {
     try {
@@ -52,7 +173,22 @@ export default function FbPostsManager({ initialPosts }: Props) {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* === SECTION 1: Blog Post Selector === */}
+      <BlogPostSelector
+        blogPosts={availableBlogPosts}
+        generatedSlugs={generatedSlugs}
+        selected={selected}
+        onToggle={toggleSelect}
+        onSelectAll={selectAll}
+        onSelectUngenerated={selectUngenerated}
+        onClear={clearSelection}
+        onGenerate={handleBatchGenerate}
+        isGenerating={isGenerating}
+        progress={progress}
+      />
+
+      {/* === Error banner === */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
           <span>⚠️</span>
@@ -66,27 +202,187 @@ export default function FbPostsManager({ initialPosts }: Props) {
         </div>
       )}
 
-      {posts.length === 0 && (
-        <div className="text-center py-20 text-gray-400">
-          <div className="text-5xl mb-4">📭</div>
-          <p className="text-lg font-medium mb-2">Brak wygenerowanych postów</p>
-          <p className="text-sm mb-4">Uruchom skrypt generowania:</p>
-          <code className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-mono">
-            npm run generate:fb-posts:pl
-          </code>
+      {/* === SECTION 2: Generated Posts === */}
+      {posts.length > 0 && (
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Wygenerowane posty ({posts.length})
+          </h2>
+          <div className="space-y-6">
+            {posts.map(post => (
+              <FbPostCard
+                key={post.slug}
+                post={post}
+                isCopied={copied === post.slug}
+                isRegenerating={regenerating === post.slug}
+                onCopy={handleCopy}
+                onRegenerate={handleRegenerate}
+              />
+            ))}
+          </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {posts.map(post => (
-        <FbPostCard
-          key={post.slug}
-          post={post}
-          isCopied={copied === post.slug}
-          isRegenerating={regenerating === post.slug}
-          onCopy={handleCopy}
-          onRegenerate={handleRegenerate}
-        />
-      ))}
+// ============================================================
+// BlogPostSelector
+// ============================================================
+
+interface SelectorProps {
+  blogPosts: BlogPostMeta[];
+  generatedSlugs: Set<string>;
+  selected: Set<string>;
+  onToggle: (slug: string) => void;
+  onSelectAll: () => void;
+  onSelectUngenerated: () => void;
+  onClear: () => void;
+  onGenerate: () => void;
+  isGenerating: boolean;
+  progress: GenerationProgress[];
+}
+
+function BlogPostSelector({
+  blogPosts,
+  generatedSlugs,
+  selected,
+  onToggle,
+  onSelectAll,
+  onSelectUngenerated,
+  onClear,
+  onGenerate,
+  isGenerating,
+  progress,
+}: SelectorProps) {
+  const ungeneratedCount = blogPosts.filter(p => !generatedSlugs.has(p.slug)).length;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 bg-gray-50 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Generuj posty FB</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Wybierz artykuły do wygenerowania postów
+              {ungeneratedCount > 0 && (
+                <span className="text-orange-500"> · {ungeneratedCount} bez posta</span>
+              )}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <button
+              onClick={onSelectAll}
+              disabled={isGenerating}
+              className="text-blue-600 hover:underline disabled:opacity-40"
+            >
+              Wszystkie
+            </button>
+            <span className="text-gray-300">|</span>
+            <button
+              onClick={onSelectUngenerated}
+              disabled={isGenerating}
+              className="text-blue-600 hover:underline disabled:opacity-40"
+            >
+              Tylko nowe
+            </button>
+            <span className="text-gray-300">|</span>
+            <button
+              onClick={onClear}
+              disabled={isGenerating}
+              className="text-gray-400 hover:underline disabled:opacity-40"
+            >
+              Odznacz
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Blog post list with checkboxes */}
+      <div className="divide-y divide-gray-100">
+        {blogPosts.map(post => {
+          const isGenerated = generatedSlugs.has(post.slug);
+          const isSelected = selected.has(post.slug);
+          const postProgress = progress.find(p => p.slug === post.slug);
+
+          return (
+            <label
+              key={`${post.lang}-${post.slug}`}
+              className={`flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                isSelected ? 'bg-blue-50/50' : ''
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onToggle(post.slug)}
+                disabled={isGenerating}
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-gray-800 truncate">
+                    {post.title}
+                  </span>
+                  <span className="shrink-0 text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                    {post.lang.toUpperCase()}
+                  </span>
+                  {isGenerated && (
+                    <span className="shrink-0 text-[10px] font-medium text-green-600 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
+                      wygenerowany
+                    </span>
+                  )}
+                </div>
+                {post.description && (
+                  <p className="text-xs text-gray-400 truncate mt-0.5">{post.description}</p>
+                )}
+              </div>
+
+              {/* Progress indicator */}
+              {postProgress && (
+                <div className="shrink-0">
+                  {postProgress.status === 'generating' && (
+                    <span className="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {postProgress.status === 'done' && (
+                    <span className="text-green-500 text-sm font-bold">✓</span>
+                  )}
+                  {postProgress.status === 'error' && (
+                    <span
+                      className="text-red-500 text-sm font-bold cursor-help"
+                      title={postProgress.error}
+                    >
+                      ✕
+                    </span>
+                  )}
+                </div>
+              )}
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Generate button */}
+      <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-sm text-gray-500">
+          {selected.size > 0 ? `Wybrano: ${selected.size}` : 'Zaznacz artykuły do generowania'}
+        </span>
+        <button
+          onClick={onGenerate}
+          disabled={selected.size === 0 || isGenerating}
+          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {isGenerating ? (
+            <>
+              <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Generuję...
+            </>
+          ) : (
+            <>Generuj{selected.size > 0 ? ` (${selected.size})` : ''}</>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

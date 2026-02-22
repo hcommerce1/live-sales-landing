@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { StatCard, Section, EmptyState, LoadingSkeleton } from './shared';
+import BlogImprovements from './BlogImprovements';
 
 interface BlogDetailData {
   overview: {
@@ -20,6 +21,8 @@ interface BlogDetailData {
     copies: number;
     interactions: number;
     findInPageSearches: number;
+    readRate: number;
+    subscriptions: number;
   } | null;
   pageviewsByDay: Array<{ day: string; views: number; uniqueVisitors: number }>;
   scrollHeatmap: Array<{ segment: string; position: number; avgDwellTime: number }>;
@@ -98,6 +101,8 @@ export default function BlogDetailView({ slug, days, onBack }: Props) {
           <StatCard label="Unikalni" value={o.uniqueVisitors} />
           <StatCard label="Śr. scroll depth" value={`${o.avgScrollDepth}%`} />
           <StatCard label="Śr. czas" value={formatTime(o.avgTime)} />
+          <StatCard label="% czytelników" value={`${o.readRate}%`} />
+          <StatCard label="Subskrypcje" value={o.subscriptions} />
           <StatCard label="Kopie (Ctrl+C)" value={o.copies} />
           <StatCard label="Interakcje" value={o.interactions} />
           <StatCard label="Ctrl+F szukania" value={o.findInPageSearches} />
@@ -208,6 +213,11 @@ export default function BlogDetailView({ slug, days, onBack }: Props) {
         ) : (
           <EmptyState />
         )}
+      </Section>
+
+      {/* AI Improvement Suggestions */}
+      <Section title="Sugestie ulepszeń (AI)">
+        <BlogImprovements slug={slug} days={days} />
       </Section>
     </div>
   );

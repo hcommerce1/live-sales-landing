@@ -55,6 +55,37 @@ const TABLES = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_search_created ON search_queries (created_at)`,
 
+  // Click heatmap index
+  `CREATE INDEX IF NOT EXISTS idx_events_click ON analytics_events (event_type, slug, created_at) WHERE event_type = 'click'`,
+
+  // Subscriber-visitor linking
+  `CREATE TABLE IF NOT EXISTS subscriber_visitors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subscriber_id INTEGER NOT NULL,
+    visitor_hash TEXT NOT NULL,
+    linked_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(subscriber_id, visitor_hash)
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_sub_vis_subscriber ON subscriber_visitors (subscriber_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_sub_vis_visitor ON subscriber_visitors (visitor_hash)`,
+
+  // Subscriber groups (for aggregate profiling)
+  `CREATE TABLE IF NOT EXISTS subscriber_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    criteria TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  )`,
+
+  // Group membership
+  `CREATE TABLE IF NOT EXISTS subscriber_group_members (
+    subscriber_id INTEGER NOT NULL,
+    group_id INTEGER NOT NULL,
+    added_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (subscriber_id, group_id)
+  )`,
+
   // Audio cache
   `CREATE TABLE IF NOT EXISTS audio_cache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

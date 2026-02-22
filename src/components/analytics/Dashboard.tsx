@@ -18,10 +18,12 @@ import SessionList from './SessionList';
 import SessionDrawer from './SessionDrawer';
 import BlogAnalytics from './BlogAnalytics';
 import TopicGenerator from './TopicGenerator';
+import ClickHeatmap from './ClickHeatmap';
+import SubscriberProfiles from './SubscriberProfiles';
 import { StatCard, Section, EmptyState, LoadingSkeleton } from './shared';
 
 type DateRange = 7 | 30 | 90;
-type Tab = 'overview' | 'blog' | 'topics';
+type Tab = 'overview' | 'blog' | 'topics' | 'subscribers';
 
 interface DashboardData {
   overview: {
@@ -35,6 +37,7 @@ interface DashboardData {
     slug: string; pageviews: number; uniqueVisitors: number;
     avgDepth: number; avgTime: number; copies: number;
     interactions: number; returnVisits: number;
+    readRate: number; subscriptions: number;
   }>;
   scrollHeatmap: Array<{ segment: string; position: number; avgDwellTime: number }>;
   copyLog: Array<{ slug: string; text: string; count: number; lastCopied: string }>;
@@ -159,6 +162,7 @@ export default function Dashboard() {
               { key: 'overview' as Tab, label: 'Przegląd' },
               { key: 'blog' as Tab, label: 'Artykuły' },
               { key: 'topics' as Tab, label: '✦ Tematy AI' },
+              { key: 'subscribers' as Tab, label: 'Subskrybenci' },
             ]
           ).map(tab => (
             <button
@@ -261,6 +265,10 @@ export default function Dashboard() {
                 </BarChart>
               </ResponsiveContainer>
             ) : <EmptyState />}
+          </Section>
+
+          <Section title="Heatmapa kliknięć">
+            <ClickHeatmap days={days} />
           </Section>
 
           <Section title="Co kopiują użytkownicy">
@@ -414,6 +422,11 @@ export default function Dashboard() {
           hasEnoughData={hasEnoughData}
           currentPageviews={o?.pageviews || 0}
         />
+      )}
+
+      {/* ===== SUBSKRYBENCI ===== */}
+      {activeTab === 'subscribers' && (
+        <SubscriberProfiles days={days} />
       )}
     </div>
   );

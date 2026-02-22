@@ -3,19 +3,74 @@
  * Facebook Posts Admin Page
  *
  * SSR page at /admin/fb-posts.
- * Lists all generated FB posts with preview, copy, and regenerate.
- *
- * Generate posts first:  npm run generate:fb-posts:pl
+ * Lists all blog posts with selective FB post generation,
+ * plus existing generated posts with preview/copy/regenerate.
  */
 
 import Layout from '@/layouts/Layout.astro';
 import FbPostsManager from '@/components/admin/FbPostsManager';
 import { loadFbPosts } from '@lib/fbPostGenerator';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
+import matter from 'gray-matter';
 
 export const prerender = false;
 
+// Load already-generated FB posts
 const posts = loadFbPosts();
-const postsLabel = posts.length === 1 ? 'wygenerowany post' : posts.length >= 2 && posts.length <= 4 ? 'wygenerowane posty' : 'wygenerowanych postów';
+
+// Load all available blog posts metadata
+interface BlogPostMeta {
+  slug: string;
+  lang: 'pl' | 'en';
+  title: string;
+  description: string;
+  pubDate: string;
+  category: string;
+  tags: string[];
+}
+
+function loadBlogPostsMeta(): BlogPostMeta[] {
+  const contentDir = join(process.cwd(), 'src', 'content', 'blog');
+  const results: BlogPostMeta[] = [];
+
+  for (const lang of ['pl', 'en'] as const) {
+    const langDir = join(contentDir, lang);
+    let files: string[];
+    try {
+      files = readdirSync(langDir).filter(f => f.endsWith('.mdx'));
+    } catch {
+      continue;
+    }
+
+    for (const file of files) {
+      const slug = file.replace('.mdx', '');
+      const raw = readFileSync(join(langDir, file), 'utf-8');
+      const { data } = matter(raw);
+
+      if (data.draft === true) continue;
+
+      results.push({
+        slug,
+        lang,
+        title: data.title ?? slug,
+        description: data.description ?? '',
+        pubDate: data.pubDate ? new Date(data.pubDate).toISOString() : '',
+        category: data.category ?? 'guide',
+        tags: data.tags ?? [],
+      });
+    }
+  }
+
+  return results.sort((a, b) => b.pubDate.localeCompare(a.pubDate));
+}
+
+const blogPosts = loadBlogPostsMeta();
+const postsLabel = posts.length === 1
+  ? 'wygenerowany post'
+  : posts.length >= 2 && posts.length <= 4
+    ? 'wygenerowane posty'
+    : 'wygenerowanych postów';
 ---
 
 <Layout title="FB Posts Admin" lang="pl">
@@ -24,17 +79,19 @@ const postsLabel = posts.length === 1 ? 'wygenerowany post' : posts.length >= 2 
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Posty na Facebooka</h1>
         <p class="text-gray-500 mt-1">
-          {posts.length} {postsLabel}
+          {posts.length} {postsLabel} · {blogPosts.length} artykułów
+          &nbsp;·&nbsp;
+          <a href="/admin" class="text-blue-600 hover:underline">Dashboard</a>
           &nbsp;·&nbsp;
           <a href="/admin/analytics" class="text-blue-600 hover:underline">Analityka</a>
         </p>
       </div>
-      <div class="text-sm text-gray-400 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2">
-        <span class="text-gray-500 font-medium">Generuj:</span>
-        <code class="ml-1 text-gray-700 font-mono">npm run generate:fb-posts:pl</code>
-      </div>
     </div>
 
-    <FbPostsManager initialPosts={posts} client:load />
+    <FbPostsManager
+      initialPosts={posts}
+      availableBlogPosts={blogPosts}
+      client:load
+    />
   </main>
 </Layout>

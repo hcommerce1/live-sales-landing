@@ -54,10 +54,14 @@ export default function BlogSubscribe({ slug, lang = 'pl' }: BlogSubscribeProps)
     setStatus('loading');
 
     try {
+      // Include session ID for subscriber-visitor linking
+      let sid = '';
+      try { sid = sessionStorage.getItem('ls_sid') || ''; } catch { /* ignore */ }
+
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), lang, slug }),
+        body: JSON.stringify({ email: email.trim(), lang, slug, sid }),
       });
 
       const data = await res.json();

@@ -185,7 +185,36 @@ const { slug, lang = 'pl' } = Astro.props;
     }
   }, true);
 
-  // === 7. CTRL+K → SEARCH OVERLAY ===
+  // === 7. CLICK POSITION TRACKING (for heatmap) ===
+  var lastClickTs = 0;
+  document.addEventListener('click', function(e) {
+    if (Date.now() - lastClickTs < 1000) return; // Throttle: max 1/sec
+    lastClickTs = Date.now();
+
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var docHeight = document.documentElement.scrollHeight;
+
+    var xPct = Math.round((e.clientX / vw) * 10000) / 100;
+    var yPct = Math.round((e.clientY / vh) * 10000) / 100;
+    var yPagePct = Math.round((e.pageY / docHeight) * 10000) / 100;
+
+    var el = e.target;
+    var tagName = (el.tagName || '').toLowerCase();
+    var elText = (el.textContent || '').trim().slice(0, 50);
+
+    track('click', {
+      x: xPct,
+      y: yPct,
+      yPage: yPagePct,
+      vw: vw,
+      vh: vh,
+      tag: tagName,
+      text: elText,
+    });
+  });
+
+  // === 8. CTRL+K → SEARCH OVERLAY ===
   document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
@@ -194,7 +223,7 @@ const { slug, lang = 'pl' } = Astro.props;
     }
   });
 
-  // === 8. FINAL FLUSH (beforeunload + pagehide) ===
+  // === 9. FINAL FLUSH (beforeunload + pagehide) ===
   var hasFlushed = false;
 
   function finalFlush() {

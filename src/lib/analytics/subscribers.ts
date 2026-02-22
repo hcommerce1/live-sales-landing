@@ -112,3 +112,32 @@ export async function unsubscribe(token: string): Promise<boolean> {
 
   return (result.rowsAffected ?? 0) > 0;
 }
+
+/**
+ * Link a subscriber to their visitor_hash via session ID.
+ * Called during subscription to enable subscriber behavior tracking.
+ */
+export async function linkSubscriberToVisitor(email: string, sessionId: string): Promise<void> {
+  if (!db || !sessionId) return;
+
+  // Find subscriber
+  const subscriber = await findByEmail(email);
+  if (!subscriber) return;
+
+  // Find visitor_hash from this session's analytics events
+  const result = await db.execute({
+    sql: `SELECT DISTINCT visitor_hash FROM analytics_events
+          WHERE session_id = ? LIMIT 1`,
+    args: [sessionId],
+  });
+
+  if (result.rows.length === 0) return;
+
+  const visitorHash = result.rows[0].visitor_hash as string;
+
+  await db.execute({
+    sql: `INSERT OR IGNORE INTO subscriber_visitors (subscriber_id, visitor_hash)
+          VALUES (?, ?)`,
+    args: [subscriber.id, visitorHash],
+  });
+}

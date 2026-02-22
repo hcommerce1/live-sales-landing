@@ -14,12 +14,13 @@ export type EventType =
   | 'return_visit'
   | 'interaction'
   | 'subscribe'
-  | 'find_in_page';
+  | 'find_in_page'
+  | 'click';
 
 export const VALID_EVENT_TYPES: ReadonlySet<string> = new Set<EventType>([
   'pageview', 'copy', 'scroll_dwell', 'quit', 'search',
   'search_click', 'search_overlay', 'cta_click', 'return_visit',
-  'interaction', 'subscribe', 'find_in_page',
+  'interaction', 'subscribe', 'find_in_page', 'click',
 ]);
 
 export interface AnalyticsEvent {
