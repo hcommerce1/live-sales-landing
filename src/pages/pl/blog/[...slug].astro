@@ -58,14 +58,10 @@ if (post.data.ogImage) {
   description={post.data.description}
   lang={post.data.lang}
   slug={post.slug}
+  ogImage={post.data.ogImage}
 >
   <!-- Schema.org JSON-LD -->
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-
-  <!-- OG Image if exists -->
-  {post.data.ogImage && (
-    <meta property="og:image" content={post.data.ogImage} slot="head" />
-  )}
 
   <Navbar client:load />
 

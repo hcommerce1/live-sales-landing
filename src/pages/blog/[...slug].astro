@@ -32,12 +32,10 @@ const readingTime = getReadingTime(post.body);
   description={post.data.description}
   lang={post.data.lang}
   slug={post.slug}
+  ogImage={post.data.heroImage}
 >
-  <!-- OpenGraph Meta Tags -->
+  <!-- OpenGraph Article Meta Tags -->
   <meta property="og:type" content="article" slot="head" />
-  <meta property="og:title" content={post.data.title} slot="head" />
-  <meta property="og:description" content={post.data.description} slot="head" />
-  {post.data.heroImage && <meta property="og:image" content={post.data.heroImage} slot="head" />}
   <meta property="article:published_time" content={post.data.pubDate.toISOString()} slot="head" />
   {post.data.author?.name && <meta property="article:author" content={post.data.author.name} slot="head" />}
 

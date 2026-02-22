@@ -498,6 +498,176 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
   };
 }
 
+// =============================================================
+// Per-Blog Analytics
+// =============================================================
+
+// --- Post Overview Stats (for a single slug) ---
+
+export async function getPostOverviewStats(days: number, slug: string) {
+  if (!db) return null;
+
+  const since = sinceDate(days);
+
+  const [pageviews, uniqueVisitors, avgQuitDepth, avgTime, copies, interactions, findInPageCount] =
+    await Promise.all([
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'pageview' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(DISTINCT visitor_hash) as count FROM analytics_events WHERE event_type = 'pageview' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT AVG(json_extract(metadata, '$.depth')) as avg_depth FROM analytics_events WHERE event_type = 'quit' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT AVG(json_extract(metadata, '$.timeSpent')) as avg_time FROM analytics_events WHERE event_type = 'quit' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'copy' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'interaction' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+      db.execute({
+        sql: `SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'find_in_page' AND slug = ? AND created_at >= ?`,
+        args: [slug, since],
+      }),
+    ]);
+
+  return {
+    pageviews: pageviews.rows[0]?.count as number || 0,
+    uniqueVisitors: uniqueVisitors.rows[0]?.count as number || 0,
+    avgScrollDepth: Math.round(avgQuitDepth.rows[0]?.avg_depth as number || 0),
+    avgTime: Math.round(avgTime.rows[0]?.avg_time as number || 0),
+    copies: copies.rows[0]?.count as number || 0,
+    interactions: interactions.rows[0]?.count as number || 0,
+    findInPageSearches: findInPageCount.rows[0]?.count as number || 0,
+  };
+}
+
+// --- Pageviews Over Time for a single slug ---
+
+export async function getPageviewsByDayForSlug(days: number, slug: string) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT date(created_at) as day, COUNT(*) as views, COUNT(DISTINCT visitor_hash) as unique_visitors
+          FROM analytics_events
+          WHERE event_type = 'pageview' AND slug = ? AND created_at >= ?
+          GROUP BY day ORDER BY day`,
+    args: [slug, since],
+  });
+
+  return result.rows.map(r => ({
+    day: r.day as string,
+    views: r.views as number,
+    uniqueVisitors: r.unique_visitors as number,
+  }));
+}
+
+// --- Copy Log for a single slug ---
+
+export async function getCopyLogForSlug(days: number, slug: string, limit: number = 50) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT json_extract(metadata, '$.text') as copied_text, COUNT(*) as count, MAX(created_at) as last_copied
+          FROM analytics_events
+          WHERE event_type = 'copy' AND slug = ? AND created_at >= ?
+          GROUP BY copied_text
+          ORDER BY count DESC
+          LIMIT ?`,
+    args: [slug, since, limit],
+  });
+
+  return result.rows.map(r => ({
+    text: r.copied_text as string,
+    count: r.count as number,
+    lastCopied: r.last_copied as string,
+  }));
+}
+
+// --- Find-in-Page Log for a single slug ---
+
+export async function getFindInPageForSlug(days: number, slug: string, limit: number = 30) {
+  if (!db) return [];
+
+  const since = sinceDate(days);
+
+  const result = await db.execute({
+    sql: `SELECT
+            json_extract(metadata, '$.query') as query,
+            COUNT(*) as count,
+            AVG(json_extract(metadata, '$.matchCount')) as avg_matches,
+            AVG(json_extract(metadata, '$.navigatedTo')) as avg_navigated,
+            AVG(json_extract(metadata, '$.durationMs')) as avg_duration_ms,
+            MAX(created_at) as last_searched
+          FROM analytics_events
+          WHERE event_type = 'find_in_page' AND slug = ? AND created_at >= ?
+          GROUP BY query
+          ORDER BY count DESC
+          LIMIT ?`,
+    args: [slug, since, limit],
+  });
+
+  return result.rows.map(r => ({
+    query: r.query as string,
+    count: r.count as number,
+    avgMatches: Math.round(r.avg_matches as number || 0),
+    avgNavigated: Math.round((r.avg_navigated as number || 0) * 10) / 10,
+    avgDurationMs: Math.round(r.avg_duration_ms as number || 0),
+    lastSearched: r.last_searched as string,
+  }));
+}
+
+// =============================================================
+// AI Topic Generation — gathers all signals in one call
+// =============================================================
+
+export async function getAnalyticsDataForTopicGeneration(days: number) {
+  if (!db) return null;
+
+  const since = sinceDate(days);
+
+  const [postRankings, searchQueries, findInPage, copyLog, topInteractions] = await Promise.all([
+    getPostRankings(days),
+    getTopSearchQueries(days, 50),
+    getFindInPageLog(days, 50),
+    getCopyLog(days, 50),
+    db.execute({
+      sql: `SELECT slug, COUNT(*) as count FROM analytics_events
+            WHERE event_type = 'interaction' AND created_at >= ?
+            GROUP BY slug ORDER BY count DESC LIMIT 20`,
+      args: [since],
+    }),
+  ]);
+
+  const totalPageviews = postRankings.reduce((sum, p) => sum + p.pageviews, 0);
+
+  return {
+    postRankings: postRankings.slice(0, 20),
+    searchQueries: searchQueries.slice(0, 30),
+    findInPage: findInPage.slice(0, 30),
+    copyLog: copyLog.slice(0, 30),
+    topInteractions: topInteractions.rows.map(r => ({
+      slug: r.slug as string,
+      count: r.count as number,
+    })),
+    totalPageviews,
+  };
+}
+
 // --- Visitor History (all sessions by same visitor_hash) ---
 
 async function getVisitorHistory(visitorHash: string, currentSessionId: string): Promise<VisitorHistory> {

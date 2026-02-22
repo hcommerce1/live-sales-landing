@@ -15,6 +15,7 @@ import { loadFbPosts } from '@lib/fbPostGenerator';
 export const prerender = false;
 
 const posts = loadFbPosts();
+const postsLabel = posts.length === 1 ? 'wygenerowany post' : posts.length >= 2 && posts.length <= 4 ? 'wygenerowane posty' : 'wygenerowanych postów';
 ---
 
 <Layout title="FB Posts Admin" lang="pl">
@@ -23,7 +24,7 @@ const posts = loadFbPosts();
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Posty na Facebooka</h1>
         <p class="text-gray-500 mt-1">
-          {posts.length} {posts.length === 1 ? 'wygenerowany post' : posts.length >= 2 && posts.length <= 4 ? 'wygenerowane posty' : 'wygenerowanych postów'}
+          {posts.length} {postsLabel}
           &nbsp;·&nbsp;
           <a href="/admin/analytics" class="text-blue-600 hover:underline">Analityka</a>
         </p>

@@ -1,0 +1,65 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#3730a3"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.04"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" stroke-width="0.4" stroke-opacity="0.08"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="1050" cy="100" r="200" fill="white" fill-opacity="0.04"/>
+  <circle cx="1100" cy="560" r="150" fill="white" fill-opacity="0.04"/>
+  <circle cx="80" cy="500" r="120" fill="white" fill-opacity="0.04"/>
+
+  <!-- Card background -->
+  <rect x="80" y="80" width="1040" height="470" rx="24" fill="url(#card)" stroke="white" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- Logo area -->
+  <rect x="120" y="130" width="52" height="52" rx="14" fill="#3b82f6"/>
+  <text x="146" y="165" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle">L</text>
+
+  <!-- Brand name -->
+  <text x="190" y="168" font-family="Arial Black, Arial, sans-serif" font-size="32" font-weight="900" fill="white" letter-spacing="-0.5">LiveSales</text>
+
+  <!-- Divider -->
+  <line x1="120" y1="220" x2="1080" y2="220" stroke="white" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- Main headline -->
+  <text x="120" y="310" font-family="Arial Black, Arial, sans-serif" font-size="56" font-weight="900" fill="white" letter-spacing="-1">Analiza i automatyzacja</text>
+  <text x="120" y="378" font-family="Arial Black, Arial, sans-serif" font-size="56" font-weight="900" fill="white" letter-spacing="-1">danych sprzedażowych</text>
+
+  <!-- Subheading -->
+  <text x="120" y="440" font-family="Arial, sans-serif" font-size="26" fill="white" fill-opacity="0.75">Dashboardy · Eksporty · Alerty · Integracje</text>
+
+  <!-- CTA pill -->
+  <rect x="120" y="472" width="240" height="50" rx="25" fill="#3b82f6"/>
+  <text x="240" y="503" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">live-sales.pl</text>
+
+  <!-- Right side decorative element - chart bars -->
+  <rect x="820" y="280" width="40" height="160" rx="6" fill="white" fill-opacity="0.15"/>
+  <rect x="874" y="230" width="40" height="210" rx="6" fill="white" fill-opacity="0.25"/>
+  <rect x="928" y="310" width="40" height="130" rx="6" fill="white" fill-opacity="0.15"/>
+  <rect x="982" y="260" width="40" height="180" rx="6" fill="#60a5fa" fill-opacity="0.8"/>
+  <rect x="1036" y="200" width="40" height="240" rx="6" fill="#93c5fd" fill-opacity="0.9"/>
+
+  <!-- Chart line -->
+  <polyline points="820,380 874,320 928,350 982,290 1036,240" fill="none" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="820" cy="380" r="5" fill="#7dd3fc"/>
+  <circle cx="874" cy="320" r="5" fill="#7dd3fc"/>
+  <circle cx="928" cy="350" r="5" fill="#7dd3fc"/>
+  <circle cx="982" cy="290" r="5" fill="#7dd3fc"/>
+  <circle cx="1036" cy="240" r="7" fill="white"/>
+</svg>

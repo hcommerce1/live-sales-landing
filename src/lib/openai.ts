@@ -134,6 +134,136 @@ Format: 1. zdanie\n2. zdanie`
   }
 }
 
+// =============================================================
+// Blog Topic Suggestions (GPT-4o)
+// =============================================================
+
+export interface TopicSuggestion {
+  title: string;
+  description: string;
+  reasoning: string;
+  dataSignals: string[];
+  estimatedDifficulty: 'low' | 'medium' | 'high';
+  suggestedCategory: 'tutorial' | 'case-study' | 'guide' | 'announcement';
+}
+
+interface AnalyticsSignals {
+  postRankings: Array<{
+    slug: string; pageviews: number; uniqueVisitors: number;
+    avgDepth: number; avgTime: number; copies: number;
+    interactions: number; returnVisits: number;
+  }>;
+  searchQueries: Array<{ query: string; count: number; avgResults: number; clicks: number; ctr: number }>;
+  findInPage: Array<{ query: string; slug: string; count: number }>;
+  copyLog: Array<{ slug: string; text: string; count: number }>;
+  topInteractions: Array<{ slug: string; count: number }>;
+  totalPageviews: number;
+}
+
+function buildTopicPrompt(data: AnalyticsSignals): string {
+  const sections: string[] = [];
+
+  if (data.postRankings.length > 0) {
+    sections.push(
+      '## Ranking artykułów (pageviews)\n' +
+        data.postRankings
+          .map(
+            p =>
+              `- ${p.slug}: ${p.pageviews} pv, ${p.uniqueVisitors} uniq, scroll ${p.avgDepth}%, czas ${p.avgTime}s, ${p.copies} kopii, ${p.returnVisits} powrotów`,
+          )
+          .join('\n'),
+    );
+  }
+
+  if (data.searchQueries.length > 0) {
+    sections.push(
+      '## Wyszukiwania na stronie\n' +
+        data.searchQueries
+          .map(q => `- "${q.query}": ${q.count}x, CTR ${q.ctr}%, śr. wyników: ${q.avgResults}`)
+          .join('\n'),
+    );
+  }
+
+  if (data.findInPage.length > 0) {
+    sections.push(
+      '## Ctrl+F — czego szukają w artykułach\n' +
+        data.findInPage.map(f => `- "${f.query}" w ${f.slug}: ${f.count}x`).join('\n'),
+    );
+  }
+
+  if (data.copyLog.length > 0) {
+    sections.push(
+      '## Najczęściej kopiowane fragmenty\n' +
+        data.copyLog
+          .map(c => `- [${c.slug}] "${(c.text || '').slice(0, 120)}": ${c.count}x`)
+          .join('\n'),
+    );
+  }
+
+  return sections.join('\n\n');
+}
+
+/**
+ * Generate blog topic suggestions using GPT-4o based on analytics data.
+ */
+export async function generateBlogTopicSuggestions(
+  data: AnalyticsSignals,
+): Promise<TopicSuggestion[]> {
+  const prompt = buildTopicPrompt(data);
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    temperature: 0.7,
+    max_tokens: 2500,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `Jesteś strategicznym konsultantem content marketingu dla bloga o e-commerce, automatyzacji danych i narzędziach AI dla sprzedawców online.
+
+Na podstawie danych analitycznych zaproponuj tematy na nowe artykuły blogowe.
+
+ZASADY ANALIZY:
+- Wyszukiwania z niskim CTR = niezaspokojone potrzeby → okazja na nowy artykuł
+- Ctrl+F szukania wewnątrz artykułów = czego brakuje w istniejących treściach
+- Kopiowane fragmenty = tematy o wysokiej wartości dla czytelnika
+- Popularne artykuły (wysokie powroty) = tematy warte rozwinięcia/spin-offów
+- Zapytania bez wyników = potencjalne nowe tematy
+
+ODPOWIEDZ WYŁĄCZNIE poprawnym JSON:
+{
+  "suggestions": [
+    {
+      "title": "Tytuł artykułu po polsku",
+      "description": "2-3 zdania o czym będzie artykuł i co czytelnik z niego wyniesie",
+      "reasoning": "Dlaczego ten temat? Jakie dane to potwierdzają?",
+      "dataSignals": ["konkretny sygnał z danych", "drugi sygnał"],
+      "estimatedDifficulty": "low|medium|high",
+      "suggestedCategory": "tutorial|case-study|guide|announcement"
+    }
+  ]
+}
+
+Zaproponuj 6-8 tematów posortowanych od najbardziej obiecujących. Tematy muszą być konkretne i praktyczne.`,
+      },
+      {
+        role: 'user',
+        content: `Dane analityczne z ostatniego okresu (${data.totalPageviews} pageviews łącznie):\n\n${prompt}`,
+      },
+    ],
+  });
+
+  const text = response.choices[0]?.message?.content || '{}';
+  let parsed: { suggestions?: TopicSuggestion[] };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error('Nieprawidłowa odpowiedź z OpenAI');
+  }
+
+  return parsed.suggestions || [];
+}
+
 /**
  * Get estimated token count for text
  * Rough approximation: 1 token ≈ 4 characters
