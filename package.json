@@ -7,7 +7,10 @@
     "build": "tsx scripts/generate-embeddings-json.ts && astro build",
     "build:astro": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate:fb-posts": "tsx scripts/generate-fb-posts.ts --all",
+    "generate:fb-posts:pl": "tsx scripts/generate-fb-posts.ts --lang pl",
+    "generate:fb-posts:en": "tsx scripts/generate-fb-posts.ts --lang en"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
